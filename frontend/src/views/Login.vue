@@ -1,13 +1,20 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, computed } from 'vue'
     import { useRouter } from 'vue-router'
-
+    import { Icon } from "@iconify/vue";
 
     const router = useRouter()
     const username = ref('')
     const password = ref('')
 
+    const showPassword = ref(false)
+    const togglePasswordVisibility = () => {
+        showPassword.value = !showPassword.value
+    }
 
+    const goToRegister = () => {
+        router.push('/register')
+    }
 
 </script>
 
@@ -15,7 +22,6 @@
 <template>
     <div class="page-container">
         <div class="login-section">
-    
             <div class="login-form">
                 <h1>Sign In</h1>
                 <div class="form-group">
@@ -30,13 +36,20 @@
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        placeholder="Enter your password" 
-                        v-model="password"	
-                        required 
-                    />
+                    <div class="password-details">
+                        <input 
+                            :type="showPassword ? 'text' : 'password'" 
+                            id="password" 
+                            placeholder="Enter your password" 
+                            v-model="password"	
+                            required 
+                        />
+                        <Icon
+                            :icon="showPassword ? 'mdi:eye-off' : 'mdi:eye'"
+                            class="password-icon"
+                            @click="togglePasswordVisibility"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -81,6 +94,20 @@
 
     .form-group {
         margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .password-details {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .password-icon {
+        position: absolute;
+        right: 0.75rem;
+        cursor: pointer;
+        color: var(--text-light-gray);
     }
 
     label {

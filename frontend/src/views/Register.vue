@@ -1,8 +1,8 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, computed } from 'vue'
     import { useRouter } from 'vue-router'
     import axios from 'axios'
-
+    import { Icon } from "@iconify/vue";
 
     const router = useRouter()
     const username = ref('')
@@ -10,7 +10,76 @@
     const password = ref('')
     const confirmPassword = ref('')
 
+    const showPassword = ref(false)
+    const togglePasswordVisibility = () => {
+        showPassword.value = !showPassword.value
+    }
 
+    const showConfirmPassword = ref(false)
+    const toggleConfirmPasswordVisibility = () => {
+        showConfirmPassword.value = !showConfirmPassword.value
+    }
+
+    const goToLogin = () => {
+        router.push('/login')
+    }
+
+    const usernameError = computed(() => {
+        if (!username.value.trim()) return "Username is required"
+        if (username.value.length < 3) return "Username must be at least 3 characters"
+        return ""
+    })
+
+    const confirmPasswordError = computed(() => {
+        if (confirmPassword.value && confirmPassword.value !== password.value) {
+            return 'Passwords do not match'
+        }
+        return ''
+    })
+
+
+    const emailError = computed(() => {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!email.value.trim()) return "Email is required"
+        if (!emailPattern.test(email.value)) return "Please enter a valid email"
+        return ""
+    })
+
+    const formIsValid = computed(() => {
+        return (
+            !usernameError.value &&
+            !emailError.value &&
+            !passwordError.value &&
+            !confirmPasswordError.value
+        )
+    })
+
+    // so it doesnt instantly gives the error
+    const trackFieldsFirstUse = ref({
+        username: false,
+        email: false,
+        password: false,
+        confirmPassword: false
+    })
+
+    const markField = (field) => {
+        trackFieldsFirstUse.value[field] = true
+    }
+
+    const canShowError = (field) => {
+        return trackFieldsFirstUse.value[field]
+    }
+
+    const submit = async () => {
+        // so it shows errors if needed
+        for(const field in trackFieldsFirstUse.value) {
+            markField(field)
+        }
+
+        if (!formIsValid.value) return
+        
+
+    }
 
 
 </script>
@@ -28,8 +97,10 @@
                         type="text" 
                         id="username" 
                         v-model="username"	
+                        @blur="markField('username')"
                         required 
                     />
+                    <span v-if="canShowError('username') && usernameError" class="error-text">{{ usernameError }}</span>
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
@@ -37,30 +108,48 @@
                         type="text" 
                         id="email" 
                         v-model="email"	
+                        @blur="markField('email')"
                         required 
                     />
+                    <span v-if="canShowError('email') && emailError" class="error-text">{{ emailError }}</span>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        v-model="password"	
-                        required 
-                    />
+                    <div class="password-details">
+                        <input 
+                            :type="showPassword ? 'text' : 'password'" 
+                            id="password" 
+                            v-model="password"	
+                            @blur="markField('password')"
+                            required 
+                        />
+                        <Icon
+                            :icon="showPassword ? 'mdi:eye-off' : 'mdi:eye'"
+                            class="password-icon"
+                            @click="togglePasswordVisibility"
+                        />
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="confirm-password">Confirm Password</label>
-                    <input 
-                        type="text" 
-                        id="confirm-password" 
-                        v-model="confirmPassword"	
-                        required 
-                    />
+                    <div class="password-details">
+                        <input 
+                            :type="showConfirmPassword ? 'text' : 'password'" 
+                            id="confirm-password" 
+                            v-model="confirmPassword"	
+                            required 
+                        />
+                        <Icon
+                            :icon="showConfirmPassword ? 'mdi:eye-off' : 'mdi:eye'"
+                            class="password-icon"
+                            @click="toggleConfirmPasswordVisibility"
+                        />
+                    </div>
+                    <span v-if="confirmPasswordError" style="color: red;"> {{ confirmPasswordError }}</span>
                 </div>
             </div>
 
-            <button class="sign-up-btn" type="submit">Sign up</button>
+            <button class="sign-up-btn" type="submit" :disabled="!formIsValid">Sign up</button>
             <p class="sign-in-text">
                 Already have an account? <a href="#" @click.prevent="goToLogin">Sign in</a>
             </p>
@@ -83,7 +172,12 @@
         overflow: hidden;
         width: 100%;
     }
-
+    .error-text {
+    display: block;
+    color: #e74c3c;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+}
     .register-section {
         width: 100%;
         padding: 20px;
@@ -101,6 +195,20 @@
 
     .form-group {
         margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .password-details {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .password-icon {
+        position: absolute;
+        right: 0.75rem;
+        cursor: pointer;
+        color: var(--text-light-gray);
     }
 
     label {

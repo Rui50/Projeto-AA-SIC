@@ -53,7 +53,7 @@
                 </div>
             </div>
 
-            <button class="sign-in-btn" type="submit">Sign in</button>
+            <button class="sign-in-btn" type="submit" :disabled="!username || !password">Sign in</button>
             <p class="sign-up-text">
                 Don't have an account? <a href="#" @click.prevent="goToRegister">Sign up</a>
             </p>

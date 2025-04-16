@@ -1,0 +1,184 @@
+<script setup>
+    import { ref } from 'vue'
+    import { useRouter } from 'vue-router'
+
+    const router = useRouter()
+
+    const workout = ref({
+        title: 'Workout Title',
+        isActive: true,
+        madeBy: 'You',
+        duration: 45,
+        exercises: [
+            { name: 'Exercise 1', sets: 3 },
+            { name: 'Exercise 2', sets: 4 },
+            { name: 'Exercise 3', sets: 2 },
+            { name: 'Exercise 1', sets: 3 },
+            { name: 'Exercise 2', sets: 4 },
+            { name: 'Exercise 3', sets: 2 },
+            { name: 'Exercise 1', sets: 3 },
+            { name: 'Exercise 2', sets: 4 },
+            { name: 'Exercise 3', sets: 2 },
+
+        ],
+    })
+
+    // have to fix height in this page or navbar will overlap
+
+</script>
+
+<template>
+    <div class="workout-card">
+
+        <div class="workout-header"> <!-- :class="{ 'inactive: !isActive'}"-->
+            <h2 class="workout-title">
+                {{ workout.title }}
+            </h2>
+            <p class="workout-creator">
+                Created by: <span class="creator-name">{{ workout.madeBy }}</span>
+            </p>
+        </div>
+        
+        <div class="workout-content">
+            <div class="stat-item">
+                <div class="stat-value">{{ workout.duration }}</div>
+                <div class="stat-name">minutes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ workout.exercises.length }}</div>
+                <div class="stat-name">exercises</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value"> {{ 5 }}</div>
+                <div class="stat-name">sets</div>
+            </div>
+        </div>
+
+        <div class="exercise-list">
+            <div class="exercise-item" v-for="(exercise, index) in workout.exercises" :key="index">
+                <div class="exercise-name">{{ exercise.name }}</div>
+                <div class="exercise-sets">Sets: {{ exercise.sets }}</div>
+            </div>
+        </div>
+
+        <div class="workout-actions">
+
+        </div>
+    </div>
+</template>
+
+<style scoped>
+
+    .workout-card{
+        background-color: #FFFFFF;
+        border-radius: 8px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .workout-card:hover{
+        transform: translateY(-2px);
+        box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .workout-header {
+        padding: 1.2rem;
+        background-color: #4361ee;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .workout-header.inactive {
+        background-color: #6c757d;
+    }
+
+    .workout-header::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%);
+        border-radius: 0 0 0 100%;
+    }
+
+    .workout-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .workout-creator {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        font-weight: 500;
+    }
+
+    .workout-content {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem 1.2rem;
+        color: #495057;
+        font-size: 0.85rem;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .stat-value {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .stat-name {
+        font-size: 0.75rem;
+    }
+
+    .exercise-list{
+        padding: 0.8rem 1.2rem;
+        max-height: 180px;
+        overflow-y: auto;
+    }
+
+    .exercise-list::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .exercise-list::-webkit-scrollbar-thumb {
+        background-color: #dee2e6;
+        border-radius: 2px;
+    }
+    .exercise-item{
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f1f3f5;
+    }
+
+    .exercise-item:last-child {
+        
+    }
+
+    .exercise-name {
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .exercise-sets {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+
+
+</style>

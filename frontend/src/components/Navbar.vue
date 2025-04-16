@@ -58,7 +58,7 @@
         left: 0;
         right: 0;
         z-index: 1000;
-        border-bottom: 1px solid #747474;
+        border-bottom: 1px solid #c7c7c7;
         background-color: var(--background-white-color);
     }
 

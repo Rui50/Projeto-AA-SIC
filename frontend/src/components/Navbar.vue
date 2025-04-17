@@ -3,6 +3,8 @@
     import { Icon } from "@iconify/vue";
     import { useRouter } from "vue-router"
 
+    // passs the routes as props maybe
+
     const username = ref("teste")
 
     const router = useRouter()

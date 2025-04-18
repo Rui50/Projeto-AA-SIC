@@ -29,8 +29,7 @@
 
 <template>
     <div class="workout-card">
-
-        <div class="workout-header"> <!-- :class="{ 'inactive: !isActive'}"-->
+        <div class="workout-header" :class="{ 'inactive': !workout.isActive }">
             <h2 class="workout-title">
                 {{ workout.title }}
             </h2>
@@ -62,6 +61,12 @@
         </div>
 
         <div class="workout-actions">
+            <!-- Por o de delete na pagina do edit para nao ter muita coisa aqui-->
+            <!--<button class="btn delete">Delete</button>-->
+            <button class="btn edit">Edit</button>
+            <button v-if="!workout.isActive" class="btn activate">Activate</button>
+            <button v-if="workout.isActive" class="btn desactivate">Deactivate</button>
+            <button class="btn goto">Go to workout</button>
 
         </div>
     </div>
@@ -103,6 +108,10 @@
         height: 100px;
         background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 60%);
         border-radius: 0 0 0 100%;
+    }
+    /**https://developer.mozilla.org/en-US/docs/Web/CSS/::after */
+    .workout-header.inactive::after {
+        background-color: #6c757d;
     }
 
     .workout-title {
@@ -166,7 +175,7 @@
     }
 
     .exercise-item:last-child {
-        
+        border-bottom: none;
     }
 
     .exercise-name {
@@ -179,6 +188,69 @@
         font-weight: 600;
     }
 
+    .workout-actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem;
+        gap: 0.5rem;
+        border-top: 1px solid #f1f3f5;
+    }
 
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
 
+    .delete {
+        background-color: #ff6b6b;
+        color: white;
+        border: none;
+    }
+
+    .delete:hover {
+        background-color: #fa5252;
+    }
+
+    .edit {
+        border: 1px solid #dee2e6;
+        background-color: white;
+        color: #495057;
+    }
+    .edit:hover {
+        background-color: #f8f9fa;
+    }
+
+    .activate {
+        background-color: #40c057;
+        color: white;
+        border: none;
+    }
+
+    .activate:hover {
+        background-color: #37b24d;
+    }
+
+    .desactivate {
+        background-color: #868e96;
+        color: white;
+        border: none;
+    }
+
+    .desactivate:hover {
+        background-color: #495057;
+    }
+
+    .goto {
+        background-color: #4361ee;
+        color: white;
+        border: none;
+    }
+
+    .goto:hover {
+        background-color: #3b5bdb;
+    }
 </style>

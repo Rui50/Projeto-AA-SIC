@@ -6,6 +6,8 @@
 
     const router = useRouter()
 
+    // nao esquecer de por o delete nesta pagina
+
     const workoutName = ref('Workout Title')
     
     // temporary
@@ -28,7 +30,14 @@
         { name: 'S', selected: false }
     ]);
 
+    const exercises= ref([
+        { name: 'Pernas', sets: '3', reps: '12-15', weight: '18-20kg', rest: '60s' },
+        { name: 'Pernas', sets: '3', reps: '12-15', weight: '18-20kg', rest: '60s' },
+        { name: 'Pernas', sets: '3', reps: '12-15', weight: '18-20kg', rest: '60s' }
+    ])
     // fazer sempre que mudar o nome do workout guardar? ou so quando selecionar o guardar geral
+    // ao passar o rato por cima de um dos dias talvez expandir o dia para dizer o texto completo
+    // fazer as box shadows "mais fortes"
 </script>
 
 <template>
@@ -44,7 +53,7 @@
            </div>
         </div>
 
-        <div class="schedule-card">
+        <div class="edit-card">
             <h2>Schedule Type</h2>
             <div class="schedule-types">
                 <div 
@@ -81,7 +90,19 @@
                 </div>
             </div> 
         </div>
+
+        <div class="edit-card">
+            <div class="exercises-header">
+                <h2>Exercises</h2>
+                <button class="add-exercise-button">+ Add Exercise</button>
+            </div>
+
+            <div class="exercises-list">
+
+            </div>
+        </div>
     </div>
+    
 
 
 </template>
@@ -159,7 +180,7 @@
         color: #000000;
     }
 
-    .schedule-card{
+    .edit-card{
         background-color: white;
         border-radius: 10px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -235,6 +256,24 @@
 
     .days {
         font-weight: 700;
+    }
+
+    .exercises-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .add-exercise-button {
+        background-color: var(--button-lighter);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
     }
 
 </style>

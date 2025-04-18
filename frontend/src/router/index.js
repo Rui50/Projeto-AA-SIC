@@ -28,12 +28,17 @@ const router = createRouter({
         {
           path: 'workouts',
           name: 'workouts',
-          component: () => import('../views/Workouts.vue'),
+          component: () => import('../views/WorkoutsList.vue'),
         },
         {
           path: 'workoutedit',
           name: 'workoutedit',
           component: () => import('../views/WorkoutEdit.vue'),
+        },
+        {
+          path: 'workout',
+          name: 'workout',
+          component: () => import('../views/Workout.vue'),
         },
       ],
     },

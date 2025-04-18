@@ -54,14 +54,14 @@
         justify-content: space-between;
         padding: 0.75rem 1rem;
         height: 60px;
-
+        isolation: isolate;
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
-        z-index: 1000;
+        z-index: 9999;        
         border-bottom: 1px solid #c7c7c7;
-        background-color: var(--background-white-color);
+        background-color: rgba(255, 255, 255, 1);
     }
 
     .navbar-context {

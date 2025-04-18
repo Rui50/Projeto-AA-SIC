@@ -11,7 +11,6 @@
 
 <template>
     <div class="workouts-page">
-        <Navbar />
         <div class="workouts-header">
             <h1>My Workouts</h1>
             <button class="new-workout-btn">+ Create new workout</button>
@@ -33,6 +32,11 @@
                 <h2>Other Workouts</h2>
                 <span class="workouts-count"> {{ inactiveWorkoutsCount }}</span>
             </div>
+
+            
+            <div class="workouts">
+                <WorkoutCard />
+            </div>
         </div>
     </div>
 
@@ -50,7 +54,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 4rem;
+        margin-bottom: 2rem;
     }
 
     h1 {
@@ -124,6 +128,12 @@
         height: 1px;
         background-color: #dee2e6;
         margin: 3rem 0;
+    }
+
+    .workouts {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
     }
 
 

@@ -44,6 +44,7 @@
 
     // falta design no lado esquerdo de completed e assim, falta ainda decidir como organizar workouts na backend
 
+    // tentar fazer com que o lado direito tenha um tamanho fixo, porque senao exercicios com sets diferentes mexem com a ui
 </script>
 
 
@@ -71,7 +72,9 @@
                 <Icon icon="ion:person-outline" width="24" height="24" />                
                 <span> Made by {{ workout.madeBy }}</span>
             </div>
-        </div>
+        </div>  
+
+        <!-- Can add a progress bar here -->
 
         <div class="workout-main-layour">
             <!-- Exercise list on the left side -->
@@ -153,6 +156,7 @@
 </template>
 
 <style scoped>
+
     .add-wrapper {
         display: flex;
         justify-content: center;

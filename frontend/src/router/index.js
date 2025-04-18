@@ -40,6 +40,11 @@ const router = createRouter({
           name: 'workout',
           component: () => import('../views/Workout.vue'),
         },
+        {
+          path: 'progress',
+          name: 'progress',
+          component: () => import('../views/Progress.vue'),
+        },
       ],
     },
     // {

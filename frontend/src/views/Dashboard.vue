@@ -3,6 +3,9 @@
     import { useRouter } from 'vue-router'
     import { Icon } from '@iconify/vue'
 
+    import NextWorkout from '@/components/NextWorkout.vue'
+    import BodyMetrics from '@/components/BodyMetrics.vue'
+
     const router = useRouter()
 
 </script>
@@ -49,80 +52,26 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- body metrics -->
-                <div class="card body-metrics">
-                    <div class="body-metrics-header">
-                        <h2>Body Metrics</h2>
-                        <button class="update-button">Update</button>
-                    </div>
-                    <div class="metric-item">
-                        <div class="metric-label">Weight</div>
-                        <div class="metric-value">80 kg</div>
-                    </div>
-                    <div class="metric-item">
-                        <div class="metric-label">Height</div>
-                        <div class="metric-value">180 cm</div>
-                    </div>
-                    <div class="metric-item">
-                        <div class="metric-label">Body Fat</div>
-                        <div class="metric-value">15%</div>
-                    </div>
-                    <div class="metric-item">
-                        <div class="metric-label">BMI</div>
-                        <div class="metric-value">31</div>
-                    </div>
-                    <div class="last-updated">
-                        <div>Last updated</div>
-                        <div>Date here <!--userData.lastUpdated--></div>
-                    </div>
-                </div>
+                <BodyMetrics/>
+            </div>
+            <!-- Right side -->
+            <div class="main-section">
+                <NextWorkout/>
+
+                <!--Calender here -->
+
+                <!--Recent activity-->
             </div>
         </div>
     </div>
-
-    
 </template>
 
 <style scoped>
-    .body-metrics-header {
+    .main-section {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .body-metrics-header h2 {
-        font-size: 1.2rem;
-        margin: 0;
-    }
-
-    .update-button {
-        color: var(--button-lighter);
-        background: none;
-        border: none;
-        font-size: 1rem;
-        cursor: pointer;
-        text-align: right;
-    }
-
-    .metric-item {
-        display:flex;
-        justify-content: space-between;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #e0e0e0;
-    }
-
-    .metric-item:last-child {
-        border-bottom: none;
-    }
-
-    .last-updated {
-        display: flex;
-        justify-content: space-between;
+        flex-direction: column;
         margin-top: 1rem;
-        font-size: 0.9rem;
-        color: #757575;
     }
 
     .trainer-card {
@@ -131,7 +80,7 @@
         padding: 0.5rem;
     }
 
-    .trainer.card h2 {
+    .trainer-card h2 {
         font-size: 1.2rem;
         margin-bottom: 0.5rem;
     }
@@ -142,7 +91,6 @@
         border-radius: 50%;
         margin-right: 1rem;
         overflow: hidden;
-        margin-right: 1rem;
     }
 
     .trainer-image img {
@@ -216,7 +164,7 @@
         background-color: #f0f2f5;
     }
 
-    .profile-option.icoon {
+    .profile-option .icon {
         margin-right: 0.5rem;
         color: #555555;
     }

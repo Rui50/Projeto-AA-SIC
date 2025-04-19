@@ -164,6 +164,11 @@
         border-bottom: 1px solid #e0e0e0;
     }
 
+    th:last-child,
+    td:last-child {
+        text-align: right;
+    }
+
     .workout-details {
         font-size: 0.7rem;
         color: #757575;

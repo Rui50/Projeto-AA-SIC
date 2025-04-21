@@ -50,6 +50,11 @@ const router = createRouter({
           name: 'progress',
           component: () => import('../views/Progress.vue'),
         },
+        {
+          path: 'clients',
+          name: 'clients',
+          component: () => import('../views/Clients.vue'),
+        },
       ],
     },
     // {

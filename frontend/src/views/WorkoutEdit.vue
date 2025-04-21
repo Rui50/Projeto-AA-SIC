@@ -2,7 +2,7 @@
     import { ref } from 'vue'
     import { useRouter } from 'vue-router'
     import { Icon } from '@iconify/vue'
-    import Navbar from '@/components/Navbar.vue'
+    import EditExercice from '@/components/EditExercice.vue'
 
     const router = useRouter()
 
@@ -35,6 +35,17 @@
         { name: 'Pernas', sets: '3', reps: '12-15', weight: '18-20kg', rest: '60s' },
         { name: 'Pernas', sets: '3', reps: '12-15', weight: '18-20kg', rest: '60s' }
     ])
+
+    const editExercisePopupState = ref(true)
+
+    const openEditExercisePopup = (exercise, index) => {
+        editExercisePopupState.value = true
+    }
+
+    const closeEditExercisePopup = () => {
+        editExercisePopupState.value = false
+    }
+
     // fazer sempre que mudar o nome do workout guardar? ou so quando selecionar o guardar geral
     // ao passar o rato por cima de um dos dias talvez expandir o dia para dizer o texto completo
     // fazer as box shadows "mais fortes"
@@ -101,6 +112,12 @@
 
             </div>
         </div>
+
+
+        <EditExercice
+            popupState="editExercisePopupState"
+            @close="closeEditExercisePopup"
+        />
     </div>
     
 

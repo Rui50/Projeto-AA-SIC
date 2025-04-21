@@ -34,7 +34,7 @@
 
 
     const clientList = computed(() => {
-        let clientsFiltered = clients.value;
+        let clientsFiltered = [...clients.value];
 
         if(searchText.value.length !== 0){
             clientsFiltered = clients.value.filter(client => {
@@ -44,11 +44,14 @@
 
         if(sortColumn.value !==''){
             clientsFiltered = clientsFiltered.sort((a, b) => {
+                if (sortColumn.value === "lastActivity") {
+                    const dateA = new Date(a.lastActivity)
+                    const dateB = new Date(b.lastActivity)
+                    return (dateA - dateB) * sortOrder.value
+                }
                 if (a[sortColumn.value] < b[sortColumn.value]) return -1 * sortOrder.value
                 if (a[sortColumn.value] > b[sortColumn.value]) return 1 * sortOrder.value
-                if (sortColumn.value === "lastActivity"){
-                    return new Date(a[sortColumn.value]) - new Date(b[sortColumn.value])
-                }
+
                 return 0
             })
         }
@@ -61,8 +64,8 @@
         // For now, test using static data, pop by copilot
         clients.value = [
             { id: 1, name: 'John Doe', height: '180 cm', weight: '75 kg', lastActivity: '2023-10-01' },
-            { id: 2, name: 'Jane Smith', height: '165 cm', weight: '60 kg', lastActivity: '2023-10-02' },
             { id: 3, name: 'Mike Johnson', height: '175 cm', weight: '80 kg', lastActivity: '2023-10-03' },
+            { id: 2, name: 'Jane Smith', height: '165 cm', weight: '60 kg', lastActivity: '2023-10-02' },
             { id: 4, name: 'Emily Davis', height: '170 cm', weight: '65 kg', lastActivity: '2023-10-04' },
         ]
     })

@@ -13,7 +13,7 @@
     }
 
     const goToRegister = () => {
-        router.push('/register')
+        router.push('/auth/register')
     }
 
 </script>

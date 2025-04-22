@@ -6,7 +6,7 @@
 
     const workout = ref({
         title: 'Workout Title',
-        isActive: true,
+        isActive: false,
         madeBy: 'You',
         duration: 45,
         exercises: [

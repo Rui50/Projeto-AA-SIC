@@ -1,8 +1,13 @@
 <script setup>
     import { ref, computed } from 'vue'
     import { useRouter } from 'vue-router'
-    import axios from 'axios'
     import { Icon } from "@iconify/vue";
+
+    /**
+     * TODO
+     * 
+     * fix confirm password- passwords dont match
+     */
 
     const router = useRouter()
     const username = ref('')
@@ -21,7 +26,7 @@
     }
 
     const goToLogin = () => {
-        router.push('/login')
+        router.push('/auth/login')
     }
 
     const usernameError = computed(() => {

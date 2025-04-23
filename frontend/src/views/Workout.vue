@@ -2,6 +2,7 @@
     import { ref, onMounted, computed } from 'vue'
     import { useRoute } from 'vue-router'
     import { Icon } from '@iconify/vue'
+    import WorkoutCompleted from '@/components/WorkoutCompleted.vue'
     
     const route = useRoute()
 
@@ -152,6 +153,8 @@
             <button class="btn cancel">Cancel</button>
             <button class="btn complete">Complete Workout</button>
         </div>
+
+        <WorkoutCompleted/>
     </div>
 </template>
 

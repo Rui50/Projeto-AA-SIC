@@ -2,7 +2,8 @@
     import { ref } from 'vue'
     import { useRouter } from 'vue-router'
     import { Icon } from '@iconify/vue'
-    import EditExercice from '@/components/EditExercice.vue'
+    import EditExercise from '@/components/EditExercise.vue'
+    import ExerciseLibrary from '@/components/ExerciseLibrary.vue'
 
     const router = useRouter()
 
@@ -36,7 +37,7 @@
         { name: 'Pernas', sets: '3', reps: '12-15', weight: '18-20kg', rest: '60s' }
     ])
 
-    const editExercisePopupState = ref(true)
+    const editExercisePopupState = ref(false)
 
     const openEditExercisePopup = (exercise, index) => {
         editExercisePopupState.value = true
@@ -114,9 +115,12 @@
         </div>
 
 
-        <EditExercice
-            popupState="editExercisePopupState"
+        <EditExercise
+            :popupState="editExercisePopupState"
             @close="closeEditExercisePopup"
+        />
+
+        <ExerciseLibrary
         />
     </div>
     

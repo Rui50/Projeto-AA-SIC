@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +30,7 @@ public class WorkoutPlan {
     // nao deve ser preciso dados de quem criou mas apenas apresentar quem criou
     // fazer isso fica para trabalho futuro
     private String createdBy;
+    private LocalTime updatedAt;
 
     @Column(nullable = false)
     private boolean active;
@@ -38,7 +40,7 @@ public class WorkoutPlan {
     private WorkoutScheduleType scheduleType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner", nullable = false)
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
     @OneToMany(mappedBy = "workoutPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

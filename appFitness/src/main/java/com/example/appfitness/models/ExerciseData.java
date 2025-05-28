@@ -28,10 +28,10 @@ public class ExerciseData {
     @OneToMany(mappedBy = "exerciseData", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SetData> plannedSets = new ArrayList<>();
 
-    private String notes;
+    private String note;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "workout_plan_id", nullable = false)
+    @JoinColumn(name = "workoutPlan_id", nullable = false)
     private WorkoutPlan workoutPlan;
 
     // é preciso aqui?

@@ -21,13 +21,11 @@ public class SetExecution {
 
     private Integer setNumber;
 
-    private Integer actualReps;
-    private Double actualWeight;
-    private Duration actualRestTime; // secalhar nao vale a pena
-
-    private String notes;
+    private Integer repsPerformed;
+    private Double weightPerformed;
+    private Duration resTimePerformed; // secalhar nao vale a pena
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exercise_execution_id", nullable = false)
+    @JoinColumn(name = "exerciseExecution_id", nullable = false)
     private ExerciseExecution exerciseExecution;
 }

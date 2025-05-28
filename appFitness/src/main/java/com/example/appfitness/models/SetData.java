@@ -22,11 +22,11 @@ public class SetData {
 
     private Integer setNumber; // indica se é o primeiro set, segundo, etc
 
-    private Integer plannedReps;
-    private Double plannedWeight;
-    private Duration recommendedRestTime;
+    private Integer repsPlanned;
+    private Double weightPlanned;
+    private Duration restTimeSuggestion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exercise_data_id", nullable = false)
+    @JoinColumn(name = "exerciseData_id", nullable = false)
     private ExerciseData exerciseData;
 }

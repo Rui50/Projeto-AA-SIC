@@ -28,14 +28,14 @@ public class Notification {
     @Column(nullable = false)
     private NotificationType type;
 
+    private String title;
+
     private String message;
 
-    private boolean isRead;
+    private boolean read;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    private LocalDateTime readAt;
 
     // se usarmos
     public enum NotificationType {

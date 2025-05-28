@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -30,11 +32,12 @@ public class WorkoutExecution {
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private LocalDate executionDate;
 
     @Enumerated(EnumType.STRING)
     private WorkoutStatus status;
 
-    private String notes;
+    private String feeback;
 
     // exercicios executados
     @OneToMany(mappedBy = "workoutExecution", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

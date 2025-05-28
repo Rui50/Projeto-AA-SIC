@@ -30,6 +30,7 @@ public class Exercise {
     private String videoURL;
     private String imageURL;
 
+
     public enum ExerciseType {
         BODYBUILDING,
         CARDIO

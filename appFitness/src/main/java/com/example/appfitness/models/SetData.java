@@ -14,7 +14,7 @@ import java.time.Duration;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "sets_data")
+@Table(name = "ExerciseDataSet")
 public class SetData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

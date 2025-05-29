@@ -14,6 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "BodyMetrics")
 public class BodyMetrics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

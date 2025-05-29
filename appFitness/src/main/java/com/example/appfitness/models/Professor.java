@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
+@Table(name = "Professor")
 public class Professor extends User{
     @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY)
     private List<Aluno> alunos;

@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "workout_executions")
+@Table(name = "WorkoutExecution")
 public class WorkoutExecution {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,8 +53,6 @@ public class WorkoutExecution {
         exerciseExecutions.remove(execution);
         execution.setWorkoutExecution(null);
     }
-
-    public
 
     public enum WorkoutStatus {
         IN_PROGRESS, // para se quisermos manter no menu inicial que está a decorrer

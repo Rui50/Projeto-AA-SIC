@@ -13,7 +13,7 @@ import java.time.Duration;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "set_executions")
+@Table(name = "ExerciseExecutionSet")
 public class SetExecution {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -70,7 +70,7 @@ public class BodyMetricsController {
     }
 
     // pegar no ultimo (dashboard / display)
-    @GetMapping("/user/{userId/latest")
+    @GetMapping("/user/{userId}/latest")
     public ResponseEntity<BodyMetricsResposeDTO> getLatestBodyMetrics(@PathVariable Integer userId) {
         Optional<BodyMetrics> lastestBM = bodyMetricsService.latestBodyMetricUser(userId);
         if (lastestBM.isPresent()) {

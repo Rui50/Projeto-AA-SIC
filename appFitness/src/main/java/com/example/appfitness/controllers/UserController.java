@@ -1,6 +1,6 @@
 package com.example.appfitness.controllers;
 
-import com.example.appfitness.auth.JwtService;
+//import com.example.appfitness.auth.JwtService;
 import com.example.appfitness.models.User;
 import com.example.appfitness.services.UserService;
 
@@ -12,7 +12,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-    private final JwtService jwtService;
+    /*private final JwtService jwtService;
     private final UserService userService;
 
     public UserController(JwtService jwtService, UserService userService) {
@@ -39,5 +39,5 @@ public class UserController {
         // Avoid sending password back!
         user.setPassword(null);
         return ResponseEntity.ok(user);
-    }
+    }*/
 }

@@ -1,5 +1,5 @@
 package com.example.appfitness.auth;
-
+/*
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +24,7 @@ public class AuthService {
         this.userService = userService;
     }
 
-    /**
-     * Login: Verifies user credentials and returns a JWT token.
-     */
+
     public String login(User user) throws UnauthorizedException {
         if (user == null) throw new UnauthorizedException("User is null");
         Optional<User> userInDBOpt = userService.getUserByEmail(user.getEmail());
@@ -46,9 +44,7 @@ public class AuthService {
         return login(user);
     }
 
-    /**
-     * Register: Registers a new user, checking for email uniqueness.
-     */
+
     public User register(User user) throws UnauthorizedException {
         String email = user.getEmail();
         if (userService.emailExists(email)) {
@@ -111,3 +107,4 @@ public class AuthService {
         return cookie;
     }
 }
+*/

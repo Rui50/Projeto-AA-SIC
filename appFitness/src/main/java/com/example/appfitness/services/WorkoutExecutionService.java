@@ -1,14 +1,12 @@
 package com.example.appfitness.services;
 
 import com.example.appfitness.models.*;
-import com.example.appfitness.repositories.ExerciseDataRepository;
-import com.example.appfitness.repositories.UserRepository;
-import com.example.appfitness.repositories.WorkoutExecutionRepository;
-import com.example.appfitness.repositories.WorkoutPlanRepository;
+import com.example.appfitness.repositories.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +19,22 @@ public class WorkoutExecutionService {
     private UserRepository userRepository;
     private WorkoutPlanRepository workoutPlanRepository;
     private ExerciseDataRepository exerciseDataRepository;
+    private ExerciseExecutionRepository exerciseExecutionRepository;
+    private SetExecutionRepository setExecutionRepository;
+
+    public WorkoutExecutionService(WorkoutExecutionRepository workoutExecutionRepository,
+                                   UserRepository userRepository,
+                                   WorkoutPlanRepository workoutPlanRepository,
+                                   ExerciseDataRepository exerciseDataRepository,
+                                   ExerciseExecutionRepository exerciseExecutionRepository, // <-- New
+                                   SetExecutionRepository setExecutionRepository) { // <-- New
+        this.workoutExecutionRepository = workoutExecutionRepository;
+        this.userRepository = userRepository;
+        this.workoutPlanRepository = workoutPlanRepository;
+        this.exerciseDataRepository = exerciseDataRepository;
+        this.exerciseExecutionRepository = exerciseExecutionRepository; // <-- New
+        this.setExecutionRepository = setExecutionRepository; // <-- New
+    }
 
     @Transactional
     public WorkoutExecution startWorkout(Integer userId, Integer workoutPlanId) {
@@ -42,27 +56,39 @@ public class WorkoutExecutionService {
         workout.setWorkoutPlan(workoutPlan);
         workout.setStartTime(LocalDateTime.now());
         workout.setStatus(WorkoutExecution.WorkoutStatus.IN_PROGRESS);
+        workout.setExecutionDate(workout.getStartTime().toLocalDate());
 
-
+        if (workout.getExerciseExecutions() == null ){
+            workout.setExerciseExecutions(new ArrayList<>());
+        }
 
         return workoutExecutionRepository.save(workout);
     }
 
     @Transactional
-    public WorkoutExecution finishWorkout(Integer userId, Integer workoutPlanId, Integer executionId) {
+    public WorkoutExecution finishWorkout(Integer executionId, String feedback, WorkoutExecution.WorkoutStatus status) {
         WorkoutExecution execution = workoutExecutionRepository.findById(executionId)
                 .orElseThrow(() -> new RuntimeException("WorkoutExecution not found with id " + executionId));
 
         execution.setEndTime(LocalDateTime.now());
-        execution.setStatus(WorkoutExecution.WorkoutStatus.COMPLETED);
+        execution.setStatus(status != null ? status : WorkoutExecution.WorkoutStatus.COMPLETED);
+        execution.setFeeback(feedback);
 
         return workoutExecutionRepository.save(execution);
     }
 
     @Transactional
     public void deleteWorkoutExecutionById(Integer id) {
+        if (!workoutExecutionRepository.existsById(id)) {
+            throw new RuntimeException("Workout Execution not found: " + id);
+        }
         workoutExecutionRepository.deleteById(id);
     }
+
+    public Optional<WorkoutExecution> getWorkoutExecutionById(Integer id) {
+        return workoutExecutionRepository.findById(id);
+    }
+
 
     public List<WorkoutExecution> findWorkoutExecutionsByUser(Integer userid) {
         return workoutExecutionRepository.findByUserId(userid);
@@ -83,19 +109,14 @@ public class WorkoutExecutionService {
     // vai ser preciso start exercise e end?
 
     //registar sets
-    public SetExecution registerSetExecution(Integer workoutExecutionId, Integer exerciseExecutionId, SetExecution setExecutionDetails) {
-        // find the workout
-        WorkoutExecution workoutExecution = workoutExecutionRepository.findById(workoutExecutionId)
-                .orElseThrow(() -> new RuntimeException("WorkoutExecution not found with id " + workoutExecutionId));
-
+    public SetExecution recordSetExecution(Integer exerciseExecutionId, SetExecution setExecutionDetails) {
         // find the exercise
-        ExerciseExecution ee = workoutExecution.getExerciseExecutions().stream()
-                .filter(ex -> ex.getId() == exerciseExecutionId)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("ExerciseExecution not found  " + exerciseExecutionId));
+        ExerciseExecution exerciseExecution = exerciseExecutionRepository.findById(exerciseExecutionId)
+                .orElseThrow(() -> new RuntimeException("Exercise Execution not found: " + exerciseExecutionId));
+
 
         // buscar o set, se nao existe cria novo (user decidiu fazer um set a mais)
-        Optional<SetExecution> set = ee.getPerformedSets().stream()
+        Optional<SetExecution> set = exerciseExecution.getPerformedSets().stream()
                 .filter(s -> s.getSetNumber().equals(setExecutionDetails.getSetNumber()))
                 .findFirst();
 
@@ -106,17 +127,17 @@ public class WorkoutExecutionService {
         }
         else {
             setExecution = new SetExecution();
-            setExecution.setExerciseExecution(ee);
+            setExecution.setExerciseExecution(exerciseExecution);
             setExecution.setSetNumber(setExecutionDetails.getSetNumber());
-            ee.getPerformedSets().add(setExecution);
+            exerciseExecution.getPerformedSets().add(setExecution);
         }
 
         setExecution.setRepsPerformed(setExecutionDetails.getRepsPerformed());
         setExecution.setWeightPerformed(setExecutionDetails.getWeightPerformed());
-        //setExecution.setResTimePerformed(setExecutionDetails.getResTimePerformed());
+        setExecution.setResTimePerformed(setExecutionDetails.getResTimePerformed());
 
-        workoutExecutionRepository.save(workoutExecution);
-        return setExecution;
+        exerciseExecutionRepository.save(exerciseExecution);
+        return setExecutionRepository.save(setExecution);
     }
     /*
     @Transactional
@@ -124,4 +145,9 @@ public class WorkoutExecutionService {
     public SetExecution updateSetExecution(Integer workoutExecutionId, SetExecution setExecutionDetails) {
 
     }*/
+
+    public Optional<ExerciseExecution> getExerciseExecutionById(Integer id) {
+        return exerciseExecutionRepository.findById(id);
+    }
+
 }

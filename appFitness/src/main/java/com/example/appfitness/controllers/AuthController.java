@@ -1,5 +1,5 @@
 package com.example.appfitness.controllers;
-
+/*
 import com.example.appfitness.auth.AuthService;
 import com.example.appfitness.exceptions.authentication.UnauthorizedException;
 import com.example.appfitness.models.User;
@@ -52,4 +52,4 @@ public class AuthController {
         response.addCookie(cookie);
         return ResponseEntity.ok().body("Logged out successfully");
     }
-}
+}*/

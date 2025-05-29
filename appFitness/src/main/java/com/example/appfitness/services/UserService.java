@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -23,22 +23,26 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public Optional<String> findEmailById(int id) {
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public boolean emailExists(String email) {
+        Integer result = userRepository.checkEmail(email);
+        return result != null && result == 1;
+    }
+
+    public Optional<String> getEmailFromUserId(int id) {
         return userRepository.findEmailById(String.valueOf(id));
     }
 
-    // para verificar se um email ja existe, util para reg
-    public boolean checkEmail(String email) {
-        Integer result;
-        result = userRepository.checkEmail(email);
-        return result == 1;
+    public boolean checkPassword(String rawPassword, String encodedPassword) {
+        // In production, use BCrypt or similar! For demo: plain comparison
+        return rawPassword.equals(encodedPassword);
     }
-
 
     public User saveUser(User user) {
-        // falta cenas da password encrypt
+        // Encrypt password here in production!
         return userRepository.save(user);
     }
-
-
 }

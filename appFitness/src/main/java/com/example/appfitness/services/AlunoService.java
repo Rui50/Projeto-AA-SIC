@@ -12,8 +12,8 @@ import java.util.Optional;
 
 @Service
 public class AlunoService {
-    private final AlunoRepository alunoRepository;
-    private final ProfessorRepository professorRepository;
+    private AlunoRepository alunoRepository;
+    private ProfessorRepository professorRepository;
 
     public AlunoService(AlunoRepository alunoRepository, ProfessorRepository professorRepository) {
         this.alunoRepository = alunoRepository;
@@ -56,5 +56,7 @@ public class AlunoService {
         aluno.setProfessor(professor);
         return alunoRepository.save(aluno);
     }
+
+
 }
 

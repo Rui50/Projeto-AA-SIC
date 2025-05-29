@@ -54,6 +54,8 @@ public class WorkoutExecution {
         execution.setWorkoutExecution(null);
     }
 
+    public
+
     public enum WorkoutStatus {
         IN_PROGRESS, // para se quisermos manter no menu inicial que está a decorrer
         COMPLETED,

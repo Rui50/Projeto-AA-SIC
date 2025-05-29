@@ -11,15 +11,17 @@ import java.util.List;
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Integer> {
     // obter todas notificações de um user
-    @Query("SELECT n FROM Notification n WHERE n.receiver = :recipient")
-    List<Notification> findByRecipient(User receiver);
+    @Query("SELECT n FROM Notification n WHERE n.receiver.id = :userId")
+    List<Notification> findByReceiverId(Integer userId);
 
     // obter notificações não lidas
-    @Query("SELECT n FROM Notification n WHERE n.receiver = :recipient AND n.read = FALSE")
-    List<Notification> findByRecipientAndIsReadFalse( User receiver);
+    @Query("SELECT n FROM Notification n WHERE n.receiver.id = :userId AND n.read = FALSE")
+    List<Notification> findByReceiverIdAndUnread(Integer userId);
 
     // obter apenas certo tipo de notificações (nao deve ser necessário)
-    @Query("SELECT n FROM Notification n WHERE n.receiver = :recipient AND n.type = :type")
-    List<Notification> findByRecipientAndType(User receiver, Notification.NotificationType type);
-
+    @Query("SELECT n FROM Notification n WHERE n.receiver.id = :userId AND n.type = :notificationType")
+    List<Notification> findByReceiverIdAndType(
+            Integer userId,
+           Notification.NotificationType notificationType
+    );
 }

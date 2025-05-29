@@ -14,10 +14,10 @@ import java.util.List;
 @Repository
 public interface ExerciseDataRepository extends JpaRepository<ExerciseData, Integer> {
     // devolve os exercise data de um workoutPlan
-    @Query("SELECT ed FROM ExerciseData ed WHERE ed.workoutPlan = :workoutPlan")
-    List<ExerciseData> findByWorkoutPlan(WorkoutPlan workoutPlan);
+    @Query("SELECT ed FROM ExerciseData ed WHERE ed.workoutPlan.Id = :workoutPlanId")
+    List<ExerciseData> findByWorkoutPlanId(Integer workoutPlanId);
 
-    @Query("SELECT ed FROM ExerciseData ed WHERE ed.workoutPlan = :workoutPlan AND ed.exercise = :exercise")
-    List<ExerciseData> findByWorkoutPlanAndExerciseSpecification(WorkoutPlan workoutPlan, Exercise exercise);
+    @Query("SELECT ed FROM ExerciseData ed WHERE ed.workoutPlan.Id = :workoutPlanId AND ed.exercise.id = :exerciseId")
+    List<ExerciseData> findByWorkoutPlanIdAndExerciseId(Integer workoutPlanId, Integer exerciseId);
 
 }

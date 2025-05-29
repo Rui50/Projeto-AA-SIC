@@ -14,10 +14,10 @@ import java.util.Optional;
 public interface ExerciseExecutionRepository extends JpaRepository<ExerciseExecution, Integer> {
 
     // pegar nos exercise execution de um workout feito
-    @Query("SELECT ee FROM ExerciseExecution ee WHERE ee.workoutExecution = :workoutExecution")
-    List<ExerciseExecution> findByWorkoutExecution(WorkoutExecution workoutExecution);
+    @Query("SELECT ee FROM ExerciseExecution ee WHERE ee.workoutExecution.id = :workoutExecutionId")
+    List<ExerciseExecution> findByWorkoutExecutionId(Integer workoutExecutionId);
 
     // nao deve ser preciso -> pegar num exercise execution de um exercicio específico
-    @Query("SELECT ee FROM ExerciseExecution ee WHERE ee.workoutExecution = :workoutExecution AND ee.exerciseData = :exerciseData")
-    Optional<ExerciseExecution> findByWorkoutExecutionAndExerciseData(WorkoutExecution workoutExecution, ExerciseData exerciseData);
+    @Query("SELECT ee FROM ExerciseExecution ee WHERE ee.workoutExecution.id = :workoutExecutionId AND ee.exerciseData.id = :exerciseDataId")
+    Optional<ExerciseExecution> findByWorkoutExecutionIdAndExerciseDataId(Integer workoutExecutionId, Integer exerciseDataId);
 }

@@ -29,7 +29,7 @@ public class WorkoutPlan {
 
     // nao deve ser preciso dados de quem criou mas apenas apresentar quem criou
     // fazer isso fica para trabalho futuro
-    private String createdBy;
+    private Integer createdBy;
     private LocalTime updatedAt;
 
     @Column(nullable = false)

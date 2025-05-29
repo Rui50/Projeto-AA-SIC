@@ -1,14 +1,98 @@
 package com.example.appfitness.controllers;
 
+import com.example.appfitness.DTOs.bodyMetrics.BodyMetricsRequestDTO;
+import com.example.appfitness.DTOs.bodyMetrics.BodyMetricsResposeDTO;
+import com.example.appfitness.models.BodyMetrics;
+import com.example.appfitness.models.User;
 import com.example.appfitness.services.BodyMetricsService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.appfitness.services.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/bodyMetrics")
 public class BodyMetricsController {
 
     private BodyMetricsService bodyMetricsService;
+    private UserService userService;
 
+    public BodyMetricsController(BodyMetricsService bodyMetricsService, UserService userService) {
+        this.bodyMetricsService = bodyMetricsService;
+        this.userService = userService;
+    }
+
+    @PostMapping // se metermos campos no DTO podemos acrescentar @Valid para validar campos
+    public ResponseEntity<Object> createBodyMetrics(@RequestBody BodyMetricsRequestDTO createDTO) {
+        Integer userId = createDTO.getUserId();
+
+        // get the user
+        User user = userService.getUserById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId)); // Handle appropriately
+
+        // pop objeto
+        BodyMetrics bodyMetrics = new BodyMetrics();
+        bodyMetrics.setWeight(createDTO.getWeight());
+        bodyMetrics.setHeight(createDTO.getHeight());
+        bodyMetrics.setBodyFatPercentage(createDTO.getBodyFatPercentage());
+        bodyMetrics.setUpdatedAt(LocalDate.now());
+
+        // para ja so aceitamos metric
+        double bmi = calculateBMI(createDTO.getWeight(), createDTO.getHeight(), BodyMetrics.MetricType.METRIC);
+
+        bodyMetrics.setBmi(bmi);
+
+        BodyMetrics createdMetrics = bodyMetricsService.createBodyMetrics(bodyMetrics);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdMetrics);
+    }
+
+    // pegar em todos (progresso)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<BodyMetricsResposeDTO>> getBodyMetrics(@PathVariable Integer userId) {
+        List<BodyMetrics> bodyMetricsList = bodyMetricsService.getBodyMetricsFromUser(userId);
+
+        List<BodyMetricsResposeDTO> response = bodyMetricsList.stream()
+                .map(BodyMetricsResposeDTO::fromEntity)
+                .toList();
+
+        if (response.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    // pegar no ultimo (dashboard / display)
+    @GetMapping("/user/{userId/latest")
+    public ResponseEntity<BodyMetricsResposeDTO> getLatestBodyMetrics(@PathVariable Integer userId) {
+        Optional<BodyMetrics> lastestBM = bodyMetricsService.latestBodyMetricUser(userId);
+        if (lastestBM.isPresent()) {
+            BodyMetrics BodyMetrics = lastestBM.get();
+            BodyMetricsResposeDTO resposeDTO = BodyMetricsResposeDTO.fromEntity(BodyMetrics);
+            return ResponseEntity.ok(resposeDTO);
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+    }
+
+    private double calculateBMI(Double weight, Double height, BodyMetrics.MetricType metricType) {
+        if (weight == null || height == null || height == 0) {
+            return 0.0;
+        }
+        if (metricType == BodyMetrics.MetricType.IMPERIAL) {
+            return (weight / (height * height)) * 703;
+        } else {
+            return weight / (height * height);
+        }
+    }
 
 }

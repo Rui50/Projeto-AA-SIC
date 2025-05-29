@@ -24,6 +24,10 @@ public class BodyMetricsService {
         return bodyMetricsRepository.findById(id);
     }
 
+    public BodyMetrics createBodyMetrics(BodyMetrics bodyMetrics) {
+        return bodyMetricsRepository.save(bodyMetrics);
+    }
+
     public List<BodyMetrics> getBodyMetricsFromUser(Integer id) {
         return bodyMetricsRepository.findByUserId(id);
     }

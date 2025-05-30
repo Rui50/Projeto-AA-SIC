@@ -10,6 +10,10 @@ const props = defineProps({
     index: {
         type: Number,
         required: true
+    },
+    isNew: {
+        type: Boolean,
+        default: false
     }
 })
 
@@ -84,7 +88,9 @@ const handleEditExercise = () => {
 }
 
 const handleRemoveExercise = () => {
-    emit('remove-exercise', props.index)
+    //emit('remove-exercise', props.index)
+    emit('remove-exercise', props.exerciseData.id, props.exerciseData.isNew, props.index); // Make sure you emit isNew if you want to use it
+
 }
 </script>
 

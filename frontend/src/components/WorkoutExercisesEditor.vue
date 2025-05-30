@@ -6,6 +6,8 @@
     import EditExercise from './EditExercise.vue'
     import ExerciseLibrary from './ExerciseLibrary.vue'
     import WorkoutExerciseItem from './WorkoutExerciseItem.vue'
+    import { API_PATHS } from '../api_paths'
+
 
     const props = defineProps({
         initialExercises : {
@@ -62,6 +64,7 @@
         console.log('Selected exercise from library:', exerciseFromLibrary);
         const newExercise = {
             id: null, 
+            isNew: true,
             exercise: { 
                 id: exerciseFromLibrary.id,
                 name: exerciseFromLibrary.name,
@@ -70,6 +73,7 @@
             note: '', 
             plannedSets: []
         };
+
         exercises.value.push(newExercise);
         emit('update-exercises', exercises.value); 
 
@@ -78,7 +82,9 @@
         //openEditExercisePopup(newExercise, exercises.value.length - 1);
     };
 
-    const removeExercise = async (exerciseDataId, index) => {
+    const removeExercise = async (exerciseDataId, isNewFlag, index) => {
+
+
         // trocar isto por um confirm dialog mais bonito
         if (!confirm('Are you sure you want to remove this exercise from the workout?')) {
             return;
@@ -89,7 +95,7 @@
         emit('update-exercises', exercises.value);
 
         try {
-            if (exerciseDataId) {
+            if (!isNewFlag) {
                 await axios.delete(`${API_PATHS.WORKOUT_EXERCISE}${exerciseDataId}`, {
                     headers: {
                         Authorization: `Bearer ${userStore.getToken}`
@@ -103,7 +109,7 @@
             // rollback if issues
             if (exerciseDataId) {
                 exercises.value = originalExercises;
-                emit('update:exercises', exercises.value); // emit rollback
+                emit('update-exercises', exercises.value); // emit rollback
                 alert('Failed to remove exercise from server. Please try again.');
             } else {
                 alert('Failed to remove new exercise. Please try again.');
@@ -129,7 +135,7 @@
             <div v-else>
                 <WorkoutExerciseItem
                     v-for="(exerciseData, index) in exercises"
-                    :key="exerciseData.id || `new-${index}`"
+                    :key="exerciseData.id || `new-${index}`"  
                     :exerciseData="exerciseData"
                     :index="index"
                     @edit-exercise="openEditExercisePopup"

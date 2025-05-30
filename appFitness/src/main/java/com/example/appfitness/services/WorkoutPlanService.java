@@ -37,6 +37,11 @@ public class WorkoutPlanService {
     }
 
     @Transactional
+    public List<WorkoutPlan> getWorkoutPlansByOwnerId(Integer ownerId) {
+        return workoutPlanRepository.findByOwnerId(ownerId);
+    }
+
+    @Transactional
     public WorkoutPlan createWorkoutPlan(WorkoutPlan workoutPlan, Integer ownerId, Integer creatorId) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new RuntimeException("Owner user not found " + ownerId));

@@ -34,6 +34,17 @@ public class WorkoutPlanController {
         this.exerciseService = exerciseService;
     }
 
+    @GetMapping("/user/{ownerId}")
+    public ResponseEntity<List<WorkoutPlanResponseDTO>> getWorkoutPlans(@PathVariable Integer ownerId) {
+        List<WorkoutPlan> workoutPlans = workoutPlanService.getWorkoutPlansByOwnerId(ownerId);
+
+        List<WorkoutPlanResponseDTO> responseDTOs = workoutPlans.stream()
+                .map(WorkoutPlanResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(responseDTOs);
+    }
+
     @PostMapping
     public ResponseEntity<Object> createWorkoutPlan(@RequestBody WorkoutPlanRequestDTO createDTO) {
         Integer creatorId = createDTO.getOwnerId();

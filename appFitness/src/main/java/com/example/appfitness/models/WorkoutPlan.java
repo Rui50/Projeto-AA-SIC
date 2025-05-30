@@ -23,7 +23,7 @@ import java.util.Set;
 public class WorkoutPlan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int Id;
+    private int id;
 
     private String name;
     private String description;

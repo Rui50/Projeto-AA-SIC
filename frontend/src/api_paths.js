@@ -8,6 +8,6 @@ export const API_PATHS = {
 
     // workout related paths
     CREATE_WORKOUT: `${API_BASE_URL}/api/workout-plans`,
-
+    GET_WORKOUTS: `${API_BASE_URL}/api/workout-plans/user/`,
 
 }

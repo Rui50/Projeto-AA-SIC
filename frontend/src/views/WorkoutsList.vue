@@ -17,8 +17,11 @@
     }
 
     // placeholders
-    const activeWorkoutsCount = ref(5)
-    const inactiveWorkoutsCount = ref(1)
+    const activeWorkouts = ref([])
+    const inactiveWorkouts = ref([])
+
+    const activeWorkoutsCount = ref(0)
+    const inactiveWorkoutsCount = ref(0)
 
     const handleCreateWorkout = async (workoutName) => {
         ToggleCreateWorkoutPopup();
@@ -48,9 +51,39 @@
         }
     }
 
-    /*onMounted(() => {
+    const fetchWorkouts = async () => {
+        // meter numa store?
+
+        try {
+            const response = await axios.get(
+                `${API_PATHS.GET_WORKOUTS}${userStore.getUserId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${userStore.getToken}`
+                    }
+                }
+            );
+            const workouts = response.data;
+
+            activeWorkouts.value = workouts.filter(w => w.active);
+            inactiveWorkouts.value = workouts.filter(w => !w.active);
+
+            activeWorkoutsCount.value = activeWorkouts.value.length;
+            inactiveWorkoutsCount.value = inactiveWorkouts.value.length;
+
+            console.log('Fetched workouts:', workouts);
+            console.log('Active workouts:', activeWorkouts.value);
+            console.log('Inactive workouts:', inactiveWorkouts.value);
+
+        } catch (error) {
+            console.error('Error fetching workouts:', error);
+            alert('Failed to fetch workouts. Please try again.');
+        }
+    }
+
+    onMounted(() => {
         fetchWorkouts();
-    });*/
+    });
 </script>
 
 <template>

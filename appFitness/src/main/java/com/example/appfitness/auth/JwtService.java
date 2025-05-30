@@ -1,5 +1,7 @@
 package com.example.appfitness.auth;
 
+import com.example.appfitness.models.Aluno;
+import com.example.appfitness.models.Professor;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -46,6 +48,11 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
+    public String extractRole(String token) {
+        final Claims claims = extractAllClaims(token);
+        return claims.get("role", String.class);
+    }
+
     public String generateToken(User user) {
         return buildToken(getClaimsForUser(user), user, jwtExpiration);
     }
@@ -55,6 +62,15 @@ public class JwtService {
         claims.put("id", user.getId());
         claims.put("name", user.getName());
         claims.put("email", user.getEmail());
+
+        String role = "unknown";
+        if(user instanceof Aluno){
+            role = "ALUNO";
+        }
+        else if (user instanceof Professor) {
+            role = "PROFESSOR";
+        }
+        claims.put("role", role);
         return claims;
     }
 

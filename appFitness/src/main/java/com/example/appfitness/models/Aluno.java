@@ -1,9 +1,6 @@
 package com.example.appfitness.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 //https://stackoverflow.com/questions/57455379/implementing-model-inheritance-on-springboot-have-strange-data-repository-behavi
@@ -15,9 +12,10 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper=true)
 @SuperBuilder
 @Table(name="Aluno")
+@PrimaryKeyJoinColumn(name = "id")
 public class Aluno extends User  {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id")
     private Professor professor;
 

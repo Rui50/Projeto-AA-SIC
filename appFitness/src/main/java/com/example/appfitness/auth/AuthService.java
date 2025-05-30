@@ -1,5 +1,7 @@
 package com.example.appfitness.auth;
 
+import com.example.appfitness.models.Aluno;
+import com.example.appfitness.repositories.AlunoRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +16,15 @@ import java.util.Optional;
 public class AuthService {
     private final JwtService jwtService;
     private final UserService userService;
+    private final AlunoRepository alunoRepository;
 
     @Value("${app.domain}")
     private String appDomain;
 
-    public AuthService(JwtService jwtService, UserService userService) {
+    public AuthService(JwtService jwtService, UserService userService, AlunoRepository alunoRepository) {
         this.jwtService = jwtService;
         this.userService = userService;
+        this.alunoRepository = alunoRepository;
     }
 
     /**
@@ -50,12 +54,12 @@ public class AuthService {
     /**
      * Register: Registers a new user, checking for email uniqueness.
      */
-    public User register(User user) throws Exception {
-        String email = user.getEmail();
+    public Aluno registerAluno(Aluno aluno) throws Exception {
+        String email = aluno.getEmail();
         if (userService.emailExists(email)) {
-            throw new Exception("User with email '" + user.getEmail() + "' already exists!");
+            throw new Exception("User with email '" + aluno.getEmail() + "' already exists!");
         }
-        return userService.saveUser(user);
+        return alunoRepository.save(aluno);
     }
 
     public boolean checkUserId(String token, String userId) {
@@ -90,6 +94,14 @@ public class AuthService {
 
     public String extractName(String token) {
         return jwtService.extractName(token);
+    }
+
+    public String extractEmail(String token) {
+        return jwtService.extractEmail(token);
+    }
+
+    public String getRoleFromToken(String token) {
+        return jwtService.extractRole(token);
     }
 
     public Cookie generateCookie(String email, String password){

@@ -2,11 +2,17 @@
     import { ref, computed } from 'vue'
     import { useRouter } from 'vue-router'
     import { Icon } from "@iconify/vue";
+    import axios from 'axios'
+    import { API_PATHS } from '../api_paths'
+    import { useUserStore } from '../stores/userStore'
+
+    const userStore = useUserStore()
 
     /**
      * TODO
      * 
      * fix confirm password- passwords dont match
+     * loading enquanto se regista
      */
 
     const router = useRouter()
@@ -14,7 +20,13 @@
     const email = ref('')
     const password = ref('')
     const confirmPassword = ref('')
+    const metricType = ref('METRIC') // ou 'IMPERIAL', pode ser um select no futuro
 
+    // se quisermos loading enquanto se regista
+    const isLoading = ref(false)
+
+
+    // ui state
     const showPassword = ref(false)
     const togglePasswordVisibility = () => {
         showPassword.value = !showPassword.value
@@ -32,6 +44,12 @@
     const usernameError = computed(() => {
         if (!username.value.trim()) return "Username is required"
         if (username.value.length < 3) return "Username must be at least 3 characters"
+        return ""
+    })
+
+    const passwordError = computed(() => {
+        if (!password.value.trim()) return "Password is required"
+        if (password.value.length < 6) return "Password must be at least 6 characters"
         return ""
     })
 
@@ -77,13 +95,43 @@
 
     const submit = async () => {
         // so it shows errors if needed
+        console.log("Submitting registration form...")
         for(const field in trackFieldsFirstUse.value) {
             markField(field)
         }
 
         if (!formIsValid.value) return
+
+        isLoading.value = true
         
 
+        const newUser = {
+            name: username.value,
+            email: email.value,
+            password: password.value,
+            metricType: metricType.value 
+        }
+        
+        const response = await axios.post(API_PATHS.register, newUser)
+            .then(async (response) => {
+                console.log("Registration successful:", response.data);
+                alert("Registration successful! Please log in."); 
+                router.push('/auth/login');
+            })
+            .catch((error) => {
+                let response = error.response
+                // depois fazer erro x = ja existe conta com email
+                console.error("Registration failed:", error)
+            })
+
+        try {
+
+        }
+        catch (error) {
+            console.error("Registration failed:", error)
+        } finally {
+            isLoading.value = false
+        }
     }
 
 
@@ -154,7 +202,9 @@
                 </div>
             </div>
 
-            <button class="sign-up-btn" type="submit" :disabled="!formIsValid">Sign up</button>
+            <button class="sign-up-btn" type="submit" @click.prevent="submit" :disabled="!formIsValid || isLoading">
+                {{ isLoading ? 'Registering...' : 'Sign up' }}
+            </button>
             <p class="sign-in-text">
                 Already have an account? <a href="#" @click.prevent="goToLogin">Sign in</a>
             </p>

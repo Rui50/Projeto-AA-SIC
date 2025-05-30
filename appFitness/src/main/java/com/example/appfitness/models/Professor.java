@@ -17,6 +17,7 @@ import java.util.List;
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "Professor")
+@PrimaryKeyJoinColumn(name = "id")
 public class Professor extends User{
     @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY)
     private List<Aluno> alunos;

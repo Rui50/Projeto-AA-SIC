@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT u.email FROM User u WHERE u.id = :id")
     Optional<String> findEmailById(String id);
 
-    @Query(value="SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END FROM users WHERE email = ?1", nativeQuery = true)
+    @Query(value="SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END FROM User WHERE email = ?1", nativeQuery = true)
     Integer checkEmail(String email);
 
     @Query("SELECT u FROM User u WHERE u.id in :usersIds")

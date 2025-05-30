@@ -4,11 +4,13 @@
     import { ref, onMounted } from 'vue'
     import { useUserStore } from '@/stores/userStore'
     import { useRoute } from 'vue-router'
+    import { useRouter } from 'vue-router'
     import axios from 'axios'
     import { API_PATHS } from '@/api_paths'
     import CreateWorkoutPopup from '@/components/CreateWorkoutPopup.vue'    
     
     const route = useRoute()
+    const router = useRouter()
     const userStore = useUserStore();
 
     const showCreateWorkoutPopup = ref(false)
@@ -43,7 +45,7 @@
 
             const createdWorkout = response.data;
             console.log('Workout created:', createdWorkout);
-            //router.push(`/workouts/${createdWorkout.id}`);
+            router.push(`/workout/edit/${createdWorkout.id}`);
         }
         catch (error) {
             console.error('Error creating workout:', error);

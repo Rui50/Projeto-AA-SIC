@@ -36,7 +36,7 @@ const router = createRouter({
           component: () => import('../views/WorkoutsList.vue'),
         },
         {
-          path: 'workoutedit',
+          path: 'workout/edit/:id',
           name: 'workoutedit',
           component: () => import('../views/WorkoutEdit.vue'),
         },

@@ -1,271 +1,151 @@
 <script setup>
-    import { ref, computed, onMounted } from 'vue'
-    import { useRouter } from 'vue-router'
+    import { ref, computed, onMounted, watch } from 'vue'
     import { Icon } from '@iconify/vue'
-
-    const router = useRouter()
 
     const props = defineProps({
         popupState: {
             type: Boolean,
             default: false
         },
+        initialExerciseData: {
+            type: Object,
+            default: () => ({
+                id: null, 
+                exercise: { 
+                    id: null,
+                    name: ''  
+                },
+                note: '',
+                plannedSets: []
+            })
+        }
     })
 
-    const exercise = ref({
-        name: 'Exercise Name',
-        sets: [
-            { reps: 10, weight: 50, rest: 60 },
-            { reps: 12, weight: 55, rest: 60 },
-            { reps: 8, weight: 60, rest: 60 },
-        ],
-        note: ''
-    })
+    const emit = defineEmits(['close', 'exercise-updated'])
+
+    const exercise = ref(JSON.parse(JSON.stringify(props.initialExerciseData)));
+
+    
+    watch(() => props.initialExerciseData, (newVal) => {
+        if (props.popupState && newVal) {
+            exercise.value = JSON.parse(JSON.stringify(newVal));
+        }
+    }, { deep: true });
+
+    const updateSetNumbers = () => {
+        exercise.value.plannedSets.forEach((set, index) => {
+            set.setNumber = index + 1;
+        });
+    };
 
     const addSet = () => {
-        exercise.value.sets.push({ reps: '', weight: '', rest: '' })
-    }
+        const newSet = {
+            // id: null, // If backend assigns IDs to sets, might be useful for new sets
+            setNumber: exercise.value.plannedSets.length + 1,
+            repsPlanned: null,
+            weightPlanned: null,
+            restTimeSuggestion: null
+        };
+        exercise.value.plannedSets.push(newSet);
+    };
+
 
     const deleteSet = (index) => {
-        exercise.value.sets.splice(index, 1)
-    }
+        exercise.value.plannedSets.splice(index, 1);
+        updateSetNumbers(); 
+    };
 
     const saveChanges = () => {
-        emit("save", exercise.value)
-    }
+        updateSetNumbers();
+        emit("exercise-updated", exercise.value);
+        closePopup(); 
+    };
 
     const closePopup = () => {
-        emit("close")
-    }
+        emit("close");
+        // reset the exercise state to the initial data
+        exercise.value = JSON.parse(JSON.stringify(props.initialExerciseData));
+    };
 
-    const emit = defineEmits(["close", "save"])
+    onMounted(() => {
+        exercise.value = JSON.parse(JSON.stringify(props.initialExerciseData));
+        console.log("Mounted EditExercise with initial data:", exercise.value);
+    });
     
 </script>
-
 <template>
-    <div v-if="popupState" class="edit-exercise">
+    <div v-if="popupState" class="edit-exercise-backdrop" @click.self="closePopup">
         <div class="edit-exercise-container">
             <div class="edit-exercise-header">
                 <h2>Edit Exercise</h2>
-                <button class="close-button" @click="closePopup">X</button>
+                <button class="close-button" @click="closePopup">
+                    <Icon icon="mdi:close" width="24" height="24" />
+                </button>
             </div>
 
-            <div class="exercise-details">
-                <div class="form-group exercise-name">
-                    <label>Name</label>
-                    <div class="form readonly-name">{{ exercise.name }}</div>
+            <div class="exercise-details-content"> <div class="form-group exercise-name-display"> <label>Exercise Name</label>
+                    <div class="form readonly-name">{{ exercise.exercise.name }}</div>
                 </div>
 
-                
                 <div class="sets-list">
                     <div class="sets-header">
-                        <div class="set-number">Sets</div>
-                        <div class="set-reps">Reps</div>
-                        <div class="set-weight">Weight</div>
-                        <div class="set-rest">Rest</div>
-                        <div class="set-actions">Actions</div>
+                        <div class="set-col set-number">Set</div>
+                        <div class="set-col set-reps">Reps</div>
+                        <div class="set-col set-weight">Weight (kg)</div> <div class="set-col set-rest">Rest (s)</div> <div class="set-col set-actions"></div>
                     </div>
 
-                    <div 
-                        v-for="(set, index) in exercise.sets"
-                        :key="index" 
+                    <div
+                        v-for="(set, index) in exercise.plannedSets"
+                        :key="index"
                         class="set-row">
-                        <div class="set-number"> {{ index + 1 }}</div>
-                        <div class="set-reps">
-                            <input type="number" v-model="set.reps" placeholder="Reps" class="form"/>
+                        <div class="set-col set-number">{{ index + 1 }}</div>
+                        <div class="set-col set-reps">
+                            <input type="number" v-model.number="set.repsPlanned" placeholder="Reps" class="form"/>
                         </div>
-                        <div class="set-weight">
-                            <input type="number" v-model="set.weight" placeholder="Weight" class="form"/>
+                        <div class="set-col set-weight">
+                            <input type="number" v-model.number="set.weightPlanned" placeholder="Weight" class="form"/>
                         </div>
-                        <div class="set-rest">
-                            <input type="number" v-model="set.rest" placeholder="Rest" class="form"/>
+                        <div class="set-col set-rest">
+                            <input type="number" v-model.number="set.restTimeSuggestion" placeholder="Rest" class="form"/>
                         </div>
-                        <div class="set-actions">
+                        <div class="set-col set-actions">
                             <Icon class="delete-icon" @click="deleteSet(index)" icon="ph:trash-thin" width="20" height="20" />
                         </div>
                     </div>
 
-                    <button @click="addSet" class="add-set-button">+ Add Set</button>
+                    <button @click="addSet" class="add-set-button">
+                        <Icon icon="mdi:plus" width="20" height="20" /> Add Set
+                    </button>
 
-                    <div class="note-form">
-                        <label for="exercise-note">Note</label>
-                        <textarea 
-                            id="exercise-note" 
-                            v-model="exercise.note" 
+                    <div class="note-form form-group"> <label for="exercise-note">Note</label>
+                        <textarea
+                            id="exercise-note"
+                            v-model="exercise.note"
                             placeholder="Add a note..."
                             class="form note-textarea">
                         </textarea>
                     </div>
                 </div>
-
-                <div class="exercise-actions">
-                    <button @click="closePopup" class="cancel-button">Cancel</button>
-                    <button @click="saveChanges" class="save-button">Save Changes</button>
-                </div>
+            </div> <div class="exercise-actions">
+                <button @click="closePopup" class="cancel-button">Cancel</button>
+                <button @click="saveChanges" class="save-button">Save Changes</button>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-    .readonly-name {
-        background-color: #f9fafb;
-        border: 1px solid #d1d5db;
-        border-radius: 5px;
-        padding: 0.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #4b5563;
-    }
-
-    .cancel-button {
-        padding: 0.6rem 1rem;
-        border-radius: 5px;
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        border: none;
-        background-color: #f6f8fa;
-        border: 1px solid #d1d5db;
-        color: #24292e;
-        transition: background-color 0.2s;
-    }
-
-    .save-button {
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        border: none;
-        background-color: var(--button-lighter);
-        color: white;       
-        transition: background-color 0.2s;
-    }
-
-    .cancel-button:hover {
-        background-color: #e1e4e8;
-    }
-
-    .save-button:hover {
-        background-color: var(--button-primary);
-    }
-
-    label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #374151;
-    }
-
-    .exercise-actions {
-        padding: 1rem 1.5rem;
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        border-top: 1px solid #dee2e6;
-    }
-
-    .exercise-details {
-        padding: 1rem;
-        max-height: 70vh;
-        overflow-y: auto;
-    }
-
-    .sets-list {
-        margin-bottom: 1rem;
-    }
-
-    .sets-header {
-        display: flex;
-        font-weight: 500;
-        margin-bottom: 1rem;
-    }
-
-    .set-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .set-number {
-        width: 40px;
-        text-align: center;
-        padding: 0.5rem;
-    }
-
-    .set-reps, .set-weight, .set-rest {
-        flex: 1;
-        padding: 0.5rem;
-    }
-
-    .set-actions {
-        width: 40px;
-        text-align: center;
-    }
-
-    .delete-icon {
-        cursor: pointer;
-        color: #ef4444;
-    }
-
-    .delete-icon:hover {
-        color: #dc2626;
-    }
-
-    .add-set-button {
-        width: 100%;
-        padding: 0.5rem;
-        background-color: #f3f4f6;
-        border: 1px dashed #d1d5db;
-        border-radius: 5px;
-        color: #4b5563;
-        cursor: pointer;
-        margin-top: 0.5rem;
-        font-weight: 500;
-        margin-bottom: 1rem;
-    }
-
-    .add-set-button:hover {
-        background-color: #e5e7eb;
-    }
-
-    .form-group {
-        margin-bottom: 1rem;
-    }
-
-    .form {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #d1d5db;
-        border-radius: 5px;
-        font-size: 1rem;
-    }
-
-    .note-form {
-        margin-top: 1rem;
-    }
-
-    .note-textarea {
-        min-height: 100px;
-        resize: vertical;
-    }
-
-    .exercise-name {
-        margin-bottom: 1.5rem;
-    }
-
-    .edit-exercise {
+    .edit-exercise-backdrop {
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5); 
         display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
+        justify-content: center; 
+        align-items: center;   
+        z-index: 999;
     }
 
     .edit-exercise-container {
@@ -274,15 +154,19 @@
         width: 80%;
         max-width: 600px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
+        overflow: hidden; 
+        display: flex; 
+        flex-direction: column; 
+        max-height: 90vh;
     }
 
     .edit-exercise-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 1rem;
+        padding: 1rem 1.5rem; 
         border-bottom: 1px solid #dee2e6;
+        flex-shrink: 0; 
     }
 
     .edit-exercise-header h2 {
@@ -297,5 +181,165 @@
         font-size: 1.5rem;
         cursor: pointer;
         color: #495057;
+        padding: 0; 
+    }
+    .close-button:hover {
+        color: #333;
+    }
+
+    .exercise-details-content {
+        flex-grow: 1; 
+        overflow-y: auto; 
+        padding: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .exercise-name-display {
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .form {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 5px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+
+    .readonly-name {
+        background-color: #f9fafb;
+        border: 1px solid #d1d5db;
+        border-radius: 5px;
+        padding: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #4b5563;
+    }
+
+    .sets-list {
+        margin-bottom: 1rem;
+    }
+
+    .sets-header, .set-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sets-header {
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+        color: #333;
+    }
+
+    .set-row {
+        margin-bottom: 0.75rem;
+    }
+
+    .set-col {
+        padding: 0 0.25rem;
+    }
+
+    .set-number {
+        width: 40px; 
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .set-reps, .set-weight, .set-rest {
+        flex: 1;
+    }
+
+    .set-actions {
+        width: 30px; 
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .delete-icon {
+        cursor: pointer;
+        color: #ef4444;
+        transition: color 0.2s;
+    }
+
+    .delete-icon:hover {
+        color: #dc2626;
+    }
+
+    .add-set-button {
+        width: 100%;
+        padding: 0.75rem; 
+        background-color: #f3f4f6;
+        border: 1px dashed #d1d5db;
+        border-radius: 5px;
+        color: #4b5563;
+        cursor: pointer;
+        margin-top: 1rem;
+        font-weight: 500;
+        display: flex; 
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: background-color 0.2s;
+    }
+
+    .add-set-button:hover {
+        background-color: #e5e7eb;
+    }
+
+    .note-textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .exercise-actions {
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        border-top: 1px solid #dee2e6;
+        flex-shrink: 0;
+    }
+
+    .cancel-button, .save-button {
+        padding: 0.6rem 1.2rem; 
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: background-color 0.2s;
+    }
+
+    .cancel-button {
+        background-color: #f6f8fa;
+        border: 1px solid #d1d5db;
+        color: #24292e;
+    }
+
+    .save-button {
+        background-color: var(--button-lighter);
+        color: white;
+    }
+
+    .cancel-button:hover {
+        background-color: #e1e4e8;
+    }
+
+    .save-button:hover {
+        background-color: var(--button-primary);
     }
 </style>

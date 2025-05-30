@@ -1,16 +1,31 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, onMounted, watch } from 'vue'
     import { useRouter } from 'vue-router'
     import { Icon } from '@iconify/vue'
     import EditExercise from '@/components/EditExercise.vue'
     import ExerciseLibrary from '@/components/ExerciseLibrary.vue'
+    import axios from 'axios'
+    import { API_PATHS } from '@/api_paths'
+    import { useUserStore } from '@/stores/userStore'
+    import { useRoute } from 'vue-router'
 
+    import WorkoutScheduleEditor from '@/components/WorkoutScheduleEditor.vue'
+    import WorkoutExercisesEditor from '@/components/WorkoutExercisesEditor.vue'
+
+    const userStore = useUserStore()
+    const route = useRoute()
     const router = useRouter()
+
 
     // nao esquecer de por o delete nesta pagina
 
-    const workoutName = ref('Workout Title')
-    
+    const workoutId = ref(null)
+    const workoutName = ref('')
+    const workoutDescription = ref('')
+    const scheduleType = ref('FREE') 
+    const scheduledDays = ref([])
+    const exercises = ref([])
+
     // temporary
     const editName = () => {
         const newName = prompt('Enter new workout name:', workoutName.value);
@@ -19,282 +34,277 @@
         }
     };
 
-    const scheduleType = ref('freedom');
+    const editDescription = () => {
+        const newDescription = prompt('Enter new workout description:', workoutDescription.value);
+        if (newDescription !== null) {
+            workoutDescription.value = newDescription.trim();
+        }
+    };
 
-    const weekdays = ref([
-        { name: 'M', selected: false },
-        { name: 'T', selected: false },
-        { name: 'W', selected: false },
-        { name: 'T', selected: false },
-        { name: 'F', selected: false },
-        { name: 'S', selected: false },
-        { name: 'S', selected: false }
-    ]);
 
-    const exercises= ref([
-        { name: 'Pernas', sets: '3', reps: '12-15', weight: '18-20kg', rest: '60s' },
-        { name: 'Pernas', sets: '3', reps: '12-15', weight: '18-20kg', rest: '60s' },
-        { name: 'Pernas', sets: '3', reps: '12-15', weight: '18-20kg', rest: '60s' }
-    ])
+    // ui state
+    const isLoading = ref(true)
+    const errorMessage = ref('')
 
-    const editExercisePopupState = ref(false)
 
-    const openEditExercisePopup = (exercise, index) => {
-        editExercisePopupState.value = true
+    const handleScheduleTypeUpdate = (newType) => {
+        scheduleType.value = newType;
+    };
+
+    const handleScheduledDaysUpdate = (newDays) => {
+        scheduledDays.value = newDays;
+    };
+
+    const handleExercisesUpdate = (updatedExercisesList) => {
+        exercises.value = updatedExercisesList;
+    };
+    
+    const saveChanges = async () => {
+        if (isLoading.value) return;
+        isLoading.value = true;
+        errorMessage.value = '';
+
+        // prepare exercices DTO
+        const exercisesToSend = exercises.value.map(ex => ({
+            exerciseDataId: ex.id, //|| null, // if id is null, it means it's a new exercise
+            exerciseId: ex.exercise.id, // actual exercise id
+            note: ex.note || '',
+
+            // map the sets to the DTO format
+            plannedSets: ex.plannedSets.map(set => ({
+                setNumber: set.setNumber,
+                reps: set.repsPlanned,
+                weight: set.weightPlanned,
+                restTimeSugested: set.restTimeSuggestion
+            }))
+        }))
+
+        const payload = {
+            name: workoutName.value,
+            description: workoutDescription.value,
+            scheduleType: scheduleType.value,
+            scheduledDays: scheduledDays.value,
+            exercises: exercisesToSend
+        }
+
+        try {
+            const response = await axios.put(`${API_PATHS.WORKOUT_BY_ID}${workoutId.value}`, payload, {
+                headers: {
+                    Authorization: `Bearer ${userStore.getToken}`
+                }
+            });
+
+            console.log('Workout updated successfully:', response.data);
+            // mensagem de sucesso
+            alert('Workout updated successfully!');
+        } catch (error) {
+            console.error('Error updating workout:', error);
+            errorMessage.value = 'An error occurred while updating the workout.';
+        } finally {
+            isLoading.value = false;
+        }
     }
 
-    const closeEditExercisePopup = () => {
-        editExercisePopupState.value = false
-    }
+    const deleteWorkout = async () => {
+        if (!confirm('Are you sure you want to delete this workout?')) {
+            return;
+        }
+
+        if (isLoading.value) return;
+        isLoading.value = true;
+        errorMessage.value = '';
+
+        try {
+            await axios.delete(`${API_PATHS.WORKOUT_BY_ID}${workoutId.value}`, {
+                headers: {
+                    Authorization: `Bearer ${userStore.getToken}`
+                }
+            });
+
+            console.log('Workout deleted successfully');
+            alert('Workout deleted successfully!');
+            router.push('/workouts');
+        } catch (error) {
+            console.error('Error deleting workout:', error);
+            errorMessage.value = 'An error occurred while deleting the workout.';
+        } finally {
+            isLoading.value = false;
+        }
+    };
+
 
     // fazer sempre que mudar o nome do workout guardar? ou so quando selecionar o guardar geral
     // ao passar o rato por cima de um dos dias talvez expandir o dia para dizer o texto completo
     // fazer as box shadows "mais fortes"
+    onMounted(async () => {
+        workoutId.value = route.params.id;
+
+        if(!workoutId.value) {
+            console.error('Workout ID missing');
+            isLoading.value = false;
+            return;
+        }
+
+        try {
+            const response = await axios.get(`${API_PATHS.WORKOUT_BY_ID}${workoutId.value}`, {
+                headers: {
+                    Authorization: `Bearer ${userStore.getToken}`
+                }
+            });
+
+            const workoutData = response.data;
+
+            if (workoutData) {
+                workoutName.value = workoutData.name || '';
+                workoutDescription.value = workoutData.description || '';
+                scheduleType.value = workoutData.scheduleType || 'FREE';
+                scheduledDays.value = workoutData.scheduledDays || []; 
+                exercises.value = workoutData.exercises || [];
+                console.log('Workout data loaded:', workoutData);
+            } else {
+                console.error('Workout not found');
+            }
+
+        } catch (error) {
+            console.error('Error fetching workout:', error);
+        } finally {
+            isLoading.value = false;
+        }
+    })
 </script>
 
 <template>
     <div class="edit-workout">
-        <div class="edit-workout-header">
-           <div class="workout-name">
-                <Icon icon="mdi:edit" width="24" height="24" @click="editName" class="pen-icon"/>
-                <h1> {{ workoutName }}</h1>
-           </div>
-           <div class="workout-edit-actions">
-                <button class="button-cancel">Cancel</button>
-                <button class="button-save">Save Changes</button>
-           </div>
-        </div>
-
-        <div class="edit-card">
-            <h2>Schedule Type</h2>
-            <div class="schedule-types">
-                <div 
-                    class="schedule-type"
-                    :class="{ 'active': scheduleType === 'freedom' }"
-                    @click="scheduleType = 'freedom'"
-                >
-                    <div class="schedule-type-name">Freedom</div>
-                    <p>Execute the workout when I have the free time for it</p>
+        <div v-if="isLoading" class="loading-indicator">Loading workout...</div>
+        <div v-else-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+        <div v-else>
+            <div class="edit-workout-header">
+                <div class="workout-name">
+                    <Icon icon="mdi:edit" width="24" height="24" @click="editName" class="pen-icon"/>
+                    <h1>{{ workoutName || 'Untitled Workout' }}</h1>
+                    <Icon icon="mdi:pencil" width="20" height="20" @click="editDescription" class="pen-icon" title="Edit description"/>
                 </div>
-
-                <div 
-                    class="schedule-type"
-                    :class="{ 'active': scheduleType === 'fixed' }"
-                    @click="scheduleType = 'fixed'"
-                >
-                    <div class="schedule-type-name">Fixed</div>
-                    <p>Select the day/s of the week for this workout</p>
+                <div class="workout-edit-actions">
+                    <button class="button-cancel" @click="router.back()">Cancel</button>
+                    <button class="button-save" @click="saveChanges">Save Changes</button>
+                    <button class="button-delete" @click="deleteWorkout">Delete Workout</button>
                 </div>
             </div>
 
-            <div v-if="scheduleType === 'fixed'">
-                <div class="days-title">Select the days of the week for this workout</div>
-                <div class="days-select-section">  
-                    <div 
-                        class="days-selection"
-                        v-for="(day, index) in weekdays" 
-                        :key="index"
-                        :class="{ 'active': day.selected }"
-                        @click="day.selected = !day.selected"
-                    >
-                        <div class="days">{{ day.name }}</div>
-                    </div>
-                </div>
-            </div> 
+            <WorkoutScheduleEditor
+                :initialScheduleType="scheduleType"
+                :initialScheduledDays="scheduledDays"
+                @update-scheduleType="handleScheduleTypeUpdate"
+                @update-scheduledDays="handleScheduledDaysUpdate"
+            />
+
+            <WorkoutExercisesEditor
+                :initialExercises="exercises"
+                :workoutId="workoutId"
+                @update-exercises="handleExercisesUpdate"
+            />
         </div>
-
-        <div class="edit-card">
-            <div class="exercises-header">
-                <h2>Exercises</h2>
-                <button class="add-exercise-button">+ Add Exercise</button>
-            </div>
-
-            <div class="exercises-list">
-
-            </div>
-        </div>
-
-
-        <EditExercise
-            :popupState="editExercisePopupState"
-            @close="closeEditExercisePopup"
-        />
-
-        <ExerciseLibrary
-        />
     </div>
-    
-
-
 </template>
 
-<style scoped> 
-    .edit-workout{
-        max-width: 1500px;
-        width: 100%;
-        margin: 0 auto;
-        padding: 20px;
-    }
+<style scoped>
+/* Keep global page layout styles here */
+.edit-workout {
+    max-width: 1500px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+}
 
-    .edit-workout-header{
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
+.edit-workout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
 
-    .workout-name{
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+.workout-name {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
 
-    }
+.pen-icon {
+    cursor: pointer;
+    color: #495057;
+}
 
-    .pen-icon{
-        cursor: pointer;
-        color: #495057;
-    }
+.pen-icon:hover {
+    color: #4b5563;
+}
 
-    .pen-icon:hover {
-        color: #4b5563;
-    }
+.workout-edit-actions {
+    display: flex;
+    gap: 1rem;
+}
 
-    .workout-edit-actions{
-        display: flex;
-        gap: 1rem;
-    }
+.button-cancel {
+    padding: 0.6rem 1rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background-color: #f6f8fa;
+    border: 1px solid #d1d5db;
+    color: #24292e;
+    transition: background-color 0.2s;
+}
 
-    .button-cancel {
-        padding: 0.6rem 1rem;
-        border-radius: 5px;
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        border: none;
-        background-color: #f6f8fa;
-        border: 1px solid #d1d5db;
-        color: #24292e;
-        transition: background-color 0.2s;
-    }
+.button-save {
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background-color: var(--button-lighter);
+    color: white;
+    transition: background-color 0.2s;
+}
 
-    
-    .button-save {
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        border: none;
-        background-color: var(--button-lighter);
-        color: white;       
-        transition: background-color 0.2s;
-    }
+.button-cancel:hover {
+    background-color: #e1e4e8;
+}
 
-    .button-cancel:hover {
-        background-color: #e1e4e8;
-    }
-    .button-save:hover {
-        background-color: var(--button-primary);
-    }   
+.button-save:hover {
+    background-color: var(--button-primary);
+}
 
-    h1 {
-        color: #000000;
-    }
+.button-delete {
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background-color: #dc3545;
+    color: white;
+    transition: background-color 0.2s;
+}
 
-    .edit-card{
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        padding: 2rem;
-        margin-bottom: 2rem;
-    }
+.button-delete:hover {
+    background-color: #c82333;
+}
 
-    h2 {
-        font-size: 1.3rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-    .schedule-types{
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
+h1 {
+    color: #000000;
+}
 
-    }
+.loading-indicator, .error-message {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2rem;
+    color: #555;
+}
 
-    .schedule-type {
-        flex: 1; /**To take up all the space */
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        padding: 10px;
-        cursor: pointer;
-        position: relative;
-        transition: border-color 0.3s ease;
-    }
-    
-    .schedule-type.active {
-        border: 1px solid #4f46e5;
-    }
-
-    .schedule-type-name{
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    p {
-        font-size: 0.9rem;
-        color: #6b7280;
-    }
-
-    .days-title{
-        font-weight: 600;
-        font-size: 1rem;
-    }
-
-    .days-select-section{
-        display: flex;
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-    
-
-    .days-selection{
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        cursor: pointer;
-        background-color: #f3f4f6;
-        color: #4b5563;
-    }
-
-    .days-selection.active {
-        background-color: var(--button-lighter);
-        color: white;
-    }
-
-    .days {
-        font-weight: 700;
-    }
-
-    .exercises-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .add-exercise-button {
-        background-color: var(--button-lighter);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        border: none;
-    }
-
+.error-message {
+    color: #dc3545;
+    font-weight: bold;
+}
 </style>

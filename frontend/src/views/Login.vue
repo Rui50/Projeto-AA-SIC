@@ -2,10 +2,19 @@
     import { ref, computed } from 'vue'
     import { useRouter } from 'vue-router'
     import { Icon } from "@iconify/vue";
+    import axios from 'axios'
+    import { API_PATHS } from '../api_paths'
+    import { useUserStore } from '../stores/userStore'
+
+
+    const userStore = useUserStore()
 
     const router = useRouter()
-    const username = ref('')
+    const email = ref('')
     const password = ref('')
+
+    const isLoading = ref(false)
+    const errorMessage = ref('')
 
     const showPassword = ref(false)
     const togglePasswordVisibility = () => {
@@ -16,6 +25,80 @@
         router.push('/auth/register')
     }
 
+    const emailError = computed(() => {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!email.value.trim()) return "Email is required"
+        if (!emailPattern.test(email.value)) return "Please enter a valid email"
+        return ""
+    })
+
+
+    const passwordError = computed(() => {
+        if (!password.value.trim()) return "Password is required"
+        return ""
+    })
+
+    const formIsValid = computed(() => {
+        return (
+            !emailError.value &&
+            !passwordError.value &&
+            email.value.trim() !== '' &&
+            password.value.trim() !== ''
+        )
+    })
+
+    const trackFieldsFirstUse = ref({
+        email: false,
+        password: false,
+    })
+
+    const markField = (field) => {
+        trackFieldsFirstUse.value[field] = true
+    }
+
+    const canShowError = (field) => {
+        return trackFieldsFirstUse.value[field]
+    }
+
+    const submitLogin = async() => {
+        for(const field in trackFieldsFirstUse.value) {
+            markField(field)
+        }
+        if (!formIsValid.value) {
+            return
+        }
+
+        isLoading.value = true
+        errorMessage.value = ''
+
+        const credentials = {
+            email: email.value,
+            password: password.value
+        }
+
+        try {
+            const response = await axios.post(API_PATHS.login, credentials)
+            console.log("Login successful:", response.data);
+
+            userStore.setUser({
+                userId: response.data.userId,
+                email: response.data.email,
+                name: response.data.name,
+                role: response.data.role,
+            })
+
+            router.push('/')
+        }
+        catch (error) {
+            console.error("Login failed:", error)
+            // meter aqui os erros de login certos com base no erro recebido
+            errorMessage.value = "Login failed. Please check your credentials."
+        } finally {
+            isLoading.value = false
+        }
+    }
+
+
 </script>
 
 
@@ -25,14 +108,14 @@
             <div class="login-form">
                 <h1>Sign In</h1>
                 <div class="form-group">
-                    <label for="username">Username</label>
-                    <input 
+                    <label for="email">Email</label> <input 
                         type="text" 
-                        id="username" 
-                        placeholder="Enter your username" 
-                        v-model="username"	
-                        required 
+                        id="email" 
+                        placeholder="Enter your email" 
+                        v-model="email"  
+                        @blur="markField('email')" required 
                     />
+                    <span v-if="canShowError('email') && emailError" class="error-text">{{ emailError }}</span>
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
@@ -41,8 +124,8 @@
                             :type="showPassword ? 'text' : 'password'" 
                             id="password" 
                             placeholder="Enter your password" 
-                            v-model="password"	
-                            required 
+                            v-model="password"  
+                            @blur="markField('password')" required 
                         />
                         <Icon
                             :icon="showPassword ? 'mdi:eye-off' : 'mdi:eye'"
@@ -50,10 +133,15 @@
                             @click="togglePasswordVisibility"
                         />
                     </div>
+                    <span v-if="canShowError('password') && passwordError" class="error-text">{{ passwordError }}</span>
                 </div>
             </div>
 
-            <button class="sign-in-btn" type="submit" :disabled="!username || !password">Sign in</button>
+            <p v-if="errorMessage" class="error-text general-error">{{ errorMessage }}</p>
+
+            <button class="sign-in-btn" type="submit" @click.prevent="submitLogin" :disabled="!formIsValid || isLoading">
+                {{ isLoading ? 'Signing In...' : 'Sign In' }}
+            </button>
             <p class="sign-up-text">
                 Don't have an account? <a href="#" @click.prevent="goToRegister">Sign up</a>
             </p>
@@ -62,7 +150,6 @@
             <img src="../assets/blury_logo.svg" alt="Logo" class="logo-img" />
         </div>
     </div>
-
 </template>
 
 <style scoped>

@@ -1,7 +1,6 @@
 package com.example.appfitness.controllers;
-/*
+
 import com.example.appfitness.auth.AuthService;
-import com.example.appfitness.exceptions.authentication.UnauthorizedException;
 import com.example.appfitness.models.User;
 
 import org.springframework.http.HttpStatus;
@@ -26,7 +25,7 @@ public class AuthController {
         try {
             User registeredUser = authService.register(user);
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
-        } catch (UnauthorizedException ex) {
+        } catch (Exception ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
         }
     }
@@ -40,7 +39,7 @@ public class AuthController {
             response.addCookie(cookie);
 
             return ResponseEntity.ok().body("{\"token\": \"" + token + "\"}");
-        } catch (UnauthorizedException ex) {
+        } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
         }
     }
@@ -52,4 +51,4 @@ public class AuthController {
         response.addCookie(cookie);
         return ResponseEntity.ok().body("Logged out successfully");
     }
-}*/
+}

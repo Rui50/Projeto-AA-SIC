@@ -1,9 +1,8 @@
 package com.example.appfitness.auth;
-/*
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.appfitness.exceptions.authentication.UnauthorizedException;
 import com.example.appfitness.models.User;
 import com.example.appfitness.services.UserService;
 
@@ -24,31 +23,37 @@ public class AuthService {
         this.userService = userService;
     }
 
-
-    public String login(User user) throws UnauthorizedException {
-        if (user == null) throw new UnauthorizedException("User is null");
+    /**
+     * Login: Verifies user credentials and returns a JWT token.
+     */
+    public String login(User user) throws RuntimeException {
+        if (user == null) throw new RuntimeException("User is null");
         Optional<User> userInDBOpt = userService.getUserByEmail(user.getEmail());
-        if (userInDBOpt.isEmpty()) throw new UnauthorizedException("User not found");
+        if (userInDBOpt.isEmpty()) throw new RuntimeException("User not found");
         User userInDB = userInDBOpt.get();
+
         if (!userService.checkPassword(user.getPassword(), userInDB.getPassword())) {
-            throw new UnauthorizedException("Invalid password");
+            throw new RuntimeException("Invalid password");
         }
         return jwtService.generateToken(userInDB);
     }
 
-    public String login(String email, String password) throws UnauthorizedException {
-        if (email == null || password == null) throw new UnauthorizedException("Email or password is null");
+    public String login(String email, String password) throws RuntimeException {
+        if(email == null) throw new RuntimeException("Email is null");
+        if(password == null) throw new RuntimeException("Password is null");
         User user = new User();
         user.setEmail(email);
         user.setPassword(password);
         return login(user);
     }
 
-
-    public User register(User user) throws UnauthorizedException {
+    /**
+     * Register: Registers a new user, checking for email uniqueness.
+     */
+    public User register(User user) throws Exception {
         String email = user.getEmail();
         if (userService.emailExists(email)) {
-            throw new UnauthorizedException("User with email '" + user.getEmail() + "' already exists!");
+            throw new Exception("User with email '" + user.getEmail() + "' already exists!");
         }
         return userService.saveUser(user);
     }
@@ -60,7 +65,8 @@ public class AuthService {
     }
 
     public boolean checkIfIdHasEmail(String token, String email) {
-        if (token == null || email == null) throw new UnauthorizedException("Token or email is null");
+        if(token == null) throw new RuntimeException("Token is null");
+        if(email == null) throw new RuntimeException("Email is null");
         Optional<String> emailFromDatabase = userService.getEmailFromUserId(Integer.parseInt(jwtService.extractUserId(token)));
         return emailFromDatabase.isPresent() && emailFromDatabase.get().equals(email);
     }
@@ -107,4 +113,3 @@ public class AuthService {
         return cookie;
     }
 }
-*/

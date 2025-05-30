@@ -2,20 +2,49 @@
     import { ref } from "vue"
     import { Icon } from "@iconify/vue";
     import { useRouter } from "vue-router"
+    import { useUserStore } from "../stores/userStore"
+    import { computed } from "vue";
 
+    const userStore = useUserStore()
     // passs the routes as props maybe
 
-    const username = ref("teste")
+    const displayUsername = computed(() => {
+        let username = userStore.getName;
+        return username;
+    });
 
     const router = useRouter()
 
-    const navbarItems = [
+    const commonNavbarItems = [
         { name: "Dashboard", link: "/" },
-        { name: "Workouts", link: "/workouts" },
-        { name: "Progress", link: "/progress" },
         { name: "Profile", link: "/profile" },
-    ]
+    ];
 
+    const alunoNavbarItems = [
+        ...commonNavbarItems,
+        { name: "Workouts", link: "/workouts" }, 
+        { name: "Progress", link: "/progress" },
+    ];
+
+    const professorNavbarItems = [
+        ...commonNavbarItems, 
+        { name: "My Students", link: "/students" },
+    ];
+
+    const navbarItems = computed(() => {
+        if (userStore.getRole === "ALUNO") {
+            return alunoNavbarItems;
+        } else if (userStore.getRole === "PROFESSOR") {
+            return professorNavbarItems;
+        }
+        return [];
+    });
+
+    // metemos aquele icon da porta
+    const logout = () => {
+        userStore.logout();
+        router.push('/auth/login'); 
+    };
 </script>
 
 <template>
@@ -24,7 +53,7 @@
             <div class="app-logo">
                 <img src="../assets/Logo.svg" alt="Logo" class="logo" />
             </div>
-            <span class="navbar-title">appName</span>
+            <span class="navbar-title">fitnessApp</span>
         </a>
 
         <ul class="navbar-items">
@@ -40,7 +69,10 @@
             <div class="user-avatar">
                 <img src="../assets/13.jpg" alt="User Avatar" class="avatar" />
             </div>
-            <span class="username"> {{ username }}</span>
+            <span class="username">{{ displayUsername }}</span>
+            <button @click="logout" class="logout-btn">
+                <Icon icon="ic:round-logout" width="24" height="24" />
+            </button>
         </div>
     </nav>
 
@@ -107,14 +139,6 @@
 
     .navbar-link:hover {
         color: var(--accent-color);
-    }
-
-    /* Vue router feature */
-    .router-link-active {
-        font-weight: bold;
-        color: var(--accent-color);
-        border-bottom: var(--accent-color) 2px solid;
-
     }
 
     .router-link-exact-active {

@@ -6,5 +6,8 @@ export const API_PATHS = {
     login: `${API_BASE_URL}/api/auth/login`,
     logout: `${API_BASE_URL}/api/auth/logout`,
 
+    // workout related paths
+    CREATE_WORKOUT: `${API_BASE_URL}/api/workout-plans`,
+
 
 }

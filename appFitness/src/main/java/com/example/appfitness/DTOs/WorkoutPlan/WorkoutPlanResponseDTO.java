@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +22,7 @@ public class WorkoutPlanResponseDTO {
     private String name;
     private String description;
     private Integer createdBy; // creator id
-    private LocalTime updatedAt;
+    private LocalDate updatedAt;
     private boolean active;
     private WorkoutPlan.WorkoutScheduleType scheduleType;
     private Integer ownerId;

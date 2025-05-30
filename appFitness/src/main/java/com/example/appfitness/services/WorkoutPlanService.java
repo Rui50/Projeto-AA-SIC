@@ -6,6 +6,7 @@ import com.example.appfitness.repositories.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,14 +40,17 @@ public class WorkoutPlanService {
     public WorkoutPlan createWorkoutPlan(WorkoutPlan workoutPlan, Integer ownerId, Integer creatorId) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new RuntimeException("Owner user not found " + ownerId));
-
         workoutPlan.setOwner(owner);
         workoutPlan.setCreatedBy(creatorId);
+
+        if (workoutPlan.getScheduleType() == null) {
+            workoutPlan.setScheduleType(WorkoutPlan.WorkoutScheduleType.FREE); // Or FIXED, based on your business logic
+        }
 
         // doesnt start as active
         workoutPlan.setActive(false);
         workoutPlan.setExercises(new ArrayList<>());
-        workoutPlan.setUpdatedAt(LocalTime.now());
+        workoutPlan.setUpdatedAt(LocalDate.now());
 
         return workoutPlanRepository.save(workoutPlan);
     }
@@ -64,7 +68,7 @@ public class WorkoutPlanService {
         workoutPlan.setDescription(updateDTO.getDescription());
         workoutPlan.setScheduleType(updateDTO.getScheduleType());
         workoutPlan.setScheduledDays(updateDTO.getScheduledDays());
-        workoutPlan.setUpdatedAt(LocalTime.now());
+        workoutPlan.setUpdatedAt(LocalDate.now());
 
         // secalhar algumas coisas fazemos o update de outra maneira tipo o active
         workoutPlan.setActive(updateDTO.isActive());

@@ -2,18 +2,64 @@
     import Navbar from '@/components/Navbar.vue'
     import WorkoutCard from '@/components/WorkoutCard.vue'
     import { ref, onMounted } from 'vue'
+    import { useUserStore } from '@/stores/userStore'
+    import { useRoute } from 'vue-router'
+    import axios from 'axios'
+    import { API_PATHS } from '@/api_paths'
+    import CreateWorkoutPopup from '@/components/CreateWorkoutPopup.vue'    
+    
+    const route = useRoute()
+    const userStore = useUserStore();
+
+    const showCreateWorkoutPopup = ref(false)
+    const ToggleCreateWorkoutPopup = () => {
+        showCreateWorkoutPopup.value = !showCreateWorkoutPopup.value
+    }
 
     // placeholders
     const activeWorkoutsCount = ref(5)
     const inactiveWorkoutsCount = ref(1)
 
+    const handleCreateWorkout = async (workoutName) => {
+        ToggleCreateWorkoutPopup();
+
+        try {
+            const newWorkout = {
+                name: workoutName,
+                ownerId: userStore.getUserId,
+            }
+
+            console.log('Creating workout:', newWorkout);
+
+            const response = await axios.post(API_PATHS.CREATE_WORKOUT, newWorkout, {
+                headers: {
+                    Authorization: `Bearer ${userStore.getToken}`
+                }
+            });
+
+
+            const createdWorkout = response.data;
+            console.log('Workout created:', createdWorkout);
+            //router.push(`/workouts/${createdWorkout.id}`);
+        }
+        catch (error) {
+            console.error('Error creating workout:', error);
+            alert('Failed to create workout. Please try again.');
+        }
+    }
+
+    /*onMounted(() => {
+        fetchWorkouts();
+    });*/
 </script>
 
 <template>
     <div class="workouts-page">
         <div class="workouts-header">
             <h1>My Workouts</h1>
-            <button class="new-workout-btn">+ Create new workout</button>
+            <button class="new-workout-btn" @click="ToggleCreateWorkoutPopup">
+                + Create new workout
+            </button>
         </div>
 
         <div class="workouts-list">
@@ -38,6 +84,11 @@
                 <WorkoutCard />
             </div>
         </div>
+        <CreateWorkoutPopup 
+            v-if="showCreateWorkoutPopup" 
+            @create-workout="handleCreateWorkout" 
+            @cancel="ToggleCreateWorkoutPopup"
+        />
     </div>
 
 </template>

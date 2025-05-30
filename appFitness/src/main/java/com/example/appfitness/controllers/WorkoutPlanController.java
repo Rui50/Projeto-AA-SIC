@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/workoutPlans")
+@RequestMapping("/api/workout-plans")
 public class WorkoutPlanController {
     private WorkoutPlanService workoutPlanService;
     private UserService userService;
@@ -36,7 +36,7 @@ public class WorkoutPlanController {
 
     @PostMapping
     public ResponseEntity<Object> createWorkoutPlan(@RequestBody WorkoutPlanRequestDTO createDTO) {
-        Integer creatorId = createDTO.getOwnerId(); // placeholder for now
+        Integer creatorId = createDTO.getOwnerId();
 
         WorkoutPlan workoutPlan = new WorkoutPlan();
         workoutPlan.setName(createDTO.getName());

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class WorkoutPlan {
     // nao deve ser preciso dados de quem criou mas apenas apresentar quem criou
     // fazer isso fica para trabalho futuro
     private Integer createdBy;
-    private LocalTime updatedAt;
+    private LocalDate updatedAt;
 
     @Column(nullable = false)
     private boolean active;

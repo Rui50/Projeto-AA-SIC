@@ -24,7 +24,7 @@ public class SetData {
 
     private Integer repsPlanned;
     private Double weightPlanned;
-    private Duration restTimeSuggestion;
+    private Float restTimeSugested;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exerciseData_id", nullable = false)

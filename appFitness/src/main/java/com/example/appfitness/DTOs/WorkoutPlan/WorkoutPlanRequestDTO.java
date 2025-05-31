@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.DayOfWeek;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -17,6 +18,18 @@ public class WorkoutPlanRequestDTO {
     private Set<DayOfWeek> scheduledDays;
     private boolean active;
 
-    // if we decide to add the exercices when creating
-    // private List<ExerciseDataRequestDTO> exercises;
+    private List<ExerciseDataRequestDTO> exercises;
+
+    @Override
+    public String toString() {
+        return "WorkoutPlanRequestDTO{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", ownerId=" + ownerId +
+                ", scheduleType=" + scheduleType +
+                ", scheduledDays=" + scheduledDays +
+                ", active=" + active +
+                ", exercises=" + exercises +
+                '}';
+    }
 }

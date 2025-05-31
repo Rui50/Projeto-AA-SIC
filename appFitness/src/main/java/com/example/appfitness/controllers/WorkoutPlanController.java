@@ -87,6 +87,9 @@ public class WorkoutPlanController {
     public ResponseEntity<WorkoutPlanResponseDTO> updateWorkoutPlan(
             @PathVariable Integer id,
             @RequestBody WorkoutPlanRequestDTO updateDTO) {
+
+        System.out.println("Updating workout plan with ID: " + id);
+        System.out.println("Update data: " + updateDTO);
         WorkoutPlan updatedWorkoutPlan = workoutPlanService.updateWorkoutPlan(id, updateDTO);
 
         return ResponseEntity.ok(WorkoutPlanResponseDTO.fromEntity(updatedWorkoutPlan));
@@ -103,7 +106,7 @@ public class WorkoutPlanController {
                     setData.setSetNumber(dto.getSetNumber());
                     setData.setRepsPlanned(dto.getReps());
                     setData.setWeightPlanned(dto.getWeight());
-                    setData.setRestTimeSuggestion(dto.getRestTimeSugested());
+                    setData.setRestTimeSugested(dto.getRestTimeSugested());
                     return setData;
                 }).toList();
 
@@ -129,7 +132,7 @@ public class WorkoutPlanController {
                     setData.setSetNumber(dto.getSetNumber());
                     setData.setRepsPlanned(dto.getReps());
                     setData.setWeightPlanned(dto.getWeight());
-                    setData.setRestTimeSuggestion(dto.getRestTimeSugested());
+                    setData.setRestTimeSugested(dto.getRestTimeSugested());
                     return setData;
                 }).collect(Collectors.toList());
 

@@ -9,7 +9,18 @@ import java.util.List;
 @Getter
 @Setter
 public class ExerciseDataRequestDTO {
+    private Integer id;
     private Integer exerciseId; // id of exercise being added
     private String note;
     private List<SetDataDTO> plannedSets;
+
+    @Override
+    public String toString() {
+        return "ExerciseDataRequestDTO{" +
+                "exerciseId=" + exerciseId +
+                ", note='" + note + '\'' +
+                ", plannedSets=" + plannedSets +
+                '}';
+    }
+
 }

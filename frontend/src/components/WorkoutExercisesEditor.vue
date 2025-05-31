@@ -84,7 +84,6 @@
 
     const removeExercise = async (exerciseDataId, isNewFlag, index) => {
 
-
         // trocar isto por um confirm dialog mais bonito
         if (!confirm('Are you sure you want to remove this exercise from the workout?')) {
             return;

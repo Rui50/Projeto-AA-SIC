@@ -17,7 +17,7 @@ public class SetDataDTO {
     private Integer setNumber;
     private Integer reps;
     private Double weight;
-    private Duration restTimeSugested;
+    private Float restTimeSugested;
 
     public static SetDataDTO fromEntity(SetData setData) {
         SetDataDTO dto = new SetDataDTO();
@@ -25,7 +25,19 @@ public class SetDataDTO {
         dto.setSetNumber(setData.getSetNumber());
         dto.setReps(setData.getRepsPlanned());
         dto.setWeight(setData.getWeightPlanned());
-        dto.setRestTimeSugested(setData.getRestTimeSuggestion());
+        dto.setRestTimeSugested(setData.getRestTimeSugested());
         return dto;
     }
+
+    @Override
+    public String toString() {
+        return "SetDataDTO{" +
+                "id=" + id +
+                ", setNumber=" + setNumber +
+                ", reps=" + reps +
+                ", weight=" + weight +
+                ", restTimeSugested=" + restTimeSugested +
+                '}';
+    }
+
 }

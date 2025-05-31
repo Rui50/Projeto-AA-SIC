@@ -73,9 +73,9 @@
             // map the sets to the DTO format
             plannedSets: ex.plannedSets.map(set => ({
                 setNumber: set.setNumber,
-                reps: set.repsPlanned,
-                weight: set.weightPlanned,
-                restTimeSugested: set.restTimeSuggestion
+                reps: set.reps,
+                weight: set.weight,
+                restTimeSugested: set.restTimeSugested
             }))
         }))
 
@@ -183,6 +183,7 @@
                     <Icon icon="mdi:edit" width="24" height="24" @click="editName" class="pen-icon"/>
                     <h1>{{ workoutName || 'Untitled Workout' }}</h1>
                     <Icon icon="mdi:pencil" width="20" height="20" @click="editDescription" class="pen-icon" title="Edit description"/>
+                    <p v-if="workoutDescription" class="workout-description">{{ workoutDescription }}</p>
                 </div>
                 <div class="workout-edit-actions">
                     <button class="button-cancel" @click="router.back()">Cancel</button>

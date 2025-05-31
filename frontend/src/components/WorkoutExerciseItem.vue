@@ -28,7 +28,7 @@ const repsSummary = computed(() => {
         return '-';
     }
 
-    const reps = props.exerciseData.plannedSets.map(set => set.repsPlanned).filter(r => r !== null && r !== undefined);
+    const reps = props.exerciseData.plannedSets.map(set => set.reps).filter(r => r !== null && r !== undefined);
     if (reps.length === 0) {
         return '-';
     }
@@ -48,7 +48,7 @@ const weightSummary = computed(() => {
         return '-';
     }
 
-    const weights = props.exerciseData.plannedSets.map(set => set.weightPlanned).filter(w => w !== null && w !== undefined);
+    const weights = props.exerciseData.plannedSets.map(set => set.weight).filter(w => w !== null && w !== undefined);
     if (weights.length === 0) {
         return '-';
     }
@@ -67,8 +67,18 @@ const restSummary = computed(() => {
     if (!props.exerciseData.plannedSets || props.exerciseData.plannedSets.length === 0) {
         return '-';
     }
+    console.log('Calculating rest summary for exercise:', props.exerciseData);
 
-    const rests = props.exerciseData.plannedSets.map(set => set.restTimeSuggestion).filter(r => r !== null && r !== undefined);
+    const rests = props.exerciseData.plannedSets.map(set => {
+        let restValue = set.restTimeSugested;
+
+        if (typeof restValue === 'number') {
+            console.log('Rest value is a number:', restValue);
+            return restValue;
+        }
+
+    }).filter(r => r !== null && r !== undefined);
+
     if (rests.length === 0) {
         return '-';
     }
@@ -82,14 +92,13 @@ const restSummary = computed(() => {
         return `${minRest}-${maxRest}s`;
     }
 });
-
 const handleEditExercise = () => {
     emit('edit-exercise', props.exerciseData, props.index)
 }
 
 const handleRemoveExercise = () => {
     //emit('remove-exercise', props.index)
-    emit('remove-exercise', props.exerciseData.id, props.exerciseData.isNew, props.index); // Make sure you emit isNew if you want to use it
+    emit('remove-exercise', props.exerciseData.id, props.exerciseData.isNew, props.index);
 
 }
 </script>
@@ -97,8 +106,8 @@ const handleRemoveExercise = () => {
 <template>
     <div class="exercise-item">
         <div class="exercise-name-col">
-            <p class="exercise-name-value">{{ exerciseData.exercise?.name || 'Unknown Exercise' }}</p>
-            <p class="exercise-muscle-group">{{ exerciseData.exercise?.muscleGroup || 'N/A' }}</p>
+            <p class="exercise-name-value">{{ exerciseData.exercise?.name || '?' }}</p>
+            <p class="exercise-muscle-group">{{ exerciseData.exercise?.muscleGroup || '?' }}</p>
         </div>
 
         <div class="exercise-summary-grid">

@@ -25,7 +25,7 @@ public class ExerciseData {
     @JoinColumn(name = "exercise_id", nullable = false)
     private Exercise exercise;
 
-    @OneToMany(mappedBy = "exerciseData", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "exerciseData",orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<SetData> plannedSets = new ArrayList<>();
 
     private String note;
@@ -36,14 +36,19 @@ public class ExerciseData {
 
     // é preciso aqui?
 
-    public void addPlannedSet(SetData setData){
-        plannedSets.add(setData);
+    public void addPlannedSet(SetData setData) {
+        if (this.plannedSets == null) {
+            this.plannedSets = new ArrayList<>();
+        }
+        this.plannedSets.add(setData);
         setData.setExerciseData(this);
     }
 
-    public void removePlannedSet(SetData setData){
-        plannedSets.remove(setData);
-        setData.setExerciseData(null);
+    public void removePlannedSet(SetData setData) {
+        if (this.plannedSets != null) {
+            this.plannedSets.remove(setData);
+            setData.setExerciseData(null);
+        }
     }
 
 }

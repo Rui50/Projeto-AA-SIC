@@ -44,13 +44,28 @@ public class WorkoutPlan {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @OneToMany(mappedBy = "workoutPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "workoutPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<ExerciseData> exercises = new ArrayList<>();
 
     @ElementCollection(targetClass = DayOfWeek.class)
     @CollectionTable(name = "workout_plan_scheduled_days", joinColumns = @JoinColumn(name = "workout_plan_id"))
     @Enumerated(EnumType.STRING)
     private Set<DayOfWeek> scheduledDays;
+
+    public void addExercise(ExerciseData exercise) {
+        if (this.exercises == null) {
+            this.exercises = new ArrayList<>();
+        }
+        this.exercises.add(exercise);
+        exercise.setWorkoutPlan(this);
+    }
+
+    public void removeExercise(ExerciseData exercise) {
+        if (this.exercises != null) {
+            this.exercises.remove(exercise);
+            exercise.setWorkoutPlan(null);
+        }
+    }
 
     public enum WorkoutScheduleType {
         FIXED,

@@ -1,5 +1,7 @@
 package com.example.appfitness.services;
 
+import com.example.appfitness.DTOs.WorkoutPlan.ExerciseDataRequestDTO;
+import com.example.appfitness.DTOs.WorkoutPlan.SetDataDTO;
 import com.example.appfitness.DTOs.WorkoutPlan.WorkoutPlanRequestDTO;
 import com.example.appfitness.models.*;
 import com.example.appfitness.repositories.*;
@@ -8,10 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Serviço responsavel por gerenciar o Workoutplan, exerciseData e SetData
@@ -77,6 +76,80 @@ public class WorkoutPlanService {
 
         // secalhar algumas coisas fazemos o update de outra maneira tipo o active
         workoutPlan.setActive(updateDTO.isActive());
+
+        // usar isto daqui para baixo depende
+        // podemos ou fazer tudo em batch ou fazer calls a api em todos os ex
+        Map<Integer, ExerciseData> existingExercises = new HashMap<>();
+        if (workoutPlan.getExercises() != null) {
+            for (ExerciseData ed : workoutPlan.getExercises()) {
+                existingExercises.put(ed.getId(), ed);
+            }
+        }
+
+        workoutPlan.getExercises().clear();
+
+        if(updateDTO.getExercises() != null) {
+            for(ExerciseDataRequestDTO exDTO :  updateDTO.getExercises()){
+                ExerciseData exerciseData;
+
+                // caso em que o exercicio existe
+                if(exDTO.getId() != null) {
+                    exerciseData = existingExercises.get(exDTO.getId());
+                    if (exerciseData == null) {
+
+                        throw new RuntimeException("ExerciseData with ID " + exDTO.getExerciseId() +
+                                " not found or not linked to Workout Plan " + workoutPlanId + " for update.");
+                    }
+                }
+                else {
+                    exerciseData = new ExerciseData();
+                }
+
+                Exercise exercise = exerciseRepository.findById(exDTO.getExerciseId())
+                        .orElseThrow(() -> new RuntimeException("Exercise not found: " + exDTO.getExerciseId()));
+                exerciseData.setExercise(exercise);
+                exerciseData.setNote(exDTO.getNote());
+
+                // agora para os sets mesma logica
+                Map<Integer, SetData> existingSets = new HashMap<>();
+                if (exerciseData.getPlannedSets() != null) {
+                    for (SetData sd : exerciseData.getPlannedSets()) {
+                        existingSets.put(sd.getId(), sd);
+                    }
+                }
+                exerciseData.getPlannedSets().clear();
+
+                if (exDTO.getPlannedSets() != null) {
+                    for (SetDataDTO setDTO : exDTO.getPlannedSets()) {
+                        SetData setData;
+
+                        // caso de haver o set apenas atualizamos
+                        if (setDTO.getId() != null) {
+                            setData = existingSets.get(setDTO.getId());
+                            if (setData == null) {
+                                throw new RuntimeException("SetData with ID " + setDTO.getId() +
+                                        " not found or not linked to ExerciseData " + exerciseData.getId() + " for update.");
+                            }
+                        } else {
+                            // caso contrario inserimos
+                            setData = new SetData();
+                        }
+
+                        // update set data
+                        setData.setSetNumber(setDTO.getSetNumber());
+                        setData.setRepsPlanned(setDTO.getReps());
+                        setData.setWeightPlanned(setDTO.getWeight());
+                        setData.setRestTimeSugested(setDTO.getRestTimeSugested());
+
+
+                        exerciseData.addPlannedSet(setData);
+                    }
+                }
+
+                workoutPlan.addExercise(exerciseData);
+
+            }
+        }
 
         return workoutPlanRepository.save(workoutPlan);
     }

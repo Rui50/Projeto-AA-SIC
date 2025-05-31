@@ -67,16 +67,9 @@ const restSummary = computed(() => {
     if (!props.exerciseData.plannedSets || props.exerciseData.plannedSets.length === 0) {
         return '-';
     }
-    console.log('Calculating rest summary for exercise:', props.exerciseData);
 
     const rests = props.exerciseData.plannedSets.map(set => {
-        let restValue = set.restTimeSugested;
-
-        if (typeof restValue === 'number') {
-            console.log('Rest value is a number:', restValue);
-            return restValue;
-        }
-
+        return set.restTimeSugested;
     }).filter(r => r !== null && r !== undefined);
 
     if (rests.length === 0) {

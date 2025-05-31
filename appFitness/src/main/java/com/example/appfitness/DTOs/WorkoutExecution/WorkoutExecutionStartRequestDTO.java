@@ -1,14 +1,12 @@
 package com.example.appfitness.DTOs.WorkoutExecution;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class WorkoutExecutionStartRequestDTO {
     private Integer userId;
     private Integer workoutPlanId;

@@ -16,4 +16,5 @@ public class SetExecutionRequestDTO {
     private Integer repsPerformed;
     private Double weightPerformed;
     private Duration restTimePerformed;
+    private Integer plannedSetId; // pode ser null
 }

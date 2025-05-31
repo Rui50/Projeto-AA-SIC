@@ -41,9 +41,14 @@ const router = createRouter({
           component: () => import('../views/WorkoutEdit.vue'),
         },
         {
-          path: 'workout',
+          path: 'workout/:id',
           name: 'workout',
-          component: () => import('../views/Workout.vue'),
+          component: () => import('../views/WorkoutPlanDetails.vue'),
+        },
+        {
+          path: 'workout/execution/:id',
+          name: 'workoutexecution',
+          component: () => import('../views/WorkoutExecution.vue'),
         },
         {
           path: 'progress',

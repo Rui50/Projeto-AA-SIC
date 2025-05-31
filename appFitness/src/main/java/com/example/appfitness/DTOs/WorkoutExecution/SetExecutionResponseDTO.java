@@ -1,10 +1,7 @@
 package com.example.appfitness.DTOs.WorkoutExecution;
 
 import com.example.appfitness.models.SetExecution;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Duration;
 
@@ -12,12 +9,14 @@ import java.time.Duration;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class SetExecutionResponseDTO {
     private Integer id;
     private Integer setNumber;
     private Integer repsPerformed;
     private Double weightPerformed;
     private Duration restTimePerformed;
+    private Integer plannedSetId;
 
     public static SetExecutionResponseDTO fromEntity(SetExecution setExecution) {
         SetExecutionResponseDTO dto = new SetExecutionResponseDTO();
@@ -26,6 +25,9 @@ public class SetExecutionResponseDTO {
         dto.setRepsPerformed(setExecution.getRepsPerformed());
         dto.setWeightPerformed(setExecution.getWeightPerformed());
         dto.setRestTimePerformed(setExecution.getResTimePerformed());
+        if (setExecution.getPlannedSet() != null) {
+            dto.setPlannedSetId(setExecution.getPlannedSet().getId());
+        }
         return dto;
     }
 }

@@ -1,10 +1,7 @@
 package com.example.appfitness.DTOs.WorkoutExecution;
 
 import com.example.appfitness.models.WorkoutExecution;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +13,7 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class WorkoutExecutionResponseDTO {
     private Integer id;
     private Integer userId;

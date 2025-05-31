@@ -35,6 +35,7 @@ public class ExerciseExecution {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
+    // not needed
     @Enumerated(EnumType.STRING)
     private Status status;
 
@@ -42,6 +43,6 @@ public class ExerciseExecution {
     private List<SetExecution> performedSets = new ArrayList<>();
 
     public enum Status {
-
+        NOT_STARTED,
     }
 }

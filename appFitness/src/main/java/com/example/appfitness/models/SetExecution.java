@@ -26,6 +26,10 @@ public class SetExecution {
     private Duration resTimePerformed; // secalhar nao vale a pena
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "set_data_id")
+    private SetData plannedSet;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exerciseExecution_id", nullable = false)
     private ExerciseExecution exerciseExecution;
 }

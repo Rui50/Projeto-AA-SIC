@@ -16,6 +16,27 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/workout-executions")
 public class WorkoutExecutionController {
+    // processo de execução
+    
+    // user inicia workout e faz call a /start
+    // envia no body
+    /**{
+     "userId": 123,
+     "workoutPlanId": 456
+     }
+     */
+    // este controller recebe o startDTO eobtem o User e WORKOUTPLAN
+    // verifica se existem algum em progresso se nao tiver cria um objeto WorkoutExecution (cascade trata do resto?)
+    // Devolve resposta a frontend com o WorkoutExecutionResponseDTO
+            
+    // Parte de execução
+    // depois da resposta de start, da fetch ao woorkoutExecution e o ref desse é populado
+            // questão se fazemos post a cada set completado ou a cada exerci
+            
+            
+
+
+
     private WorkoutExecutionService workoutExecutionService;
     private UserService userService;
     private WorkoutPlanService workoutPlanService;
@@ -34,6 +55,33 @@ public class WorkoutExecutionController {
     @PostMapping("/start")
     public ResponseEntity<WorkoutExecutionResponseDTO> startWorkout(@RequestBody WorkoutExecutionStartRequestDTO startDTO) {
         try {
+            System.out.println("Received request to start workout. DTO: " + startDTO.toString());
+
+            if (startDTO.getUserId() == null || startDTO.getWorkoutPlanId() == null) {
+                System.err.println("ERROR: Invalid startDTO: userId or workoutPlanId is null. DTO: " + startDTO.toString());
+                return null;
+            }
+
+            System.out.println("Calling workoutExecutionService.startWorkout with userId=" + startDTO.getUserId() + " and workoutPlanId=" + startDTO.getWorkoutPlanId());
+            WorkoutExecution newWorkoutExec = workoutExecutionService.startWorkout(
+                    startDTO.getUserId(),
+                    startDTO.getWorkoutPlanId());
+
+            System.out.println("Workout started successfully! New execution ID: " + newWorkoutExec.getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(WorkoutExecutionResponseDTO.fromEntity(newWorkoutExec));
+
+        } catch (RuntimeException e) {
+            System.err.println("ERROR: RuntimeException occurred while starting workout for DTO: " + startDTO.toString());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /*
+    @PostMapping("/start")
+    public ResponseEntity<WorkoutExecutionResponseDTO> startWorkout(@RequestBody WorkoutExecutionStartRequestDTO startDTO) {
+        try {
+
             WorkoutExecution newWorkoutExec = workoutExecutionService.startWorkout(
                     startDTO.getUserId(),
                     startDTO.getWorkoutPlanId());
@@ -41,7 +89,7 @@ public class WorkoutExecutionController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
-    }
+    }*/
 
     @PutMapping("/{executionId}/finish")
     public ResponseEntity<WorkoutExecutionResponseDTO> finishWorkout(
@@ -84,8 +132,10 @@ public class WorkoutExecutionController {
 
             SetExecution recordedSet = workoutExecutionService.recordSetExecution(
                     exerciseExecutionId,
-                    setExecution
+                    setExecution,
+                    setExecutionDTO.getPlannedSetId()
             );
+
             return ResponseEntity.status(HttpStatus.CREATED).body(SetExecutionResponseDTO.fromEntity(recordedSet));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();

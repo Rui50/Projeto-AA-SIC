@@ -21,19 +21,22 @@ public class WorkoutExecutionService {
     private ExerciseDataRepository exerciseDataRepository;
     private ExerciseExecutionRepository exerciseExecutionRepository;
     private SetExecutionRepository setExecutionRepository;
+    private SetDataRepository setDataRepository;
 
     public WorkoutExecutionService(WorkoutExecutionRepository workoutExecutionRepository,
                                    UserRepository userRepository,
                                    WorkoutPlanRepository workoutPlanRepository,
                                    ExerciseDataRepository exerciseDataRepository,
-                                   ExerciseExecutionRepository exerciseExecutionRepository, // <-- New
-                                   SetExecutionRepository setExecutionRepository) { // <-- New
+                                   ExerciseExecutionRepository exerciseExecutionRepository,
+                                   SetExecutionRepository setExecutionRepository,
+                                   SetDataRepository setDataRepository) {
         this.workoutExecutionRepository = workoutExecutionRepository;
         this.userRepository = userRepository;
         this.workoutPlanRepository = workoutPlanRepository;
         this.exerciseDataRepository = exerciseDataRepository;
-        this.exerciseExecutionRepository = exerciseExecutionRepository; // <-- New
-        this.setExecutionRepository = setExecutionRepository; // <-- New
+        this.exerciseExecutionRepository = exerciseExecutionRepository;
+        this.setExecutionRepository = setExecutionRepository;
+        this.setDataRepository = setDataRepository;
     }
 
     @Transactional
@@ -60,6 +63,20 @@ public class WorkoutExecutionService {
 
         if (workout.getExerciseExecutions() == null ){
             workout.setExerciseExecutions(new ArrayList<>());
+        }
+
+        if (workoutPlan.getExercises() != null && !workoutPlan.getExercises().isEmpty()) {
+            for (ExerciseData plannedExerciseData : workoutPlan.getExercises()) {
+                ExerciseExecution exerciseExecution = new ExerciseExecution();
+                exerciseExecution.setWorkoutExecution(workout);
+                exerciseExecution.setExerciseData(plannedExerciseData);
+                exerciseExecution.setStatus(ExerciseExecution.Status.NOT_STARTED);
+                exerciseExecution.setPerformedSets(new ArrayList<>());
+
+                workout.getExerciseExecutions().add(exerciseExecution);
+            }
+        } else {
+            System.out.println("Warning: Workout Plan ID " + workoutPlanId + " has no associated ExerciseData entries.");
         }
 
         return workoutExecutionRepository.save(workout);
@@ -109,34 +126,32 @@ public class WorkoutExecutionService {
     // vai ser preciso start exercise e end?
 
     //registar sets
-    public SetExecution recordSetExecution(Integer exerciseExecutionId, SetExecution setExecutionDetails) {
-        // find the exercise
+    @Transactional
+    public SetExecution recordSetExecution(Integer exerciseExecutionId, SetExecution setExecutionDetails, Integer plannedSetId) {
         ExerciseExecution exerciseExecution = exerciseExecutionRepository.findById(exerciseExecutionId)
                 .orElseThrow(() -> new RuntimeException("Exercise Execution not found: " + exerciseExecutionId));
 
-
-        // buscar o set, se nao existe cria novo (user decidiu fazer um set a mais)
-        Optional<SetExecution> set = exerciseExecution.getPerformedSets().stream()
-                .filter(s -> s.getSetNumber().equals(setExecutionDetails.getSetNumber()))
-                .findFirst();
-
-        SetExecution setExecution;
-
-        if(set.isPresent()) {
-            setExecution = set.get();
-        }
-        else {
-            setExecution = new SetExecution();
-            setExecution.setExerciseExecution(exerciseExecution);
-            setExecution.setSetNumber(setExecutionDetails.getSetNumber());
-            exerciseExecution.getPerformedSets().add(setExecution);
-        }
+        // create a new SetExecution for each recorded set
+        SetExecution setExecution = new SetExecution();
+        setExecution.setExerciseExecution(exerciseExecution);
+        setExecution.setSetNumber(setExecutionDetails.getSetNumber()); // Use the set number from the DTO
 
         setExecution.setRepsPerformed(setExecutionDetails.getRepsPerformed());
         setExecution.setWeightPerformed(setExecutionDetails.getWeightPerformed());
         setExecution.setResTimePerformed(setExecutionDetails.getResTimePerformed());
 
-        exerciseExecutionRepository.save(exerciseExecution);
+        // link to the planned set (SetData) if a plannedSetId is provided
+        if (plannedSetId != null) {
+            SetData plannedSet = setDataRepository.findById(plannedSetId)
+                    .orElseThrow(() -> new RuntimeException("Planned Set (SetData) not found with id: " + plannedSetId));
+            setExecution.setPlannedSet(plannedSet);
+        }
+
+        if (exerciseExecution.getPerformedSets() == null) {
+            exerciseExecution.setPerformedSets(new ArrayList<>());
+        }
+        exerciseExecution.getPerformedSets().add(setExecution);
+
         return setExecutionRepository.save(setExecution);
     }
     /*

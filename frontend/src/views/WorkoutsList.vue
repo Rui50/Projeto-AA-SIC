@@ -45,6 +45,7 @@
 
             const createdWorkout = response.data;
             console.log('Workout created:', createdWorkout);
+            // await fetchWorkouts();
             router.push(`/workout/edit/${createdWorkout.id}`);
         }
         catch (error) {
@@ -86,6 +87,37 @@
     onMounted(() => {
         fetchWorkouts();
     });
+
+    const handleActivateWorkout = async (workoutId) => {
+        try {
+            await axios.put(`${API_PATHS.WORKOUT_BY_ID}${workoutId}/activate`, null, {
+                headers: {
+                    Authorization: `Bearer ${userStore.getToken}`
+                }
+            });
+            console.log('Workout activated:', workoutId);
+            await fetchWorkouts();
+        } catch (error) {
+            console.error('Error activating workout:', error);
+            alert('Failed to activate workout. Please try again.');
+        }
+    }
+
+    const handleDeactivateWorkout = async (workoutId) => {
+        try {
+            await axios.put(`${API_PATHS.WORKOUT_BY_ID}${workoutId}/deactivate`, null, {
+                headers: {
+                    Authorization: `Bearer ${userStore.getToken}`
+                }
+            });
+            console.log('Workout deactivated:', workoutId);
+            await fetchWorkouts();
+        } catch (error) {
+            console.error('Error deactivating workout:', error);
+            alert('Failed to deactivate workout. Please try again.');
+        }
+    }
+
 </script>
 
 <template>
@@ -103,20 +135,37 @@
                 <span class="workouts-count"> {{ activeWorkoutsCount }}</span>
             </div>
 
-            <div class="workouts">
-                <WorkoutCard />
+            <div class="workouts-grid-container"> <WorkoutCard
+                    v-for="workout in activeWorkouts"
+                    :key="workout.id"
+                    :workout="workout"
+                    @activate-workout="handleActivateWorkout"
+                    @deactivate-workout="handleDeactivateWorkout"
+                />
+            </div>
+            
+            <div v-if="activeWorkoutsCount === 0" class="no-workouts-message">
+                No active workouts found. Create one or activate an existing workout!
             </div>
 
-            <div class="separator" v-if="inactiveWorkoutsCount > 0"></div>
-
-            <div class="workouts-header-list">
+            <div class="separator" v-if="inactiveWorkoutsCount > 0 || activeWorkoutsCount > 0"></div> <div class="workouts-header-list">
                 <h2>Other Workouts</h2>
                 <span class="workouts-count"> {{ inactiveWorkoutsCount }}</span>
             </div>
 
-            
-            <div class="workouts">
-                <WorkoutCard />
+            <div class="workouts-grid-container"> <WorkoutCard
+                    v-for="workout in inactiveWorkouts"
+                    :key="workout.id"
+                    :workout="workout"
+                    @activate-workout="handleActivateWorkout"
+                    @deactivate-workout="handleDeactivateWorkout"
+                />
+                <div v-if="inactiveWorkoutsCount === 0 && activeWorkoutsCount > 0" class="no-workouts-message">
+                    No other workouts found.
+                </div>
+            </div>
+             <div v-if="inactiveWorkoutsCount === 0 && activeWorkoutsCount === 0" class="no-workouts-message">
+                    No workouts found. Start by creating a new workout!
             </div>
         </div>
         <CreateWorkoutPopup 
@@ -125,7 +174,6 @@
             @cancel="ToggleCreateWorkoutPopup"
         />
     </div>
-
 </template>
 
 <style scoped>
@@ -217,6 +265,12 @@
     }
 
     .workouts {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .workouts-grid-container { 
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 1.5rem;

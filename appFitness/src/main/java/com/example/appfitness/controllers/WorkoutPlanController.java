@@ -95,6 +95,29 @@ public class WorkoutPlanController {
         return ResponseEntity.ok(WorkoutPlanResponseDTO.fromEntity(updatedWorkoutPlan));
     }
 
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<WorkoutPlanResponseDTO> activateWorkoutPlan(@PathVariable Integer id) {
+        try {
+            WorkoutPlan activatedWorkout = workoutPlanService.updateWorkoutPlanActiveStatus(id, true);
+            return ResponseEntity.ok(WorkoutPlanResponseDTO.fromEntity(activatedWorkout));
+        } catch (RuntimeException e) {
+            // e.g., WorkoutPlanNotFoundException
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/{id}/deactivate")
+    public ResponseEntity<WorkoutPlanResponseDTO> deactivateWorkoutPlan(@PathVariable Integer id) {
+        try {
+            WorkoutPlan deactivatedWorkout = workoutPlanService.updateWorkoutPlanActiveStatus(id, false);
+            return ResponseEntity.ok(WorkoutPlanResponseDTO.fromEntity(deactivatedWorkout));
+        } catch (RuntimeException e) {
+            // e.g., WorkoutPlanNotFoundException
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
     @PostMapping("/{workoutPlanId}/exercises")
     public ResponseEntity<ExerciseDataResponseDTO> addExerciseToWorkoutPlan(
             @PathVariable Integer workoutPlanId,

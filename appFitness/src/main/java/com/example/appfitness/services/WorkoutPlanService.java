@@ -163,6 +163,15 @@ public class WorkoutPlanService {
         workoutPlanRepository.deleteById(id);
     }
 
+    @Transactional
+    public WorkoutPlan updateWorkoutPlanActiveStatus(Integer workoutPlanId, boolean activeStatus) {
+        WorkoutPlan workoutPlan = workoutPlanRepository.findById(workoutPlanId)
+                .orElseThrow(() -> new RuntimeException("Workout Plan not found: " + workoutPlanId));
+
+        workoutPlan.setActive(activeStatus);
+        return workoutPlanRepository.save(workoutPlan);
+    }
+
 
 
     // um metodo so de update ou metemos metodo para adicionar exericicio/remover etc

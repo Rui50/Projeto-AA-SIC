@@ -1,9 +1,49 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, computed } from 'vue'
     import { useRouter } from 'vue-router'
 
     const router = useRouter()
 
+    const props = defineProps({
+        workout: {
+            type: Object,
+            required: true
+        }
+    })
+
+    const emit = defineEmits(['activate-workout', 'deactivate-workout'])
+
+    const totalSets = computed(() => {
+        let sets = 0;
+        if(props.workout.exercises) {
+            props.workout.exercises.forEach(exercise => {
+                if(exercise.plannedSets) {
+                    sets += exercise.plannedSets.length;
+                }
+            });
+        }
+        return sets;
+    });
+
+    const goToEditWorkout = () => {
+        router.push(`/workout/edit/${props.workout.id}`);
+    };
+
+    const goToWorkout = () => {
+        router.push(`/workout/${props.workout.id}`);
+    };
+
+    const activateWorkout = () => {
+        console.log('Activating workout:', props.workout.id);
+        emit('activate-workout', props.workout.id);
+    };
+
+    const deactivateWorkout = () => {
+        console.log('Deactivating workout:', props.workout.id);
+        emit('deactivate-workout', props.workout.id);
+    };
+
+    /*
     const workout = ref({
         title: 'Workout Title',
         isActive: false,
@@ -21,7 +61,7 @@
             { name: 'Exercise 3', sets: 2 },
 
         ],
-    })
+    })*/
 
     // have to fix height in this page or navbar will overlap
 
@@ -29,45 +69,45 @@
 
 <template>
     <div class="workout-card">
-        <div class="workout-header" :class="{ 'inactive': !workout.isActive }">
+        <div class="workout-header" :class="{ 'inactive': !workout.active }">
             <h2 class="workout-title">
-                {{ workout.title }}
+                {{ workout.name }}
             </h2>
             <p class="workout-creator">
-                Created by: <span class="creator-name">{{ workout.madeBy }}</span>
-            </p>
+                Created by: <span class="creator-name">{{ workout.createdBy }}</span>
+                </p>
         </div>
-        
+
         <div class="workout-content">
             <div class="stat-item">
-                <div class="stat-value">{{ workout.duration }}</div>
+                <div class="stat-value">{{ workout.duration || 'Trocar isto' }}</div>
                 <div class="stat-name">minutes</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value">{{ workout.exercises.length }}</div>
+                <div class="stat-value">{{ workout.exercises ? workout.exercises.length : 0 }}</div>
                 <div class="stat-name">exercises</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value"> {{ 5 }}</div>
+                <div class="stat-value"> {{ totalSets }}</div>
                 <div class="stat-name">sets</div>
             </div>
         </div>
 
         <div class="exercise-list">
-            <div class="exercise-item" v-for="(exercise, index) in workout.exercises" :key="index">
-                <div class="exercise-name">{{ exercise.name }}</div>
-                <div class="exercise-sets">Sets: {{ exercise.sets }}</div>
+            <div class="exercise-item" v-for="exerciseData in workout.exercises" :key="exerciseData.id">
+                <div class="exercise-name">{{ exerciseData.exercise.name }}</div>
+                <div class="exercise-sets">Sets: {{ exerciseData.plannedSets ? exerciseData.plannedSets.length : 0 }}</div>
+            </div>
+            <div v-if="!workout.exercises || workout.exercises.length === 0" class="no-exercises-message">
+                No exercises added yet.
             </div>
         </div>
 
         <div class="workout-actions">
-            <!-- Por o de delete na pagina do edit para nao ter muita coisa aqui-->
-            <!--<button class="btn delete">Delete</button>-->
-            <button class="btn edit">Edit</button>
-            <button v-if="!workout.isActive" class="btn activate">Activate</button>
-            <button v-if="workout.isActive" class="btn desactivate">Deactivate</button>
-            <button class="btn goto">Go to workout</button>
-
+            <button class="btn edit" @click="goToEditWorkout">Edit</button>
+            <button v-if="!workout.active" class="btn activate" @click="activateWorkout">Activate</button>
+            <button v-if="workout.active" class="btn desactivate" @click="deactivateWorkout">Deactivate</button>
+            <button class="btn goto" @click="goToWorkout">Go to workout</button>
         </div>
     </div>
 </template>

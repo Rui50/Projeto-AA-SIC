@@ -34,8 +34,8 @@ const currentExercise = computed(() => {
     return null;
 });
 
+
 const workoutExecutionForPopup = computed(() => workoutExecution.value);
-const elapsedTimeForPopup = computed(() => elapsedTime.value);
 
 // format the elapsed time to HH:MM:SS
 const formattedElapsedTime = computed(() => {
@@ -89,11 +89,64 @@ const fetchWorkoutExecution = async () => {
         return;
     }
 
-    try {
+        try {
         const response = await axios.get(API_PATHS.GET_WORKOUT_EXECUTION_BY_ID(executionId), {
             headers: { Authorization: `Bearer ${userStore.getToken}` }
         });
         workoutExecution.value = response.data;
+        
+        if (!workoutExecution.value) {
+            throw new Error('No workout execution data found for the provided ID.');
+        }
+        
+        workoutExecution.value.exerciseExecutions.forEach(executedExercise => {
+            const plannedSetsMap = new Map(executedExercise.exerciseData.plannedSets.map(s => [s.id, s]));
+            const addedSets = [];
+
+            if (executedExercise.performedSets){
+                executedExercise.performedSets.forEach(performedSet => {
+                    if (performedSet.plannedSetId !== null){
+                        const plannedSet = plannedSetsMap.get(performedSet.plannedSetId);
+                        if (plannedSet) {
+                            plannedSet.weightPerformed = performedSet.weightPerformed;
+                            plannedSet.repsPerformed = performedSet.repsPerformed;
+                            plannedSet.restTimePerformed = performedSet.restTimePerformed || null; 
+                            plannedSet.completed = performedSet.completed;
+                            plannedSet.id = performedSet.id; 
+                            plannedSet.isAdHoc = false;
+                        }
+                    }
+                    else {
+                        // handles added sets that were already recordd
+                        addedSets.push({
+                            ...performedSet,
+                            isAdHoc: true,
+                            plannedSetId: null,
+                            reps: performedSet.repsPerformed, 
+                            weight: performedSet.weightPerformed,
+                            restTimeSugested: performedSet.restTimePerformed || null, 
+                            completed: performedSet.completed 
+                        });
+                    }
+                });
+            }
+
+            // Merge and sort all sets
+            executedExercise.exerciseData.plannedSets = [
+                ...(executedExercise.exerciseData.plannedSets || []).map(ps => ({
+                    ...ps,
+                    repsPerformed: ps.repsPerformed || null, 
+                    weightPerformed: ps.weightPerformed || null,
+                    completed: ps.completed || false, 
+                    isAdHoc: false 
+                })),
+                ...addedSets
+            ].sort((a, b) => a.setNumber - b.setNumber);
+
+
+        })
+        
+        console.log('Workout execution fetched successfully:', workoutExecution.value);
         console.log('Fetched workout execution data:', workoutExecution.value);
 
         //  select the first exercise or the first uncompleted one
@@ -150,7 +203,7 @@ const completeSet = async (plannedSet, setIndex) => {
             repsPerformed: plannedSet.repsPerformed,
             weightPerformed: plannedSet.weightPerformed,
             restTimePerformed: plannedSet.restTimePerformed || null, 
-            plannedSetId: plannedSet.id 
+            plannedSetId: plannedSet.id || null
         };
 
         console.log('Recording set execution:', setExecutionDTO);
@@ -164,29 +217,28 @@ const completeSet = async (plannedSet, setIndex) => {
         const recordedSet = response.data;
         console.log('Set recorded successfully:', recordedSet);
 
-        if (!currentExercise.value.performedSets) {
-            currentExercise.value.performedSets = [];
-        }
-        currentExercise.value.performedSets.push(recordedSet);
+        // now we update this specific set
 
-        //  clear inputs for the next entry or move to next planned set input?
-        // plannedSet.weightPerformed = null;
-        // plannedSet.repsPerformed = null;
+        const targetSet = currentExercise.value.exerciseData.plannedSets.find(
+            s => (s.id === plannedSet.id && !s.isAdded) || (s.isAdded)
+        );
+
+        if (targetSet) {
+            targetSet.weightPerformed = recordedSet.weightPerformed;
+            targetSet.repsPerformed = recordedSet.repsPerformed;
+            targetSet.restTimePerformed = recordedSet.restTimePerformed;
+            targetSet.id = recordedSet.id; 
+            targetSet.completed = recordedSet.completed;  
+        }
+
+        currentExercise.value.exerciseData.plannedSets.sort((a, b) => a.setNumber - b.setNumber);
+
 
     } catch (err) {
         console.error('Error recording set:', err);
         alert('Failed to record set. Please try again. Check backend logs for details.');
     }
 };
-
-// check if a exercise has been completed
-const isPlannedSetPerformed = (plannedSetId) => {
-  if (!currentExercise.value || !currentExercise.value.performedSets || plannedSetId === null) {
-    return false;
-  }
-  return currentExercise.value.performedSets.some(setExec => setExec.plannedSetId === plannedSetId);
-};
-
 
 const getExerciseExecutionStatus = (exerciseExecution) => {
     if (!exerciseExecution || !exerciseExecution.exerciseData || !exerciseExecution.exerciseData.plannedSets) {
@@ -228,30 +280,16 @@ const addSet = () => {
             previousWeight: '-',
             repsPerformed: null,
             weightPerformed: null,
+            isAdded: true, 
+            isCompleted: false,
         };
         currentExercise.value.exerciseData.plannedSets.push(newSet);
         console.log('Ad-hoc set added:', newSet);
     }
 };
 
-const getPerformedSetData = (plannedSetId) => {
-  if (!currentExercise.value || !currentExercise.value.performedSets) {
-    return null;
-  }
-  return currentExercise.value.performedSets.find(setExec => setExec.plannedSetId === plannedSetId);
-};
-
-
 const completeWorkout = async () => {
     if (!workoutExecution.value) return;
-
-    /*
-    const allExercisesCompleted = workoutExecution.value.exerciseExecutions.every(ex => getExerciseExecutionStatus(ex) === 'COMPLETED');
-    if (!allExercisesCompleted) {
-        if (!confirm('Not all planned exercises are marked as completed. Are you sure you want to finish the workout?')) {
-            return;
-        }
-    }*/
 
     stopTimer();
     showWorkoutCompletedPopup.value = true;
@@ -322,6 +360,28 @@ const cancelWorkout = async () => {
     }
 }
 
+/**const cancelWorkout = async () => {
+    if (!workoutExecution.value) return;
+
+    if (confirm('Are you sure you want to cancel this workout? All progress will be lost.')) {
+        stopTimer(); 
+        try {
+            await axios.delete(
+                API_PATHS.GET_WORKOUT_EXECUTION_BY_ID(workoutExecution.value.id),
+                {
+                    headers: {
+                        Authorization: `Bearer ${userStore.getToken}`
+                    }
+                }
+            );
+            console.log('Workout cancelled successfully.');
+            router.push('/workouts'); 
+        } catch (err) {
+            console.error('Error cancelling workout:', err);
+            alert('Failed to cancel workout. Please try again.');
+        }
+    }
+} */
 
 onMounted(() => {
     const executionId = route.params.id;
@@ -330,7 +390,7 @@ onMounted(() => {
     } else {
         error.value = 'No workout execution ID found in URL. Redirecting...';
         isLoading.value = false;
-        router.push('/workouts'); // Redirect if no ID
+        router.push('/workouts'); 
     }
 });
 
@@ -338,30 +398,17 @@ onUnmounted(() => {
     stopTimer();
 });
 
-// --- Watchers ---
 
-
-// watch for changes in workoutExecution, to update currentExerciseIndex and currentExercise
 watch(workoutExecution, (newValue) => {
     if (newValue && newValue.exerciseExecutions && newValue.exerciseExecutions.length > 0) {
         if (currentExerciseIndex.value >= newValue.exerciseExecutions.length) {
             currentExerciseIndex.value = 0; 
         }
-        /*
-        if (!currentExercise.value || getExerciseExecutionStatus(currentExercise.value) === 'COMPLETED') {
-             const firstUncompletedIndex = workoutExecution.value.exerciseExecutions.findIndex(ex => getExerciseExecutionStatus(ex) !== 'COMPLETED');
-            if (firstUncompletedIndex !== -1) {
-                currentExerciseIndex.value = firstUncompletedIndex;
-            } else {
-                currentExerciseIndex.value = 0;
-            }
-        }*/
     } else if (newValue && (!newValue.exerciseExecutions || newValue.exerciseExecutions.length === 0)) {
         currentExerciseIndex.value = 0; 
     }
-}, { deep: true }); //detecting changes within nested arrays 'performedSets'
+}, { deep: true })
 </script>
-
 <template>
     <div class="workout-live-page">
         <div v-if="isLoading" class="loading-state">Loading workout details...</div>
@@ -440,41 +487,37 @@ watch(workoutExecution, (newValue) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(plannedSet, setIndex) in currentExercise.exerciseData?.plannedSets"
-                                    :key="plannedSet.id || `new-${setIndex}`" 
-                                    :class="{ 'completed': isPlannedSetPerformed(plannedSet.id) }">
-                                    <!-- the new set index is for the case where the user adds a new set-->
-                                    <td>{{ plannedSet.setNumber }}</td>
-                                    <td>{{ plannedSet.previousWeight || '-' }}</td>
+                                <tr v-for="(set, setIndex) in currentExercise.exerciseData?.plannedSets"
+                                    :key="set.id || `temp-${set.tempId || setIndex}`" 
+                                    :class="{ 'completed': set.completed }">
+                                    <td>{{ set.setNumber }}</td>
+                                    <td>{{ set.previousWeight || '-' }}</td>
                                     <td>
-                                    <template v-if="plannedSet.weight !== null && plannedSet.reps !== null">
-                                        {{ plannedSet.weight }}kg x {{ plannedSet.reps }}
-                                    </template>
-                                    <template v-else>-</template>
+                                        <template v-if="set.weight !== null && set.reps !== null">
+                                            {{ set.weight }}kg x {{ set.reps }}
+                                        </template>
+                                        <template v-else>-</template>
                                     </td>
                                     <td>
-                                    <!-- show performed weight if set is completed, otherwise input field -->
-                                    <template v-if="isPlannedSetPerformed(plannedSet.id)">
-                                        {{ getPerformedSetData(plannedSet.id)?.weightPerformed || '-' }}kg
-                                    </template>
-                                    <template v-else>
-                                        <input type="number" v-model.number="plannedSet.weightPerformed"
-                                            placeholder="Weight">
-                                    </template>
+                                        <template v-if="set.completed">
+                                            {{ set.weightPerformed || '-' }}kg </template>
+                                        <template v-else>
+                                            <input type="number" v-model.number="set.weightPerformed"
+                                                placeholder="Weight">
+                                        </template>
                                     </td>
                                     <td>
-                                    <template v-if="isPlannedSetPerformed(plannedSet.id)">
-                                        {{ getPerformedSetData(plannedSet.id)?.repsPerformed || '-' }}
-                                    </template>
-                                    <template v-else>
-                                        <input type="number" v-model.number="plannedSet.repsPerformed"
-                                            placeholder="Reps">
-                                    </template>
+                                        <template v-if="set.completed">
+                                            {{ set.repsPerformed || '-' }} </template>
+                                        <template v-else>
+                                            <input type="number" v-model.number="set.repsPerformed"
+                                                placeholder="Reps">
+                                        </template>
                                     </td>
-                                    <td>{{ plannedSet.restTimeSugested || '-' }} s</td>
+                                    <td>{{ set.restTimeSugested || '-' }} s</td>
                                     <td>
-                                    <Icon v-if="isPlannedSetPerformed(plannedSet.id)" icon="mdi:check-circle" width="24" height="24" style="color: green;" />
-                                    <button v-else class="btn-complete" @click="completeSet(plannedSet, setIndex)">Record Set</button>
+                                        <Icon v-if="set.completed" icon="mdi:check-circle" width="24" height="24" style="color: green;" />
+                                        <button v-else class="btn-complete" @click="completeSet(set, setIndex)">Record Set</button>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -505,7 +548,7 @@ watch(workoutExecution, (newValue) => {
         <WorkoutCompleted
             :popupState="showWorkoutCompletedPopup"
             :workoutExecutionData="workoutExecutionForPopup"
-            :elapsedWorkoutTime="elapsedTimeForPopup"
+            :elapsedTime="elapsedTime"
             @close="handleCloseWorkoutPopup"
             @save="handleSaveWorkoutFromPopup"
         />

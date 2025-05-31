@@ -57,6 +57,7 @@ public class WorkoutExecution {
     public enum WorkoutStatus {
         IN_PROGRESS, // para se quisermos manter no menu inicial que está a decorrer
         COMPLETED,
-        SKIPPED // necessário?
+        SKIPPED,
+        CANCELLED// necessário?
     }
 }

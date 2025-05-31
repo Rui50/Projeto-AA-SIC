@@ -228,12 +228,10 @@
     }
 
     .workouts-list {
-        /**workouts container */
         margin-bottom: 2rem;
     }
 
     .workouts-header-list {
-    /** section-header*/
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -248,7 +246,6 @@
     }
 
     .workouts-count {
-        /** section-count*/
         background-color: #b4b4b4;
         color: #495057;
         font-size: 0.8rem;

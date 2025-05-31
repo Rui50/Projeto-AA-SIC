@@ -17,6 +17,7 @@ public class SetExecutionResponseDTO {
     private Double weightPerformed;
     private Duration restTimePerformed;
     private Integer plannedSetId;
+    private boolean completed;
 
     public static SetExecutionResponseDTO fromEntity(SetExecution setExecution) {
         SetExecutionResponseDTO dto = new SetExecutionResponseDTO();
@@ -28,6 +29,7 @@ public class SetExecutionResponseDTO {
         if (setExecution.getPlannedSet() != null) {
             dto.setPlannedSetId(setExecution.getPlannedSet().getId());
         }
+        dto.setCompleted(setExecution.isCompleted());
         return dto;
     }
 }

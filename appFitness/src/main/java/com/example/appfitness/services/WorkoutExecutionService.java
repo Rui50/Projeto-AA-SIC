@@ -140,6 +140,10 @@ public class WorkoutExecutionService {
         setExecution.setWeightPerformed(setExecutionDetails.getWeightPerformed());
         setExecution.setResTimePerformed(setExecutionDetails.getResTimePerformed());
 
+        boolean completed = (setExecution.getRepsPerformed() != null && setExecution.getRepsPerformed() >= 0 &&
+                setExecution.getWeightPerformed() != null && setExecution.getWeightPerformed() >= 0);
+        setExecution.setCompleted(completed);
+
         // link to the planned set (SetData) if a plannedSetId is provided
         if (plannedSetId != null) {
             SetData plannedSet = setDataRepository.findById(plannedSetId)
@@ -163,6 +167,13 @@ public class WorkoutExecutionService {
 
     public Optional<ExerciseExecution> getExerciseExecutionById(Integer id) {
         return exerciseExecutionRepository.findById(id);
+    }
+
+    public void deleteWorkoutExecution(Integer executionId) {
+        if (!workoutExecutionRepository.existsById(executionId)) {
+            throw new RuntimeException("WorkoutExecution not found: " + executionId);
+        }
+        workoutExecutionRepository.deleteById(executionId);
     }
 
 }

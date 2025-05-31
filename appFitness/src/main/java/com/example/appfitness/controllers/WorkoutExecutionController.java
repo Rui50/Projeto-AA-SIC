@@ -90,6 +90,16 @@ public class WorkoutExecutionController {
             return ResponseEntity.badRequest().build();
         }
     }*/
+    @DeleteMapping("/{executionId}")
+    public ResponseEntity<Void> deleteWorkoutExecution(@PathVariable Integer executionId) {
+        try {
+            workoutExecutionService.deleteWorkoutExecution(executionId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            System.err.println("Error deleting workout execution " + executionId + ": " + e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     @PutMapping("/{executionId}/finish")
     public ResponseEntity<WorkoutExecutionResponseDTO> finishWorkout(

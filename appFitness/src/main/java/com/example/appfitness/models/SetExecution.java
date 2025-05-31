@@ -24,7 +24,7 @@ public class SetExecution {
     private Integer repsPerformed;
     private Double weightPerformed;
     private Duration resTimePerformed; // secalhar nao vale a pena
-
+    private boolean isCompleted; // because of newlly added
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "set_data_id")
     private SetData plannedSet;

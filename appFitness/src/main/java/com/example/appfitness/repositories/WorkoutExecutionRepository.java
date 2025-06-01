@@ -33,4 +33,6 @@ public interface WorkoutExecutionRepository extends JpaRepository<WorkoutExecuti
 
     @Query("SELECT COUNT(we) FROM WorkoutExecution we WHERE we.user.id = :userId AND we.status = :status AND we.startTime BETWEEN :start AND :end")
     Long countByUserIdAndStatusAndStartTimeBetween(Integer userId, WorkoutExecution.WorkoutStatus status, LocalDateTime start, LocalDateTime end);
+
+    Optional<WorkoutExecution> findTopByUserIdAndStatusOrderByStartTimeDesc(int id, WorkoutExecution.WorkoutStatus workoutStatus);
 }

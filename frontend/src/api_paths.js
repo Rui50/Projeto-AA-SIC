@@ -23,4 +23,10 @@ export const API_PATHS = {
     // PROGRESS
     GET_PROGRESS: `${API_BASE_URL}/api/progress/dashboard`,
 
+
+    // CLIENTS
+    GET_ALL_CLIENTS: `${API_BASE_URL}/api/alunos`,
+    GET_CLIENTS: `${API_BASE_URL}/api/alunos/`,
+    REMOVE_CLIENT: (id) => `${API_BASE_URL}/api/alunos/${id}/unassign`,
+
 }

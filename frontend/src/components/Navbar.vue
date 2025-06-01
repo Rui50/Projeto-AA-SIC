@@ -28,7 +28,7 @@
 
     const professorNavbarItems = [
         ...commonNavbarItems, 
-        { name: "My Students", link: "/students" },
+        { name: "My Clients", link: "/Clients" },
     ];
 
     const navbarItems = computed(() => {

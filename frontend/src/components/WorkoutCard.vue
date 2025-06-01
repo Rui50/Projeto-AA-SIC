@@ -74,7 +74,7 @@
                 {{ workout.name }}
             </h2>
             <p class="workout-creator">
-                Created by: <span class="creator-name">{{ workout.createdBy }}</span>
+                Created by: <span class="creator-name">{{ workout.createByUsername }}</span>
                 </p>
         </div>
 

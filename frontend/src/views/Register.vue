@@ -5,8 +5,12 @@
     import axios from 'axios'
     import { API_PATHS } from '../api_paths'
     import { useUserStore } from '../stores/userStore'
+    import Loading from '@/components/Loading.vue';
+    import { useToast } from 'vue-toastification'
 
     const userStore = useUserStore()
+
+    const toast = useToast()
 
     /**
      * TODO
@@ -73,7 +77,12 @@
             !usernameError.value &&
             !emailError.value &&
             !passwordError.value &&
-            !confirmPasswordError.value
+            !confirmPasswordError.value &&
+            username.value.trim() &&
+            email.value.trim() &&
+            password.value.trim() &&
+            confirmPassword.value.trim() &&
+            confirmPassword.value === password.value
         )
     })
 
@@ -92,6 +101,8 @@
     const canShowError = (field) => {
         return trackFieldsFirstUse.value[field]
     }
+
+    const emailExistsError = ref('');
 
     const submit = async () => {
         // so it shows errors if needed
@@ -112,25 +123,23 @@
             metricType: metricType.value 
         }
         
-        const response = await axios.post(API_PATHS.register, newUser)
-            .then(async (response) => {
-                console.log("Registration successful:", response.data);
-                alert("Registration successful! Please log in."); 
-                router.push('/auth/login');
-            })
-            .catch((error) => {
-                let response = error.response
-                // depois fazer erro x = ja existe conta com email
-                console.error("Registration failed:", error)
-            })
-
         try {
-
-        }
-        catch (error) {
-            console.error("Registration failed:", error)
+            const response = await axios.post(API_PATHS.register, newUser);
+            console.log("Registration successful:", response.data);
+            toast.success("Registration successful! Please log in.");
+            emailExistsError.value = '';
+            router.push('/auth/login');
+        } catch (error) {
+            console.error("Registration failed:", error);
+            if (error.response && error.response.status === 409) {
+                emailExistsError.value = "A user with this email already exists."; 
+                //toast.error("A user with this email already exists. Please use a different email or log in.");
+            } else {
+                //toast.error("Registration failed. Please try again later.");
+                emailExistsError.value = '';
+            }
         } finally {
-            isLoading.value = false
+            isLoading.value = false;
         }
     }
 
@@ -165,6 +174,7 @@
                         required 
                     />
                     <span v-if="canShowError('email') && emailError" class="error-text">{{ emailError }}</span>
+                    <span v-if="emailExistsError" class="error-text">{{ emailExistsError }}</span> 
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
@@ -182,6 +192,7 @@
                             @click="togglePasswordVisibility"
                         />
                     </div>
+                    <span v-if="canShowError('password') && passwordError" class="error-text">{{ passwordError }}</span>
                 </div>
                 <div class="form-group">
                     <label for="confirm-password">Confirm Password</label>
@@ -190,6 +201,7 @@
                             :type="showConfirmPassword ? 'text' : 'password'" 
                             id="confirm-password" 
                             v-model="confirmPassword"	
+                            @blur="markField('confirmPassword')"
                             required 
                         />
                         <Icon
@@ -202,8 +214,14 @@
                 </div>
             </div>
 
-            <button class="sign-up-btn" type="submit" @click.prevent="submit" :disabled="!formIsValid || isLoading">
-                {{ isLoading ? 'Registering...' : 'Sign up' }}
+            <button
+                class="sign-up-btn"
+                :class="{ disabled: !formIsValid || isLoading }"
+                type="submit"
+                @click.prevent="submit"
+                :disabled="!formIsValid || isLoading"
+            >
+            {{ isLoading ? 'Registering...' : 'Sign up' }}
             </button>
             <p class="sign-in-text">
                 Already have an account? <a href="#" @click.prevent="goToLogin">Sign in</a>
@@ -213,7 +231,7 @@
             <img src="../assets/blury_logo.svg" alt="Logo" class="logo-img" />
         </div>
     </div>
-
+    <Loading v-if="isLoading" />
 </template>
 
 <style scoped>
@@ -337,4 +355,11 @@
         scale: 0.6;
     }
 
+    .disabled {
+        background-color: #ccc;
+        color: #666;
+        cursor: not-allowed;
+        pointer-events: none;
+        transition: none;
+    }
 </style>

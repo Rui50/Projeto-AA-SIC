@@ -5,6 +5,7 @@
     import axios from 'axios'
     import { API_PATHS } from '../api_paths'
     import { useUserStore } from '../stores/userStore'
+    import Loading from '@/components/Loading.vue';
 
 
     const userStore = useUserStore()
@@ -139,7 +140,7 @@
                 </div>
             </div>
 
-            <p v-if="errorMessage" class="error-text general-error">{{ errorMessage }}</p>
+            <p v-if="errorMessage" class="error-text ">{{ errorMessage }}</p>
 
             <button class="sign-in-btn" type="submit" @click.prevent="submitLogin" :disabled="!formIsValid || isLoading">
                 {{ isLoading ? 'Signing In...' : 'Sign In' }}
@@ -152,6 +153,7 @@
             <img src="../assets/blury_logo.svg" alt="Logo" class="logo-img" />
         </div>
     </div>
+    <Loading v-if="isLoading" />
 </template>
 
 <style scoped>
@@ -164,6 +166,12 @@
         position: relative;
         overflow: hidden;
         width: 100%;
+    }
+    .error-text {
+        display: block;
+        color: #e74c3c;
+        font-size: 0.8rem;
+        margin-top: 0.3rem;
     }
 
     .login-section {

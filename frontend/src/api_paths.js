@@ -20,4 +20,7 @@ export const API_PATHS = {
     
     EXERCISES_LIBRARY: `${API_BASE_URL}/api/exercises`,
 
+    // PROGRESS
+    GET_PROGRESS: `${API_BASE_URL}/api/progress/dashboard`,
+
 }

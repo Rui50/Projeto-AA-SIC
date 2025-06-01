@@ -1,10 +1,14 @@
 <script setup>
-    import { ref } from 'vue'
+    import { ref, onMounted, watch } from 'vue'
     import { useRouter } from 'vue-router'
     import { Icon } from '@iconify/vue'
     import StatCard from '@/components/StatCard.vue'
+    import { useUserStore } from '../stores/userStore'
+    import axios from 'axios'
+    import { API_PATHS } from '../api_paths'
 
     const router = useRouter()
+    const userStore = useUserStore()
 
     const timePeriods = ref([
         { name: 'Week', value: 'week' },
@@ -13,14 +17,92 @@
         { name: 'All Time', value: 'all' },
     ])
 
-    const recentWorkouts = ref([
-        { id: 1, date: '2023-10-01', workout: 'Leg Day', duration: '45 min', status: 'completed' },
-        { id: 2, date: '2023-10-02', workout: 'Chest Day', duration: '30 min', status: 'completed' },
-        { id: 3, date: '2023-10-03', workout: 'Back Day', duration: '50 min', status: 'completed' },
-        { id: 4, date: '2023-10-04', workout: 'Shoulder Day', duration: '40 min', status: 'completed' },
-    ])
-
     const selectedPeriod = ref(timePeriods.value[0].value)
+
+    const progressStats = ref({
+        workoutsCompleted: 0,
+        totalWeightLifted: 0,
+        currentBodyWeight: 0,
+        bodyWeightChange: null,
+        bodyWeightChangeDirection: null
+    })
+
+    const workoutVolumeChartData = ref({
+    })
+
+    const recentWorkouts = ref([])
+
+    const isLoading = ref(false)
+
+    const fetchProgressData = async () => {
+        isLoading.value = true;
+
+        const payload = {
+            userId: userStore.getUserId,
+            timePeriod: selectedPeriod.value
+        }
+
+        console.log('Fetching progress data with payload:', payload)
+
+        try {
+            const response = await axios.post(API_PATHS.GET_PROGRESS, payload, {
+                headers: {
+                    Authorization: `Bearer ${userStore.getToken}`
+                }
+            })
+            
+            console.log('Progress data response:', response.data)
+            progressStats.value = response.data.progress
+            recentWorkouts.value = response.data.recentWorkouts
+        }
+        catch (error) {
+            console.error('Error fetching progress data:', error)
+            alert('Failed to fetch progress data. Please try again.')
+        }
+        finally {
+            isLoading.value = false
+        }
+    }
+
+    watch(selectedPeriod, (newVal, oldVal) => {
+        if (newVal !== oldVal) {
+            fetchProgressData();
+        }
+    });
+
+    onMounted(() => {
+        fetchProgressData();
+    });
+
+    const formatDuration = (ms) => {
+        if (ms === null || ms === undefined) return 'N/A';
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+
+        const remainingMinutes = minutes % 60;
+        const remainingSeconds = seconds % 60;
+
+        const pad = (num) => String(num).padStart(2, '0');
+
+        if (hours > 0) {
+            return `${hours}h ${pad(remainingMinutes)}min`;
+        } else if (remainingMinutes > 0) {
+            return `${remainingMinutes}min ${pad(remainingSeconds)}s`;
+        } else {
+            return `${remainingSeconds}s`;
+        }
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const [year, month, day] = dateString.split('-');
+        return `${day}/${month}/${year}`;
+    };
+
+    const goToWorkout = (workoutId) => {
+        router.push(`/workout/execution/${workoutId}`);
+    };
 
 </script>
 
@@ -41,69 +123,79 @@
             </div>
         </div>
 
-        <div class="stats-cards">
-            <StatCard
-                label="Workouts Completed"
-                value="10"
-            />
-            <StatCard
-                label="Total Weight Lifted"
-                value="5000"
-            />
-            <StatCard
-                label="Current Weight"
-                value="80"
-            />
-        </div>
-
-        <div class="performance-graph">
-            <h2>Performance Chart</h2>
-            <p>Chart will be here</p>
-            <div class="graph-area">
-
-            </div>
-        </div>
-
-        <div class="recent-workouts">
-            <div class="recent-workouts-header">
-                <h3>Recent Workouts</h3>
-                <button class="view-all">View All</button>
+        <div v-if="isLoading" class="loading-indicator">Loading progress data...</div>
+        <div v-else>
+            <div class="stats-cards">
+                <StatCard
+                    label="Workouts Completed"
+                    :value="progressStats.workoutsCompleted"
+                />
+                <StatCard
+                    label="Total Weight Lifted"
+                    :value="progressStats.totalWeightLifted ? progressStats.totalWeightLifted.toFixed(2) + ' kg' : '0 kg'"
+                />
+                <StatCard
+                    label="Current Weight"
+                    :value="progressStats.currentBodyWeight ? progressStats.currentBodyWeight.toFixed(1) + ' kg' : 'N/A'"
+                    :change="progressStats.bodyWeightChange ? progressStats.bodyWeightChange.toFixed(1) + ' kg' : null"
+                    :change-direction="progressStats.bodyWeightChangeDirection"
+                />
             </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Workout</th>
-                        <th>Duration</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="workout in recentWorkouts" :key="workout.id">
-                        <td> {{ workout.date }}</td>
-                        <td> 
-                            {{ workout.workout }}
-                            <div class="workout-details">{{ workout.exercises }} Exercises • {{ workout.duration }}</div>
-                        </td>
-                        <td> {{ workout.duration }}</td>
-                        <td>
-                            <span v-if="workout.status === 'completed'" class="status completed">{{ workout.status }}</span>
-                            <span v-if="workout.status === 'missed'" class="status missed">{{ workout.status }}</span>
-                        </td>
-                        <td>
-                            <button class="details-button">Details</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="performance-graph">
+                <h2>Performance Chart</h2>
+                <div v-if="workoutVolumeChartData.length === 0" class="no-data-message">No workout data for this period to display in chart.</div>
+                <div v-else class="graph-area">
+                    <p>Chart will be here (Data points: {{ workoutVolumeChartData.length }})</p>
+                    <pre>{{ JSON.stringify(workoutVolumeChartData, null, 2) }}</pre>
+                </div>
+            </div>
+
+            <div class="recent-workouts">
+                <div class="recent-workouts-header">
+                    <h3>Recent Workouts</h3>
+                    <button class="view-all" @click="router.push('/workouts')">View All</button>
+                </div>
+
+                <div v-if="recentWorkouts.length === 0" class="no-data-message">No recent completed workouts.</div>
+                <table v-else>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Workout</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="workout in recentWorkouts" :key="workout.id">
+                            <td> {{ formatDate(workout.executionDate) }}</td>
+                            <td>
+                                {{ workout.workoutName }}
+                                <div class="workout-details">{{ workout.exercises }} Exercises • {{ formatDuration(workout.duration) }}</div>
+                            </td>
+                            <td> {{ formatDuration(workout.duration) }}</td>
+                            <td>
+                                <span :class="['status', workout.status.toLowerCase()]">{{ workout.status }}</span>
+                            </td>
+                            <td>
+                                <button class="details-button" @click="goToWorkout(workout.id)">Details</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
 </template>
-
 <style scoped>
+    .loading-indicator, .no-data-message {
+        text-align: center;
+        padding: 20px;
+        color: #555;
+        font-size: 1.1rem;
+    }
 
     .performance-graph{
         background-color: var(--background-color-whitee);

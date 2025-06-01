@@ -22,7 +22,7 @@ public interface WorkoutExecutionRepository extends JpaRepository<WorkoutExecuti
 
     // para conseguirmos pegar no ultimo que ele conclui, ou tipo top 3
     @Query("SELECT we FROM WorkoutExecution we WHERE we.user.id = :userId ORDER BY we.startTime DESC")
-    List<WorkoutExecution> findTopByUserIdOrderByStartTimeDesc(Integer userId); // Retorna lista, mas o serviço obtem o 1 apenas
+    List<WorkoutExecution> findTopByUserIdOrderByStartTimeDesc(Integer userId);
 
     // Para a dashboard de melhorias usamos este
     @Query("SELECT we FROM WorkoutExecution we WHERE we.user.id = :userId AND we.startTime BETWEEN :start AND :end")
@@ -30,4 +30,7 @@ public interface WorkoutExecutionRepository extends JpaRepository<WorkoutExecuti
 
     // adicionado automatico pelo intelij, ver se funciona
     Optional<WorkoutExecution> findByUserAndStatus(User user, WorkoutExecution.WorkoutStatus workoutStatus);
+
+    @Query("SELECT COUNT(we) FROM WorkoutExecution we WHERE we.user.id = :userId AND we.status = :status AND we.startTime BETWEEN :start AND :end")
+    Long countByUserIdAndStatusAndStartTimeBetween(Integer userId, WorkoutExecution.WorkoutStatus status, LocalDateTime start, LocalDateTime end);
 }

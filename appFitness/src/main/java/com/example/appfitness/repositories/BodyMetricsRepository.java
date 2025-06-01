@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BodyMetricsRepository extends JpaRepository<BodyMetrics, Integer> {
@@ -16,11 +18,18 @@ public interface BodyMetricsRepository extends JpaRepository<BodyMetrics, Intege
     List<BodyMetrics> findByUserId(Integer userId);
 
     // Para obter a mais recente, ordenamos e pegamos o primeiro resultado.
+    @Query(value = "SELECT bm FROM BodyMetrics bm WHERE bm.user.id = :userId AND bm.updatedAt <= :targetDate ORDER BY bm.updatedAt DESC LIMIT 1")
+    Optional<BodyMetrics> findClosestBeforeDateForUser(Integer userId, LocalDate targetDate);
+    // Retorna lista, mas o serviço pega no primeiro
+
+    Optional<BodyMetrics> findFirstByUser_IdOrderByUpdatedAtDesc(Integer userId);
+
     @Query("SELECT bm FROM BodyMetrics bm WHERE bm.user.id = :userId ORDER BY bm.updatedAt DESC")
     List<BodyMetrics> findTopByUserIdOrderByMeasurementDateDesc(Integer userId);
-    // Retorna lista, mas o serviço pega no primeiro
 
     // Para obter a partir de uma certa data
     @Query("SELECT bm FROM BodyMetrics bm WHERE bm.user.id = :userId AND bm.updatedAt >= :startDate ORDER BY bm.updatedAt ASC")
     List<BodyMetrics> findByUserIdAndUpdatedAt(Integer userId, LocalDate startDate);
+
+    List<BodyMetrics> findByUser_IdAndUpdatedAtBetweenOrderByUpdatedAtAsc(Integer userId, LocalDate startDate, LocalDate endDate);
 }

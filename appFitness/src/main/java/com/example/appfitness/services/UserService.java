@@ -2,6 +2,7 @@ package com.example.appfitness.services;
 
 import com.example.appfitness.models.User;
 import com.example.appfitness.repositories.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,8 +11,10 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public UserService(UserRepository userRepository) {
+        this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
         this.userRepository = userRepository;
     }
 
@@ -37,12 +40,12 @@ public class UserService {
     }
 
     public boolean checkPassword(String rawPassword, String encodedPassword) {
-        // In production, use BCrypt or similar! For demo: plain comparison
-        return rawPassword.equals(encodedPassword);
+        return bCryptPasswordEncoder.matches(rawPassword, encodedPassword);
+        //return rawPassword.equals(encodedPassword);
     }
 
     public User saveUser(User user) {
-        // Encrypt password here in production!
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 }

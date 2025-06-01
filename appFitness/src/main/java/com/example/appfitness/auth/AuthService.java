@@ -2,6 +2,7 @@ package com.example.appfitness.auth;
 
 import com.example.appfitness.models.Aluno;
 import com.example.appfitness.repositories.AlunoRepository;
+import com.example.appfitness.services.AlunoService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +17,15 @@ import java.util.Optional;
 public class AuthService {
     private final JwtService jwtService;
     private final UserService userService;
-    private final AlunoRepository alunoRepository;
+    private final AlunoService alunoService;
 
     @Value("${app.domain}")
     private String appDomain;
 
-    public AuthService(JwtService jwtService, UserService userService, AlunoRepository alunoRepository) {
+    public AuthService(JwtService jwtService, UserService userService, AlunoService alunoService) {
         this.jwtService = jwtService;
         this.userService = userService;
-        this.alunoRepository = alunoRepository;
+        this.alunoService = alunoService;
     }
 
     /**
@@ -59,7 +60,7 @@ public class AuthService {
         if (userService.emailExists(email)) {
             throw new Exception("User with email '" + aluno.getEmail() + "' already exists!");
         }
-        return alunoRepository.save(aluno);
+        return alunoService.saveAluno(aluno);
     }
 
     public boolean checkUserId(String token, String userId) {
@@ -109,7 +110,7 @@ public class AuthService {
         Cookie cookie = new Cookie("token", token);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        cookie.setDomain(appDomain);
+        cookie.setDomain(appDomain); // atençao a usar isto com docker
         cookie.setPath("/");
         cookie.setMaxAge(24 * 60 * 60); // 1 day
         return cookie;

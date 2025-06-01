@@ -9,11 +9,12 @@
     const userStore = useUserStore();
 
     import CreateWorkoutPopup from '@/components/CreateWorkoutPopup.vue';
+    import WorkoutCard from '@/components/WorkoutCard.vue';
 
     const router = useRouter();
     const route = useRoute();
 
-const studentId = computed(() => route.params.id);
+    const studentId = computed(() => route.params.id);
 
     const clientDetails = ref(null);
     const bodyMetrics = ref([])
@@ -34,13 +35,16 @@ const studentId = computed(() => route.params.id);
         try {
             const response = await axios.get(API_PATHS.GET_CLIENT_INFO(studentId.value), {
                 params: { professorId: userStore.getUserId },
+                /*
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
+                }*/
             });
             clientDetails.value = response.data.aluno;
             bodyMetrics.value = response.data.bodyMetrics || [];
-            workoutPlans.value = response.data.workouts || [];
+            workoutPlans.value = response.data.workoutPlan || [];
+
+            console.log("workout", workoutPlans.value);
 
             console.log('Client info fetched:', response.data);
             return;
@@ -63,15 +67,16 @@ const studentId = computed(() => route.params.id);
         try {
             const newWorkout = {
                 name: workoutName,
-                ownerId: userStore.getUserId,
+                ownerId: studentId.value,
             }
 
             console.log('Creating workout:', newWorkout);
 
             const response = await axios.post(API_PATHS.CREATE_WORKOUT, newWorkout, {
-                headers: {
+                /*headers: {
                     Authorization: `Bearer ${userStore.getToken}`
-                }
+                },*/
+                withCredentials: true,
             });
 
             const createdWorkout = response.data;
@@ -97,6 +102,35 @@ const studentId = computed(() => route.params.id);
         router.push(`/client-dashboard/${studentId.value}`);
     };
 
+    const handleActivateWorkout = async (workoutId) => {
+        try {
+            await axios.put(`${API_PATHS.WORKOUT_BY_ID}${workoutId}/activate`, null, {
+                headers: {
+                    Authorization: `Bearer ${userStore.getToken}`
+                }
+            });
+            console.log('Workout activated:', workoutId);
+            await fetchWorkouts();
+        } catch (error) {
+            console.error('Error activating workout:', error);
+            alert('Failed to activate workout. Please try again.');
+        }
+    }
+
+    const handleDeactivateWorkout = async (workoutId) => {
+        try {
+            await axios.put(`${API_PATHS.WORKOUT_BY_ID}${workoutId}/deactivate`, null, {
+                headers: {
+                    Authorization: `Bearer ${userStore.getToken}`
+                }
+            });
+            console.log('Workout deactivated:', workoutId);
+            await fetchWorkouts();
+        } catch (error) {
+            console.error('Error deactivating workout:', error);
+            alert('Failed to deactivate workout. Please try again.');
+        }
+    }
 
     onMounted(() => {
         studentId.value = route.params.id;
@@ -156,22 +190,20 @@ const studentId = computed(() => route.params.id);
             </section>
 
             <section class="info-card workouts-section">
-                <h2>Workouts (My Created Plans)</h2>
+                <h2>Workouts (Created Plans for {{ clientDetails.name }})</h2>
                 <button @click="toggleCreateWorkoutPopup" class="add-button">
                     + Create new workout plan
                 </button>
 
-                <div v-if="workouts && workouts.length > 0" class="workouts-list">
-                    <h3>My Assigned Workouts</h3>
-                    <div v-for="workout in workouts" :key="workout.id" class="workout-item">
-                        <h4>{{ workout.name }}</h4>
-                        <p class="workout-description">{{ workout.description || 'No description provided.' }}</p>
-                        <p class="workout-date">Created on: {{ new Date(workout.creationDate).toLocaleDateString() }}</p>
-                        <div class="workout-actions">
-                            <button @click="viewWorkoutDetails(workout.id)" class="view-workout-button">View/Edit</button>
-                            <button @click="deleteWorkout(workout.id)" class="delete-workout-button">Delete</button>
-                        </div>
-                    </div>
+                <div v-if="workoutPlans && workoutPlans.length > 0" class="workouts-grid">
+                    <WorkoutCard
+                        v-for="workout in workoutPlans"
+                        :key="workout.id"
+                        :workout="workout"
+                        @activate-workout="activateWorkout"
+                        @deactivate-workout="deactivateWorkout"
+                        @delete-workout="deleteWorkout"
+                    />
                 </div>
                 <p v-else>You have not created any workouts for this client yet.</p>
             </section>
@@ -185,10 +217,11 @@ const studentId = computed(() => route.params.id);
     </div>
 </template>
 
-<style scoped>
+
+ <style scoped>
     .client-info-page {
         padding: 20px;
-        max-width: 1000px;
+        max-width: 1100px;
         margin: 0 auto;
         font-family: 'Arial', sans-serif;
     }
@@ -220,10 +253,10 @@ const studentId = computed(() => route.params.id);
 
     @media (min-width: 768px) {
         .client-details-container {
-            grid-template-columns: 1fr 1fr; 
+            grid-template-columns: 1fr 1fr;
         }
         .workouts-section {
-            grid-column: 1 / -1; 
+            grid-column: 1 / -1;
         }
     }
 
@@ -322,7 +355,7 @@ const studentId = computed(() => route.params.id);
     }
 
     .submit-button {
-        background-color: #28a745; 
+        background-color: #28a745;
         color: white;
     }
     .submit-button:hover:not(:disabled) {
@@ -335,7 +368,7 @@ const studentId = computed(() => route.params.id);
     }
 
     .cancel-button {
-        background-color: #6c757d; 
+        background-color: #6c757d;
         color: white;
     }
     .cancel-button:hover {
@@ -380,89 +413,20 @@ const studentId = computed(() => route.params.id);
     }
 
     .notes-cell {
-        max-width: 200px; 
+        max-width: 200px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
 
-    .workouts-list {
+    .workouts-section {
+    }
+
+    .workouts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+        gap: 20px; 
         margin-top: 25px;
     }
-
-    .workouts-list h3 {
-        font-size: 1.3em;
-        color: #555;
-        margin-bottom: 15px;
-    }
-
-    .workout-item {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 15px 20px;
-        margin-bottom: 15px;
-        background-color: #fdfdfd;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .workout-item h4 {
-        margin-top: 0;
-        color: var(--vt-c-indigo);
-        font-size: 1.4em;
-        margin-bottom: 5px;
-    }
-
-    .workout-description {
-        color: #666;
-        margin-bottom: 10px;
-    }
-
-    .workout-date {
-        font-size: 0.9em;
-        color: #888;
-        margin-bottom: 15px;
-    }
-
-    .workout-actions {
-        margin-top: 15px;
-        border-top: 1px solid #eee;
-        padding-top: 10px;
-        display: flex;
-        gap: 8px; 
-        flex-wrap: wrap; 
-    }
-
-    .view-workout-button, .edit-workout-button, .delete-workout-button {
-        padding: 8px 15px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 0.9em;
-        transition: background-color 0.2s;
-    }
-
-    .view-workout-button {
-        background-color: var(--vt-c-indigo);
-        color: white;
-    }
-    .view-workout-button:hover {
-        background-color: #0056b3;
-    }
-
-    .edit-workout-button {
-        background-color: #ffc107;
-        color: #333;
-    }
-    .edit-workout-button:hover {
-        background-color: #e0a800;
-    }
-
-    .delete-workout-button {
-        background-color: #dc3545;
-        color: white;
-    }
-    .delete-workout-button:hover {
-        background-color: #c82333;
-    }
-</style>
+ </style>

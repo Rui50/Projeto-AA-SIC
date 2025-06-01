@@ -196,6 +196,7 @@
     .exercise-list{
         padding: 0.8rem 1.2rem;
         max-height: 180px;
+        min-height: 100px;
         overflow-y: auto;
     }
 

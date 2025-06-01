@@ -4,6 +4,7 @@ import com.example.appfitness.DTOs.WorkoutPlan.ExerciseDataRequestDTO;
 import com.example.appfitness.DTOs.WorkoutPlan.ExerciseDataResponseDTO;
 import com.example.appfitness.DTOs.WorkoutPlan.WorkoutPlanRequestDTO;
 import com.example.appfitness.DTOs.WorkoutPlan.WorkoutPlanResponseDTO;
+import com.example.appfitness.auth.AuthService;
 import com.example.appfitness.models.ExerciseData;
 import com.example.appfitness.models.SetData;
 import com.example.appfitness.models.WorkoutExecution;
@@ -27,16 +28,20 @@ public class WorkoutPlanController {
     private WorkoutPlanService workoutPlanService;
     private UserService userService;
     private ExerciseService exerciseService;
+    private AuthService authService;
 
-    public WorkoutPlanController(WorkoutPlanService workoutPlanService, UserService userService, ProfessorService professorService, ExerciseService exerciseService) {
+    public WorkoutPlanController(WorkoutPlanService workoutPlanService, UserService userService, AuthService authService, ProfessorService professorService, ExerciseService exerciseService) {
         this.workoutPlanService = workoutPlanService;
         this.userService = userService;
         this.exerciseService = exerciseService;
+        this.authService = authService;
     }
 
 
     @GetMapping("/user/{ownerId}")
-    public ResponseEntity<List<WorkoutPlanResponseDTO>> getWorkoutPlans(@PathVariable Integer ownerId) {
+    public ResponseEntity<List<WorkoutPlanResponseDTO>> getWorkoutPlans(@PathVariable Integer ownerId, @CookieValue(value = "token", defaultValue = "") String token) {
+        System.out.println("Received token from cookie: " + token);
+
         List<WorkoutPlan> workoutPlans = workoutPlanService.getWorkoutPlansByOwnerId(ownerId);
 
         List<WorkoutPlanResponseDTO> responseDTOs = workoutPlans.stream()
@@ -47,8 +52,13 @@ public class WorkoutPlanController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createWorkoutPlan(@RequestBody WorkoutPlanRequestDTO createDTO) {
-        Integer creatorId = createDTO.getOwnerId();
+    public ResponseEntity<Object> createWorkoutPlan(
+            @RequestBody WorkoutPlanRequestDTO createDTO,
+            @CookieValue(value = "token", defaultValue = "") String token) {
+
+
+        Integer creatorId = Integer.valueOf(authService.getUserIdFromToken(token));
+        System.out.println("Received creatorId from cookie: " + creatorId);
 
         WorkoutPlan workoutPlan = new WorkoutPlan();
         workoutPlan.setName(createDTO.getName());
@@ -61,6 +71,7 @@ public class WorkoutPlanController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(workoutPlanService.toResponseDTOfix(savedWorkoutPlan));
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getWorkoutPlanById(@PathVariable Integer id) {

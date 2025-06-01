@@ -37,12 +37,13 @@
             console.log('Creating workout:', newWorkout);
 
             const response = await axios.post(API_PATHS.CREATE_WORKOUT, newWorkout, {
-                headers: {
+                withCredentials: true,
+                /*headers: {
                     Authorization: `Bearer ${userStore.getToken}`
-                }
+                }*/
             });
 
-
+            
             const createdWorkout = response.data;
             console.log('Workout created:', createdWorkout);
             // await fetchWorkouts();

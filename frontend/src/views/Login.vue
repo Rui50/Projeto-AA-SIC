@@ -77,7 +77,7 @@
         }
 
         try {
-            const response = await axios.post(API_PATHS.login, credentials)
+            const response = await axios.post(API_PATHS.login, credentials, { withCredentials: true });
             console.log("Login successful:", response.data);
 
             userStore.setUser({
@@ -86,6 +86,8 @@
                 name: response.data.name,
                 role: response.data.role,
             })
+
+            console.log(response.data)
 
             router.push('/')
         }

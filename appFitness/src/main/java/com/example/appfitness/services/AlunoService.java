@@ -8,6 +8,7 @@ import com.example.appfitness.DTOs.bodyMetrics.BodyMetricsResposeDTO;
 import com.example.appfitness.models.*;
 import com.example.appfitness.repositories.*;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,17 +25,21 @@ public class AlunoService {
     private BodyMetricsRepository bodyMetricsRepository;
     private WorkoutExecutionRepository workoutExecutionRepository;
     private WorkoutPlanRepository workoutPlanRepository;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public AlunoService(AlunoRepository alunoRepository,
                         ProfessorRepository professorRepository
             , BodyMetricsRepository bodyMetricsRepository,
-                        WorkoutExecutionRepository workoutExecutionRepository, UserService userService, WorkoutPlanRepository workoutPlanRepository) {
+                        WorkoutExecutionRepository workoutExecutionRepository,
+                        UserService userService,
+                        WorkoutPlanRepository workoutPlanRepository) {
         this.alunoRepository = alunoRepository;
         this.professorRepository = professorRepository;
         this.bodyMetricsRepository = bodyMetricsRepository;
         this.workoutExecutionRepository = workoutExecutionRepository;
         this.userService = userService;
         this.workoutPlanRepository = workoutPlanRepository;
+        this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
     }
     @Transactional
     public Aluno salvar(Aluno aluno) {
@@ -129,6 +134,11 @@ public class AlunoService {
                 }).toList();
 
         return new ClientInfoResponseDTOP(clientDetails, latestBodyMetricDTO, workoutPlansDTOs);
+    }
+
+    public Aluno saveAluno(Aluno user) {
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        return alunoRepository.save(user);
     }
 }
 

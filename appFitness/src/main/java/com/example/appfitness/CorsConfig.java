@@ -1,6 +1,6 @@
 // src/main/java/com/example/appfitness/config/CorsConfig.java (create this file and package)
 
-package com.example.appfitness.config; // Adjust package as needed
+package com.example.appfitness;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

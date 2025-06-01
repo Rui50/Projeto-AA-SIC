@@ -116,7 +116,7 @@ onMounted(fetchWorkoutPlanDetails);
                 </div>
                 <div class="workout-data-item">
                     <Icon icon="ion:person-outline" width="24" height="24" />
-                    <span> Made by {{ workoutPlanDetails.createdBy }}</span>
+                    <span> Made by {{ workoutPlanDetails.createByUsername }}</span>
                 </div>
             </div>
 
@@ -139,13 +139,13 @@ onMounted(fetchWorkoutPlanDetails);
                         <div class="ex-name">{{ currentSelectedExercise.exercise.name }}</div>
                         <div class="ex-muscle">{{ currentSelectedExercise.exercise.muscleGroup }}</div>
                     </div>
-                    <div class="professor-note" v-if="currentSelectedExercise.professorNote">
+                    <div class="professor-note" v-if="currentSelectedExercise.note">
                         <div class="professor-note-header">
                             <Icon icon="ph:note-thin" width="24" height="24" />
-                            <span>Professor's Note</span>
+                            <span>Note</span>
                         </div>
                         <div class="professor-note-content">
-                            <span>{{ currentSelectedExercise.professorNote }}</span>
+                            <span>{{ currentSelectedExercise.note }}</span>
                         </div>
                     </div>
 

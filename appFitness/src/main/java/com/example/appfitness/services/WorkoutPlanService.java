@@ -3,6 +3,7 @@ package com.example.appfitness.services;
 import com.example.appfitness.DTOs.WorkoutPlan.ExerciseDataRequestDTO;
 import com.example.appfitness.DTOs.WorkoutPlan.SetDataDTO;
 import com.example.appfitness.DTOs.WorkoutPlan.WorkoutPlanRequestDTO;
+import com.example.appfitness.DTOs.WorkoutPlan.WorkoutPlanResponseDTO;
 import com.example.appfitness.models.*;
 import com.example.appfitness.repositories.*;
 import jakarta.transaction.Transactional;
@@ -239,6 +240,16 @@ public class WorkoutPlanService {
         exerciseDataRepository.delete(exerciseDataToRemove);
     }
 
+    public WorkoutPlanResponseDTO toResponseDTOfix(WorkoutPlan workoutPlan) {
+        String createdByUserName = "";
+        if (workoutPlan.getCreatedBy() != null) {
+            Optional<User> creatorUser = userRepository.findById(workoutPlan.getCreatedBy());
+            if (creatorUser.isPresent()) {
+                createdByUserName = creatorUser.get().getName();
+            }
+        }
+        return WorkoutPlanResponseDTO.fromEntity(workoutPlan, createdByUserName);
+    }
 }
 
 

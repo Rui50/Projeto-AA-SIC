@@ -34,12 +34,13 @@ public class WorkoutPlanController {
         this.exerciseService = exerciseService;
     }
 
+
     @GetMapping("/user/{ownerId}")
     public ResponseEntity<List<WorkoutPlanResponseDTO>> getWorkoutPlans(@PathVariable Integer ownerId) {
         List<WorkoutPlan> workoutPlans = workoutPlanService.getWorkoutPlansByOwnerId(ownerId);
 
         List<WorkoutPlanResponseDTO> responseDTOs = workoutPlans.stream()
-                .map(WorkoutPlanResponseDTO::fromEntity)
+                .map(workoutPlan -> workoutPlanService.toResponseDTOfix(workoutPlan)) // Use the instance method directly
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(responseDTOs);
@@ -58,7 +59,7 @@ public class WorkoutPlanController {
         // service handles the rest for now, if we need the create to already bring the exercises we should put all the logic here
         WorkoutPlan savedWorkoutPlan = workoutPlanService.createWorkoutPlan(workoutPlan, createDTO.getOwnerId(), creatorId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(WorkoutPlanResponseDTO.fromEntity(savedWorkoutPlan));
+        return ResponseEntity.status(HttpStatus.CREATED).body(workoutPlanService.toResponseDTOfix(savedWorkoutPlan));
     }
 
     @GetMapping("/{id}")
@@ -66,7 +67,7 @@ public class WorkoutPlanController {
         Optional<WorkoutPlan> workoutPlan = workoutPlanService.getWorkoutPlanById(id);
 
         if (workoutPlan.isPresent()) {
-            return ResponseEntity.ok(WorkoutPlanResponseDTO.fromEntity(workoutPlan.get()));
+            return ResponseEntity.ok(workoutPlanService.toResponseDTOfix(workoutPlan.get()));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -92,14 +93,14 @@ public class WorkoutPlanController {
         System.out.println("Update data: " + updateDTO);
         WorkoutPlan updatedWorkoutPlan = workoutPlanService.updateWorkoutPlan(id, updateDTO);
 
-        return ResponseEntity.ok(WorkoutPlanResponseDTO.fromEntity(updatedWorkoutPlan));
+        return ResponseEntity.ok(workoutPlanService.toResponseDTOfix(updatedWorkoutPlan));
     }
 
     @PutMapping("/{id}/activate")
     public ResponseEntity<WorkoutPlanResponseDTO> activateWorkoutPlan(@PathVariable Integer id) {
         try {
             WorkoutPlan activatedWorkout = workoutPlanService.updateWorkoutPlanActiveStatus(id, true);
-            return ResponseEntity.ok(WorkoutPlanResponseDTO.fromEntity(activatedWorkout));
+            return ResponseEntity.ok(workoutPlanService.toResponseDTOfix(activatedWorkout));
         } catch (RuntimeException e) {
             // e.g., WorkoutPlanNotFoundException
             return ResponseEntity.notFound().build();
@@ -110,7 +111,7 @@ public class WorkoutPlanController {
     public ResponseEntity<WorkoutPlanResponseDTO> deactivateWorkoutPlan(@PathVariable Integer id) {
         try {
             WorkoutPlan deactivatedWorkout = workoutPlanService.updateWorkoutPlanActiveStatus(id, false);
-            return ResponseEntity.ok(WorkoutPlanResponseDTO.fromEntity(deactivatedWorkout));
+            return ResponseEntity.ok(workoutPlanService.toResponseDTOfix(deactivatedWorkout));
         } catch (RuntimeException e) {
             // e.g., WorkoutPlanNotFoundException
             return ResponseEntity.notFound().build();

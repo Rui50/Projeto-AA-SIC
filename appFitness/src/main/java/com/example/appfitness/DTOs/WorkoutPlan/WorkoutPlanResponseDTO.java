@@ -21,7 +21,8 @@ public class WorkoutPlanResponseDTO {
     private int id;
     private String name;
     private String description;
-    private Integer createdBy; // creator id
+    private Integer createdBy;
+    private String createByUsername;
     private LocalDate updatedAt;
     private boolean active;
     private WorkoutPlan.WorkoutScheduleType scheduleType;
@@ -29,7 +30,7 @@ public class WorkoutPlanResponseDTO {
     private List<ExerciseDataResponseDTO> exercises;
     private Set<DayOfWeek> scheduledDays;
 
-    public static WorkoutPlanResponseDTO fromEntity(WorkoutPlan workoutPlan) {
+    public static WorkoutPlanResponseDTO fromEntity(WorkoutPlan workoutPlan, String createdByUsername) {
         WorkoutPlanResponseDTO dto = new WorkoutPlanResponseDTO();
         dto.setId(workoutPlan.getId());
         dto.setName(workoutPlan.getName());
@@ -40,6 +41,7 @@ public class WorkoutPlanResponseDTO {
         dto.setScheduleType(workoutPlan.getScheduleType());
         dto.setOwnerId(workoutPlan.getOwner().getId());
 
+        dto.setCreateByUsername(createdByUsername);
         // Map exercises to ExerciseDataResponseDTOs
         if (workoutPlan.getExercises() != null) {
             dto.setExercises(workoutPlan.getExercises().stream()

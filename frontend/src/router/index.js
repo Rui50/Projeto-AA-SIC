@@ -60,6 +60,11 @@ const router = createRouter({
           name: 'clients',
           component: () => import('../views/ClientsList.vue'),
         },
+        {
+          path: 'client/:id',
+          name: 'clientInfo',
+          component: () => import('../views/ClientInfo.vue'),
+        }
       ],
     },
     // {
@@ -69,5 +74,16 @@ const router = createRouter({
     // },
   ],
 })
+
+/* router.beforeEach((to, from, next) => {
+  // Add any global navigation guards here if needed
+  if (to.meta.requiresAuth && !isAuthenticated) {
+        next('/login');
+    } else if (to.name === 'Login' && isAuthenticated) {
+        next('/');
+    } else {
+        next();
+    }
+})*/
 
 export default router

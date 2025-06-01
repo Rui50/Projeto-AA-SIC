@@ -110,7 +110,7 @@ const parseDateString = (dateString) => {
 
 
 const viewInfo = (studentId) => {
-    router.push(`/students/${studentId}`);
+    router.push(`/client/${studentId}`);
     console.log("View info for student:", studentId);
 };
 
@@ -254,7 +254,6 @@ const handleClientAssigned = () => {
             :modalState="addClientModalState"
             @close="toggleAddClientModal" 
             @assign-client="handleClientAssigned" />
-        />
     </div>
 </template>
 

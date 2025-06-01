@@ -22,4 +22,10 @@ public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Intege
     // "filtrar por nome", isto provalmente nao é necessário pois fariamos no frontend
     @Query("SELECT wp FROM WorkoutPlan wp WHERE wp.owner.id = :userId AND wp.name = :planName")
     Optional<WorkoutPlan> findByOwnerIdAndName(Integer userId, String planName);
+
+    @Query("SELECT wp FROM WorkoutPlan wp WHERE wp.createdBy = :professorId AND wp.owner.id = :ownerId ORDER BY wp.updatedAt DESC")
+    List<WorkoutPlan> findByCreatedByAndOwnerIdOrderByUpdatedAtDesc(
+            Integer professorId,
+            Integer ownerId
+    );
 }

@@ -2,6 +2,7 @@ package com.example.appfitness.repositories;
 
 import com.example.appfitness.models.User;
 import com.example.appfitness.models.WorkoutExecution;
+import com.example.appfitness.models.WorkoutPlan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

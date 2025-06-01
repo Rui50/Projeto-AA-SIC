@@ -2,6 +2,7 @@ package com.example.appfitness.controllers;
 
 import com.example.appfitness.DTOs.Aluno.AlunoDTO;
 import com.example.appfitness.DTOs.Aluno.AlunoResponseDTO;
+import com.example.appfitness.DTOs.Aluno.ClientInfoResponseDTOP;
 import com.example.appfitness.models.Aluno;
 import com.example.appfitness.services.AlunoService;
 import com.example.appfitness.services.UserService;
@@ -49,5 +50,16 @@ public class AlunoController {
         alunoService.unassignProfessorFromAluno(alunoId);
 
     }
+
+    // depois usar middleware para o id do professor e verificamos se ele é professor do aluno
+    @GetMapping("/info/{id}")
+    public ResponseEntity<ClientInfoResponseDTOP> getClientInfo(@PathVariable int id, @RequestParam int professorId) {
+        System.out.println("Student ID: " + id);
+        System.out.println("Professor ID: " + professorId);
+
+        ClientInfoResponseDTOP clientInfoResponseDTOP = alunoService.getClientInfo(id, professorId);
+        return ResponseEntity.ok(clientInfoResponseDTOP);
+    }
+
 
 }

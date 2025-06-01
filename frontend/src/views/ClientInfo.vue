@@ -1,0 +1,468 @@
+<script setup>
+    import { ref, onMounted, computed } from 'vue';
+    import { useRouter } from 'vue-router';
+    import axios from 'axios';
+    import { API_PATHS } from '../api_paths';
+    import { useRoute } from 'vue-router';
+    import { useUserStore } from '../stores/userStore';
+
+    const userStore = useUserStore();
+
+    import CreateWorkoutPopup from '@/components/CreateWorkoutPopup.vue';
+
+    const router = useRouter();
+    const route = useRoute();
+
+const studentId = computed(() => route.params.id);
+
+    const clientDetails = ref(null);
+    const bodyMetrics = ref([])
+    const workoutPlans = ref([])
+    const isLoading = ref(true);
+    const error = ref(null);
+
+    const createWorkoutPopupState = ref(false);
+    
+    const toggleCreateWorkoutPopup = () => {
+        createWorkoutPopupState.value = !createWorkoutPopupState.value;
+    };
+
+    const fetchClientInfo = async () => {
+        isLoading.value = true;
+        error.value = null;
+
+        try {
+            const response = await axios.get(API_PATHS.GET_CLIENT_INFO(studentId.value), {
+                params: { professorId: userStore.getUserId },
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            clientDetails.value = response.data.aluno;
+            bodyMetrics.value = response.data.bodyMetrics || [];
+            workoutPlans.value = response.data.workouts || [];
+
+            console.log('Client info fetched:', response.data);
+            return;
+        } catch (err) {
+            console.error("Error fetching client info:", err);
+            error.value = "Failed to load client information. Please try again.";
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    const handleCreateWorkout = async (workoutName) => {
+        toggleCreateWorkoutPopup(); 
+
+        if (!workoutName || workoutName.trim() === '') {
+            alert('Workout name cannot be empty.');
+            return;
+        }
+
+        try {
+            const newWorkout = {
+                name: workoutName,
+                ownerId: userStore.getUserId,
+            }
+
+            console.log('Creating workout:', newWorkout);
+
+            const response = await axios.post(API_PATHS.CREATE_WORKOUT, newWorkout, {
+                headers: {
+                    Authorization: `Bearer ${userStore.getToken}`
+                }
+            });
+
+            const createdWorkout = response.data;
+            console.log('Workout created and assigned:', createdWorkout);
+
+            router.push(`/workout/edit/${createdWorkout.id}`);
+
+        } catch (error) {
+            console.error('Error creating workout:', error);
+            alert(`Failed to create workout: ${error.response?.data?.message || error.message}`);
+        }
+    };
+
+    const viewWorkoutDetails = (workoutId) => {
+        router.push(`/workout/${workoutId}`);
+    };
+
+    const editWorkout = (workoutId) => {
+        router.push(`/workout/edit/${workoutId}`);
+    };
+
+    const accessClientDashboard = () => {
+        router.push(`/client-dashboard/${studentId.value}`);
+    };
+
+
+    onMounted(() => {
+        studentId.value = route.params.id;
+        fetchClientInfo();
+    });
+
+</script>
+
+<template>
+    <div class="client-info-page">
+        <h1 class="page-title">Client Details</h1>
+
+        <div v-if="isLoading" class="loading-message">
+            Loading client data...
+        </div>
+        <div v-else-if="error" class="error-message">
+            {{ error }}
+        </div>
+        <div v-else class="client-details-container">
+            <section class="info-card global-info">
+                <h2>{{ clientDetails.name }}'s Profile</h2>
+                <p><strong>Email:</strong> {{ clientDetails.email }}</p>
+                <!-- deviamos meter detalhes como age no registo secalhar-->
+                <p v-if="clientDetails.id"><strong>ID:</strong> {{ clientDetails.id }}</p>
+                <p v-if="clientDetails.age"><strong>Age:</strong> {{ clientDetails.age }}</p>
+                <button @click="accessClientDashboard" class="submit-button">
+                    Check your Clients Progress
+                </button>
+
+            </section>
+            <section class="info-card body-metrics">
+                <h2>Body Metrics</h2>
+                <div v-if="bodyMetrics.length > 0" class="metrics-list">
+                    <h3>History</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Weight (kg)</th>
+                                <th>Height (cm)</th>
+                                <th>Body Fat (%)</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="metric in bodyMetrics" :key="metric.id">
+                                <td>{{ new Date(metric.date).toLocaleDateString() }}</td>
+                                <td>{{ metric.weight }}</td>
+                                <td>{{ metric.height || '-' }}</td>
+                                <td>{{ metric.bodyFatPercentage || '-' }}</td>
+                                <td class="notes-cell">{{ metric.notes || '-' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p v-else>No body metrics recorded yet for this client.</p>
+            </section>
+
+            <section class="info-card workouts-section">
+                <h2>Workouts (My Created Plans)</h2>
+                <button @click="toggleCreateWorkoutPopup" class="add-button">
+                    + Create new workout plan
+                </button>
+
+                <div v-if="workouts && workouts.length > 0" class="workouts-list">
+                    <h3>My Assigned Workouts</h3>
+                    <div v-for="workout in workouts" :key="workout.id" class="workout-item">
+                        <h4>{{ workout.name }}</h4>
+                        <p class="workout-description">{{ workout.description || 'No description provided.' }}</p>
+                        <p class="workout-date">Created on: {{ new Date(workout.creationDate).toLocaleDateString() }}</p>
+                        <div class="workout-actions">
+                            <button @click="viewWorkoutDetails(workout.id)" class="view-workout-button">View/Edit</button>
+                            <button @click="deleteWorkout(workout.id)" class="delete-workout-button">Delete</button>
+                        </div>
+                    </div>
+                </div>
+                <p v-else>You have not created any workouts for this client yet.</p>
+            </section>
+        </div>
+
+        <CreateWorkoutPopup
+            v-if="createWorkoutPopupState"
+            @create-workout="handleCreateWorkout"
+            @cancel="toggleCreateWorkoutPopup"
+        />
+    </div>
+</template>
+
+<style scoped>
+    .client-info-page {
+        padding: 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .page-title {
+        text-align: center;
+        color: var(--vt-c-indigo);
+        margin-bottom: 30px;
+        font-size: 2.5em;
+    }
+
+    .loading-message, .error-message {
+        text-align: center;
+        padding: 40px;
+        font-size: 1.2em;
+        color: #555;
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    .client-details-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    @media (min-width: 768px) {
+        .client-details-container {
+            grid-template-columns: 1fr 1fr; 
+        }
+        .workouts-section {
+            grid-column: 1 / -1; 
+        }
+    }
+
+    .info-card {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-card h2 {
+        color: var(--vt-c-indigo);
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 1.8em;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+    }
+
+    .global-info p {
+        margin-bottom: 10px;
+        font-size: 1.1em;
+        color: #555;
+    }
+    .global-info strong {
+        color: #333;
+    }
+
+    .form-container {
+        background-color: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .form-container h3 {
+        margin-top: 0;
+        color: var(--accent-color);
+        margin-bottom: 15px;
+        font-size: 1.4em;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="date"],
+    .form-group textarea {
+        width: calc(100% - 22px);
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 1em;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+    }
+
+    .form-hint {
+        font-size: 0.9em;
+        color: #888;
+        margin-top: -10px;
+        margin-bottom: 15px;
+    }
+
+    .submit-button, .cancel-button, .add-button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        margin-right: 10px;
+        transition: background-color 0.2s, opacity 0.2s;
+    }
+
+    .add-button {
+        background-color: var(--button-lighter);
+        color: white;
+        margin-bottom: 15px;
+    }
+    .add-button:hover {
+        background-color: #138496;
+    }
+
+    .submit-button {
+        background-color: #28a745; 
+        color: white;
+    }
+    .submit-button:hover:not(:disabled) {
+        background-color: #218838;
+    }
+    .submit-button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .cancel-button {
+        background-color: #6c757d; 
+        color: white;
+    }
+    .cancel-button:hover {
+        background-color: #5a6268;
+    }
+
+
+    .metrics-list {
+        margin-top: 25px;
+    }
+
+    .metrics-list h3 {
+        font-size: 1.3em;
+        color: #555;
+        margin-bottom: 15px;
+    }
+
+    .metrics-list table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+    .metrics-list th, .metrics-list td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+        font-size: 0.95em;
+    }
+
+    .metrics-list th {
+        background-color: #f2f2f2;
+        color: #333;
+    }
+
+    .metrics-list tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .metrics-list tr:hover {
+        background-color: #f0f0f0;
+    }
+
+    .notes-cell {
+        max-width: 200px; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+    .workouts-list {
+        margin-top: 25px;
+    }
+
+    .workouts-list h3 {
+        font-size: 1.3em;
+        color: #555;
+        margin-bottom: 15px;
+    }
+
+    .workout-item {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        background-color: #fdfdfd;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .workout-item h4 {
+        margin-top: 0;
+        color: var(--vt-c-indigo);
+        font-size: 1.4em;
+        margin-bottom: 5px;
+    }
+
+    .workout-description {
+        color: #666;
+        margin-bottom: 10px;
+    }
+
+    .workout-date {
+        font-size: 0.9em;
+        color: #888;
+        margin-bottom: 15px;
+    }
+
+    .workout-actions {
+        margin-top: 15px;
+        border-top: 1px solid #eee;
+        padding-top: 10px;
+        display: flex;
+        gap: 8px; 
+        flex-wrap: wrap; 
+    }
+
+    .view-workout-button, .edit-workout-button, .delete-workout-button {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: background-color 0.2s;
+    }
+
+    .view-workout-button {
+        background-color: var(--vt-c-indigo);
+        color: white;
+    }
+    .view-workout-button:hover {
+        background-color: #0056b3;
+    }
+
+    .edit-workout-button {
+        background-color: #ffc107;
+        color: #333;
+    }
+    .edit-workout-button:hover {
+        background-color: #e0a800;
+    }
+
+    .delete-workout-button {
+        background-color: #dc3545;
+        color: white;
+    }
+    .delete-workout-button:hover {
+        background-color: #c82333;
+    }
+</style>

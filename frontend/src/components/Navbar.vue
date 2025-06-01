@@ -17,12 +17,13 @@
 
     const commonNavbarItems = [
         { name: "Dashboard", link: "/" },
-        { name: "Profile", link: "/profile" },
+        { name: "Workouts", link: "/workouts" }, 
+
+        //{ name: "Profile", link: "/profile" },
     ];
 
     const alunoNavbarItems = [
         ...commonNavbarItems,
-        { name: "Workouts", link: "/workouts" }, 
         { name: "Progress", link: "/progress" },
     ];
 

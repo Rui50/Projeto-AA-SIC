@@ -2,39 +2,40 @@ package com.example.appfitness.services;
 
 import com.example.appfitness.DTOs.Aluno.AlunoDTO;
 import com.example.appfitness.DTOs.Aluno.AlunoResponseDTO;
-import com.example.appfitness.models.Aluno;
-import com.example.appfitness.models.BodyMetrics;
-import com.example.appfitness.models.Professor;
-import com.example.appfitness.models.WorkoutExecution;
-import com.example.appfitness.repositories.AlunoRepository;
-import com.example.appfitness.repositories.BodyMetricsRepository;
-import com.example.appfitness.repositories.ProfessorRepository;
-import com.example.appfitness.repositories.WorkoutExecutionRepository;
+import com.example.appfitness.DTOs.Aluno.ClientInfoResponseDTOP;
+import com.example.appfitness.DTOs.WorkoutPlan.WorkoutPlanResponseDTO;
+import com.example.appfitness.DTOs.bodyMetrics.BodyMetricsResposeDTO;
+import com.example.appfitness.models.*;
+import com.example.appfitness.repositories.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
 public class AlunoService {
+    private final UserService userService;
     private AlunoRepository alunoRepository;
     private ProfessorRepository professorRepository;
     private BodyMetricsRepository bodyMetricsRepository;
     private WorkoutExecutionRepository workoutExecutionRepository;
+    private WorkoutPlanRepository workoutPlanRepository;
 
     public AlunoService(AlunoRepository alunoRepository,
                         ProfessorRepository professorRepository
-    , BodyMetricsRepository bodyMetricsRepository,
-                        WorkoutExecutionRepository workoutExecutionRepository) {
+            , BodyMetricsRepository bodyMetricsRepository,
+                        WorkoutExecutionRepository workoutExecutionRepository, UserService userService, WorkoutPlanRepository workoutPlanRepository) {
         this.alunoRepository = alunoRepository;
         this.professorRepository = professorRepository;
         this.bodyMetricsRepository = bodyMetricsRepository;
         this.workoutExecutionRepository = workoutExecutionRepository;
+        this.userService = userService;
+        this.workoutPlanRepository = workoutPlanRepository;
     }
-
     @Transactional
     public Aluno salvar(Aluno aluno) {
         return alunoRepository.save(aluno);
@@ -94,7 +95,8 @@ public class AlunoService {
         return alunos.get().stream()
                 .map(aluno -> {
                     Optional<BodyMetrics> latestBM = bodyMetricsRepository.findFirstByUser_IdOrderByUpdatedAtDesc(aluno.getId());
-                    Optional<WorkoutExecution> latestWorkoutExecution = workoutExecutionRepository.findTopByUserIdAndStatusOrderByStartTimeDesc(aluno.getId(), WorkoutExecution.WorkoutStatus.COMPLETED);
+                    Optional<WorkoutExecution> latestWorkoutExecution = workoutExecutionRepository.
+                            findTopByUserIdAndStatusOrderByStartTimeDesc(aluno.getId(), WorkoutExecution.WorkoutStatus.COMPLETED);
                     Optional<LocalDateTime> lastWorkoutTime = latestWorkoutExecution.map(WorkoutExecution::getStartTime);
 
                     return AlunoResponseDTO.fromEntity(aluno, latestBM, lastWorkoutTime);
@@ -105,6 +107,28 @@ public class AlunoService {
         return alunoRepository.findAll().stream()
                 .map(AlunoDTO::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    public ClientInfoResponseDTOP getClientInfo(Integer id, Integer professorId) {
+        Aluno aluno = alunoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Aluno not found " + id));
+
+        AlunoDTO clientDetails = AlunoDTO.fromEntity(aluno);
+
+        Optional<BodyMetrics> latestBodyMetrics = bodyMetricsRepository.findFirstByUser_IdOrderByUpdatedAtDesc(aluno.getId());
+        Optional<BodyMetricsResposeDTO> latestBodyMetricDTO = latestBodyMetrics.map(BodyMetricsResposeDTO::fromEntity);
+
+        List<WorkoutPlan> workoutPlans = workoutPlanRepository.findByCreatedByAndOwnerIdOrderByUpdatedAtDesc(professorId, id);
+
+        List<WorkoutPlanResponseDTO> workoutPlansDTOs = workoutPlans.stream()
+                .map(workoutPlan -> {
+                    AtomicReference<String> createdByUsername = new AtomicReference<>("");
+                    userService.getUserById(workoutPlan.getCreatedBy())
+                            .ifPresent(user -> createdByUsername.set(user.getName()));
+                    return WorkoutPlanResponseDTO.fromEntity(workoutPlan, createdByUsername.get());
+                }).toList();
+
+        return new ClientInfoResponseDTOP(clientDetails, latestBodyMetricDTO, workoutPlansDTOs);
     }
 }
 

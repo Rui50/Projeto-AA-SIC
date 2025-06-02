@@ -21,6 +21,7 @@ public class WorkoutExecutionResponseDTO {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private LocalDate executionDate;
+    private String workoutName;
     private String status;
     private String feedback;
     private List<ExerciseExecutionResponseDTO> exerciseExecutions;
@@ -33,6 +34,7 @@ public class WorkoutExecutionResponseDTO {
         dto.setExecutionDate(workoutExecution.getExecutionDate());
         dto.setStatus(workoutExecution.getStatus().name());
         dto.setFeedback(workoutExecution.getFeeback());
+        dto.setWorkoutName(workoutExecution.getWorkoutPlan().getName());
 
         // verificaçoes por causa de erros temp
         if (workoutExecution.getUser() != null) {

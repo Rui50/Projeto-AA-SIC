@@ -151,6 +151,19 @@ public class WorkoutExecutionController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PostMapping("/all")
+    public ResponseEntity<AllWorkoutsResponseDTO> getAllWorkouts(@RequestBody AllWorkoutsRequestDTO request) {
+        try {
+            System.out.println("Received request to retrieve all workouts. DTO: " + request.toString());
+            AllWorkoutsResponseDTO response = workoutExecutionService.getAllWorkoutsForUser(request);
+            return ResponseEntity.ok(response);
+        }
+        catch (RuntimeException e) {
+            System.err.println("Error fetching all workouts: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
 
 

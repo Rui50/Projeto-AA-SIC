@@ -29,5 +29,6 @@ export const API_PATHS = {
     GET_CLIENTS: `${API_BASE_URL}/api/alunos/`,
     REMOVE_CLIENT: (id) => `${API_BASE_URL}/api/alunos/${id}/unassign`,
     GET_CLIENT_INFO: (id) => `${API_BASE_URL}/api/alunos/info/${id}`,
+    GET_ALL_WORKOUTS: `${API_BASE_URL}/api/workout-executions/all`,
 
 }

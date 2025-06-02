@@ -32,7 +32,7 @@ public class Exercise {
 
 
     public enum ExerciseType {
-        Bodybuilding,
-        Cardio
+        BODYBUILDING,
+        CARDIO
     }
 }

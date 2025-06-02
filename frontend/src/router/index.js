@@ -72,6 +72,12 @@ const router = createRouter({
           name: 'clientInfo',
           meta: { requiresAuth: true },
           component: () => import('../views/ClientInfo.vue'),
+        },
+        {
+          path: 'workouts/history/:id',
+          name: 'workoutsHistory',
+          meta: { requiresAuth: true },
+          component: () => import('../views/WorkoutsHistory.vue'),
         }
       ],
     },

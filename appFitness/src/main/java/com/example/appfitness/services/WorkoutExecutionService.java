@@ -1,14 +1,24 @@
 package com.example.appfitness.services;
 
+import com.example.appfitness.DTOs.WorkoutExecution.AllWorkoutsRequestDTO;
+import com.example.appfitness.DTOs.WorkoutExecution.AllWorkoutsResponseDTO;
+import com.example.appfitness.DTOs.WorkoutExecution.WorkoutExecutionResponseDTO;
 import com.example.appfitness.models.*;
 import com.example.appfitness.repositories.*;
 import jakarta.transaction.Transactional;
+import org.hibernate.jdbc.Work;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Serviço responável por gerencial WOrkoutexecution, ExerciseExecution e SetExecution
@@ -94,6 +104,7 @@ public class WorkoutExecutionService {
         return workoutExecutionRepository.save(execution);
     }
 
+    // prob not needed
     @Transactional
     public void deleteWorkoutExecutionById(Integer id) {
         if (!workoutExecutionRepository.existsById(id)) {
@@ -104,6 +115,80 @@ public class WorkoutExecutionService {
 
     public Optional<WorkoutExecution> getWorkoutExecutionById(Integer id) {
         return workoutExecutionRepository.findById(id);
+    }
+
+    // https://www.baeldung.com/spring-data-jpa-pagination-sorting
+    // https://ardijorganxhi.medium.com/implement-pagination-at-your-spring-boot-application-a540270b5f60
+
+    public AllWorkoutsResponseDTO getAllWorkoutsForUser(AllWorkoutsRequestDTO request){
+        Integer userId = request.getUserID();
+
+        int page = (request.getPage() != null && request.getPage() > 0) ? request.getPage() : 1;
+        int limit = (request.getLimit() != null && request.getLimit() > 0) ? request.getLimit() : 10;
+
+        String searchQuery = request.getSearchQuery();
+        LocalDate startDate = request.getStartDate();
+        LocalDate endDate = request.getEndDate();
+        String sortBy = request.getSortBy();
+        String sortOrder = request.getSortOrder();
+
+        // executionDate only for now
+        String sortByDef = "executionDate";
+        if (sortBy != null && !sortBy.isEmpty()) {
+            sortByDef = sortBy;
+        }
+
+        Sort.Direction direction = Sort.Direction.DESC;
+        if(sortOrder.equalsIgnoreCase("asc")) {
+            direction = Sort.Direction.ASC;
+        }
+
+
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found" + userId));
+
+        Page<WorkoutExecution> workoutPage;
+
+        // caso 1: tem search query
+        if(searchQuery != null && !searchQuery.isEmpty()) {
+            Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(direction, "workoutPlan.name"));
+
+            // se tambem tem datas
+            if(startDate != null && endDate != null) {
+                workoutPage = workoutExecutionRepository.findWorkoutsByUserAndFilters(
+                        user, searchQuery, startDate, endDate, pageable);
+            }
+            // se nao inclui datas
+            else {
+                workoutPage = workoutExecutionRepository.findByUserAndWorkoutName(
+                        user, searchQuery, pageable
+                );
+            }
+        }
+        // caso 2 apenas data
+        else if (startDate != null && endDate != null) {
+            Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(direction, "executionDate"));
+            workoutPage = workoutExecutionRepository.findByUserAndExecutionDateBetween(
+                    user, startDate, endDate, pageable);
+        }
+        // nao tem nada
+        else {
+            Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(direction, "executionDate"));
+            workoutPage = workoutExecutionRepository.findByUser(user, pageable);        }
+
+
+        List<WorkoutExecutionResponseDTO> workoutDTOs = workoutPage.getContent().stream()
+                .map(WorkoutExecutionResponseDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        return new AllWorkoutsResponseDTO(
+                workoutDTOs,
+                workoutPage.getTotalElements(),
+                workoutPage.getNumber() + 1,
+                workoutPage.getTotalPages(),
+                workoutPage.getSize()
+        );
     }
 
 

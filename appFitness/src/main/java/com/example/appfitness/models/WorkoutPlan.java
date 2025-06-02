@@ -68,7 +68,7 @@ public class WorkoutPlan {
     }
 
     public enum WorkoutScheduleType {
-        FIXED,
-        FREE
+        Fixed,
+        Free
     }
 }

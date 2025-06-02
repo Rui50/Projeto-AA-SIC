@@ -49,7 +49,7 @@ public class WorkoutPlanService {
         workoutPlan.setCreatedBy(creatorId);
 
         if (workoutPlan.getScheduleType() == null) {
-            workoutPlan.setScheduleType(WorkoutPlan.WorkoutScheduleType.FREE); // Or FIXED, based on your business logic
+            workoutPlan.setScheduleType(WorkoutPlan.WorkoutScheduleType.Free); // Or FIXED, based on your business logic
         }
 
         // doesnt start as active

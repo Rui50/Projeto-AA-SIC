@@ -85,6 +85,13 @@ const restSummary = computed(() => {
         return `${minRest}-${maxRest}s`;
     }
 });
+
+
+const hasNote = computed(() => {
+    return props.exerciseData.note && props.exerciseData.note.trim() !== '';
+});
+
+
 const handleEditExercise = () => {
     emit('edit-exercise', props.exerciseData, props.index)
 }
@@ -99,7 +106,17 @@ const handleRemoveExercise = () => {
 <template>
     <div class="exercise-item">
         <div class="exercise-name-col">
-            <p class="exercise-name-value">{{ exerciseData.exercise?.name || '?' }}</p>
+            <div class="wrapper">
+                <p class="exercise-name-value">{{ exerciseData.exercise?.name || '?' }}</p>
+                    <Icon
+                    v-if="hasNote"
+                    icon="mdi:note-text-outline"
+                    width="18"
+                    height="18"
+                    class="note-icon"
+                    title="This exercise has a note"
+                    />            
+                </div>
             <p class="exercise-muscle-group">{{ exerciseData.exercise?.muscleGroup || '?' }}</p>
         </div>
 
@@ -130,6 +147,19 @@ const handleRemoveExercise = () => {
 </template>
 
 <style scoped>
+
+    .wrapper {
+        display: flex;
+        align-items: center;
+        gap: 5px; 
+        margin-bottom: 5px; 
+    }
+
+    .note-icon {
+        color: #918f26; 
+        flex-shrink: 0; 
+    }
+
     .exercise-item {
         display: flex;
         align-items: center;

@@ -58,7 +58,8 @@ public class WorkoutPlanController {
 
 
         Integer creatorId = Integer.valueOf(authService.getUserIdFromToken(token));
-        System.out.println("Received creatorId from cookie: " + creatorId);
+        System.out.println("WorkoutPlanRequestDTO received: " + createDTO.toString()); // Add this line
+        System.out.println("Schedule Type from DTO: " + createDTO.getScheduleType()); // Add this line
 
         WorkoutPlan workoutPlan = new WorkoutPlan();
         workoutPlan.setName(createDTO.getName());
@@ -74,7 +75,8 @@ public class WorkoutPlanController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> getWorkoutPlanById(@PathVariable Integer id) {
+    public ResponseEntity<Object> getWorkoutPlanById(@PathVariable Integer id,
+                                                     @CookieValue(value = "token", defaultValue = "") String token) {
         Optional<WorkoutPlan> workoutPlan = workoutPlanService.getWorkoutPlanById(id);
 
         if (workoutPlan.isPresent()) {
@@ -86,7 +88,7 @@ public class WorkoutPlanController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWorkoutPlan(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteWorkoutPlan(@PathVariable Integer id, @CookieValue(value = "token", defaultValue = "") String token) {
         try {
             workoutPlanService.deleteWorkoutPlanById(id);
             return ResponseEntity.noContent().build();

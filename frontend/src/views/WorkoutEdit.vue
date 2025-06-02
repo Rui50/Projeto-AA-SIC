@@ -1,6 +1,6 @@
 <script setup>
     import { ref, onMounted, watch } from 'vue'
-    import { useRouter } from 'vue-router'
+    import { useRouter, onBeforeRouteLeave  } from 'vue-router'
     import { Icon } from '@iconify/vue'
     import EditExercise from '@/components/EditExercise.vue'
     import ExerciseLibrary from '@/components/ExerciseLibrary.vue'
@@ -12,6 +12,10 @@
     import WorkoutScheduleEditor from '@/components/WorkoutScheduleEditor.vue'
     import WorkoutExercisesEditor from '@/components/WorkoutExercisesEditor.vue'
 
+    import { useToast } from 'vue-toastification'
+
+    const toast = useToast()
+
     const userStore = useUserStore()
     const route = useRoute()
     const router = useRouter()
@@ -22,9 +26,45 @@
     const workoutId = ref(null)
     const workoutName = ref('')
     const workoutDescription = ref('')
-    const scheduleType = ref('FREE') 
+    const scheduleType = ref('Free') 
     const scheduledDays = ref([])
     const exercises = ref([])
+
+    // to check if changes were made
+
+    const initialWorkoutData = ref(null);
+    const hasChanges = ref(false);
+
+   const wereChangesMade = () => {
+    const currentScheduledDaysSorted = [...scheduledDays.value].sort();
+    const initialScheduledDaysSorted = [...initialWorkoutData.value.scheduledDays].sort();
+
+    const currentExercisesString = JSON.stringify(exercises.value);
+    const initialExercisesString = JSON.stringify(initialWorkoutData.value.exercises);
+
+    return (
+        workoutName.value !== initialWorkoutData.value.name ||
+        workoutDescription.value !== initialWorkoutData.value.description ||
+        scheduleType.value !== initialWorkoutData.value.scheduleType ||
+        JSON.stringify(currentScheduledDaysSorted) !== JSON.stringify(initialScheduledDaysSorted) ||
+        currentExercisesString !== initialExercisesString
+    );
+}
+
+    watch([workoutName, workoutDescription, scheduleType, scheduledDays, exercises], () => {
+        if (initialWorkoutData.value) {
+            hasChanges.value = wereChangesMade(); 
+        }
+    }, { deep: true });
+
+    onBeforeRouteLeave((to, from, next) => {
+        if (hasChanges.value && !confirm('You have unsaved changes. Do you really want to leave?')) {
+            next(false); 
+        } else {
+            next();
+        }
+    });
+
 
     // temporary
     const editName = () => {
@@ -96,7 +136,12 @@
 
             console.log('Workout updated successfully:', response.data);
             // mensagem de sucesso
-            alert('Workout updated successfully!');
+            toast.success('Workout updated successfully!');
+            hasChanges.value = false;
+            initialWorkoutData.value = { ...response.data }; // ou payload
+            //initialWorkoutData.value.exercises = JSON.parse(JSON.stringify(response.data.exercises || []));
+
+            //alert('Workout updated successfully!');
         } catch (error) {
             console.error('Error updating workout:', error);
             errorMessage.value = 'An error occurred while updating the workout.';
@@ -122,7 +167,9 @@
             });
 
             console.log('Workout deleted successfully');
-            alert('Workout deleted successfully!');
+            //alert('Workout deleted successfully!');~
+            toast.success('Workout deleted successfully!');
+            hasChanges.value = false;
             router.push('/workouts');
         } catch (error) {
             console.error('Error deleting workout:', error);
@@ -157,9 +204,20 @@
             if (workoutData) {
                 workoutName.value = workoutData.name || '';
                 workoutDescription.value = workoutData.description || '';
-                scheduleType.value = workoutData.scheduleType || 'FREE';
+                scheduleType.value = workoutData.scheduleType || 'Free';
                 scheduledDays.value = workoutData.scheduledDays || []; 
                 exercises.value = workoutData.exercises || [];
+
+                initialWorkoutData.value = { 
+                    name: workoutName.value,
+                    description: workoutDescription.value,
+                    scheduleType: scheduleType.value,
+                    scheduledDays: JSON.parse(JSON.stringify(scheduledDays.value)),
+                    exercises: JSON.parse(JSON.stringify(exercises.value))
+                };
+
+                hasChanges.value = false;
+
                 console.log('Workout data loaded:', workoutData);
             } else {
                 console.error('Workout not found');
@@ -179,14 +237,20 @@
         <div v-else-if="errorMessage" class="error-message">{{ errorMessage }}</div>
         <div v-else>
             <div class="edit-workout-header">
-                <div class="workout-name">
-                    <Icon icon="mdi:edit" width="24" height="24" @click="editName" class="pen-icon"/>
-                    <h1>{{ workoutName || 'Untitled Workout' }}</h1>
-                    <Icon icon="mdi:pencil" width="20" height="20" @click="editDescription" class="pen-icon" title="Edit description"/>
-                    <p v-if="workoutDescription" class="workout-description">{{ workoutDescription }}</p>
+                <div class="workout-title-and-description">
+                    <div class="workout-name-section">
+                        <Icon icon="mdi:edit" width="24" height="24" @click="editName" class="pen-icon"/>
+                        <h1>{{ workoutName || 'Untitled Workout' }}</h1>
+                    </div>
+                    <div class="workout-description-section">
+                        <Icon icon="mdi:pencil" width="20" height="20" @click="editDescription" class="pen-icon description-pen-icon" title="Edit description"/>
+                        <p class="workout-description">
+                            {{ workoutDescription || 'No description' }}
+                        </p>
+                    </div>
                 </div>
                 <div class="workout-edit-actions">
-                    <button class="button-cancel" @click="router.back()">Cancel</button>
+                    <button class="button-cancel" @click="router.back()">Go Back</button>
                     <button class="button-save" @click="saveChanges">Save Changes</button>
                     <button class="button-delete" @click="deleteWorkout">Delete Workout</button>
                 </div>
@@ -209,7 +273,7 @@
 </template>
 
 <style scoped>
-/* Keep global page layout styles here */
+
 .edit-workout {
     max-width: 1500px;
     width: 100%;
@@ -220,14 +284,32 @@
 .edit-workout-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 2rem;
 }
 
-.workout-name {
+.workout-title-and-description {
+    display: flex;
+    flex-direction: column; 
+    gap: 0.5rem; 
+    flex-grow: 1; 
+}
+
+.workout-name-section {
     display: flex;
     align-items: center;
     gap: 1rem;
+}
+
+.workout-description-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.description-pen-icon {
+    margin-top: 5px; 
+    margin-right: 15px;
 }
 
 .pen-icon {
@@ -295,6 +377,13 @@
 
 h1 {
     color: #000000;
+    margin: 0;
+}
+
+.workout-description {
+    color: #555;
+    font-size: 1rem;
+    margin: 0;
 }
 
 .loading-indicator, .error-message {

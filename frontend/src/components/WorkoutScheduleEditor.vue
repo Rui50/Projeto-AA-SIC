@@ -45,7 +45,8 @@
     watch (weekdays, (newDays) => {
         const selectedDays = newDays.
             filter(day => day.selected)
-            .map(day => day.full);
+            .map(day => day.full)
+            .sort();
         emit('update-scheduledDays', selectedDays);
     }, { deep: true });
 
@@ -58,8 +59,8 @@
         <div class="schedule-types">
             <div
                 class="schedule-type"
-                :class="{ 'active': scheduleType === 'FREE' }"
-                @click="scheduleType = 'FREE'"
+                :class="{ 'active': scheduleType === 'Free' }"
+                @click="scheduleType = 'Free'"
             >
                 <div class="schedule-type-name">Freedom</div>
                 <p>Execute the workout when I have the free time for it</p>
@@ -67,15 +68,15 @@
 
             <div
                 class="schedule-type"
-                :class="{ 'active': scheduleType === 'FIXED' }"
-                @click="scheduleType = 'FIXED'"
+                :class="{ 'active': scheduleType === 'Fixed' }"
+                @click="scheduleType = 'Fixed'"
             >
                 <div class="schedule-type-name">Fixed</div>
                 <p>Select the day/s of the week for this workout</p>
             </div>
         </div>
 
-        <div v-if="scheduleType === 'FIXED'">
+        <div v-if="scheduleType === 'Fixed'">
             <div class="days-title">Select the days of the week for this workout</div>
             <div class="days-select-section">
                 <div

@@ -198,6 +198,24 @@
         color: #000000;
     }
 
+    .no-workouts-message {
+        text-align: center;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        font-size: 1rem;
+        font-weight: 500;
+        padding: 2rem;
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+        border: 2px dashed #ced4da;
+        border-radius: 12px;
+        transition: background-color 0.3s ease;
+    }
+
+    .no-workouts-message:hover {
+        background-color: #f1f3f5;
+    }
+
     .new-workout-btn {
         background-color: var(--button-lighter);
         color: #ffffff;

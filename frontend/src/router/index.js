@@ -28,41 +28,49 @@ const router = createRouter({
         {
           path: '',
           name: 'dashboard',
+          meta: { requiresAuth: true },
           component: () => import('../views/Dashboard.vue'),
         },
         {
           path: 'workouts',
           name: 'workouts',
+          meta: { requiresAuth: true },
           component: () => import('../views/WorkoutsList.vue'),
         },
         {
           path: 'workout/edit/:id',
           name: 'workoutedit',
+          meta: { requiresAuth: true },
           component: () => import('../views/WorkoutEdit.vue'),
         },
         {
           path: 'workout/:id',
           name: 'workout',
+          meta: { requiresAuth: true },
           component: () => import('../views/WorkoutPlanDetails.vue'),
         },
         {
           path: 'workout/execution/:id',
           name: 'workoutexecution',
+          meta: { requiresAuth: true },
           component: () => import('../views/WorkoutExecution.vue'),
         },
         {
           path: 'progress',
           name: 'progress',
+          meta: { requiresAuth: true },
           component: () => import('../views/Progress.vue'),
         },
         {
           path: 'clients',
           name: 'clients',
+          meta: { requiresAuth: true },
           component: () => import('../views/ClientsList.vue'),
         },
         {
           path: 'client/:id',
           name: 'clientInfo',
+          meta: { requiresAuth: true },
           component: () => import('../views/ClientInfo.vue'),
         }
       ],
@@ -74,16 +82,17 @@ const router = createRouter({
     // },
   ],
 })
+import { useUserStore } from '../stores/userStore'
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
 
-/* router.beforeEach((to, from, next) => {
-  // Add any global navigation guards here if needed
-  if (to.meta.requiresAuth && !isAuthenticated) {
-        next('/login');
-    } else if (to.name === 'Login' && isAuthenticated) {
-        next('/');
-    } else {
-        next();
-    }
-})*/
+  if (to.meta.requiresAuth && !userStore.isAuthenticated) {
+    next('/auth/login')
+  } else if (to.name === 'login' && userStore.isAuthenticated) {
+    next('/')
+  } else {
+    next()
+  }
+})
 
 export default router

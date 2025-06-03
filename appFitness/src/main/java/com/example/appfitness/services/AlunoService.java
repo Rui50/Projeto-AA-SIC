@@ -68,11 +68,13 @@ public class AlunoService {
     }
 
     @Transactional
-    public Aluno assignProfessorToAluno(Integer professorId, Integer alunoId) {
+    public Aluno assignProfessorToAluno(Integer alunoId, Integer professorId) {
         Aluno aluno = alunoRepository.findById(alunoId)
                 .orElseThrow(() -> new RuntimeException("Aluno not found " + alunoId));
         Professor professor = professorRepository.findById(professorId)
                 .orElseThrow(() -> new RuntimeException("Professor not found " + professorId));
+        
+        System.out.println("Assigning aluno with ID: " + alunoId + " to professor with ID: " + professorId);
 
         aluno.setProfessor(professor);
         return alunoRepository.save(aluno);

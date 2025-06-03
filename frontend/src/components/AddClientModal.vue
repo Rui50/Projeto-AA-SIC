@@ -53,7 +53,7 @@ const assignStudent = async () => {
     error.value = null;
 
     try {
-        await axios.post(`${API_PATHS.GET_CLIENTS}/${selectedStudent.value.id}/assign`, {}, {
+        await axios.post(`${API_PATHS.GET_CLIENTS}${selectedStudent.value.id}/assign/${userStore.getUserId}`, {}, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
             }

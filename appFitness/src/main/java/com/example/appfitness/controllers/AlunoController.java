@@ -37,6 +37,7 @@ public class AlunoController {
     @PostMapping("/{alunoId}/assign/{professorId}")
     public ResponseEntity<Void> assignAlunoToProfessor(@PathVariable int alunoId, @PathVariable int professorId) {
         try{
+            System.out.println("Assigning aluno with ID: " + alunoId + " to professor with ID: " + professorId);
             alunoService.assignProfessorToAluno(alunoId, professorId);
             return ResponseEntity.status(200).build();
         }

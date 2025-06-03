@@ -243,7 +243,7 @@ const handleClientAssigned = () => {
                             <td class="actions">
                                 <button @click="viewInfo(student.id)" class="action-button view-info">View Info</button>
                                 <button @click="notifyStudent(student.id)" class="action-button notify">Notify</button>
-                                <button @click="removeStudent(student.id)" class="action-button delete">Delete</button>
+                                <button @click="removeStudent(student.id)" class="action-button delete">Remove</button>
                             </td>
                         </tr>
                     </tbody>

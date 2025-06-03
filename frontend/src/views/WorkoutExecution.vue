@@ -258,8 +258,6 @@ const getExerciseExecutionStatus = (exerciseExecution) => {
         return 'NOT_STARTED';
     } else if (completedPlannedSetsCount >= totalPlannedSets && totalPlannedSets > 0) {
         return 'COMPLETED';
-    } else if (completedPlannedSetsCount > 0 || newSets > 0) {
-        return 'PARTIALLY_COMPLETED';
     }
     return 'NOT_STARTED';
     };
@@ -449,7 +447,7 @@ watch(workoutExecution, (newValue) => {
                         <div class="exercise-muscle"> {{ exerciseExecution.exerciseData?.exercise?.muscleGroup || 'N/A' }}</div>
                         <div class="exercise-status">
                             <Icon v-if="getExerciseExecutionStatus(exerciseExecution) === 'COMPLETED'" icon="mdi:check-circle" width="20" height="20" style="color: green;" />
-                            <Icon v-else-if="getExerciseExecutionStatus(exerciseExecution) === 'PARTIALLY_COMPLETED'" icon="mdi:circle-half-full" width="20" height="20" style="color: orange;" />
+                            <!--<Icon v-else-if="getExerciseExecutionStatus(exerciseExecution) === ''" icon="mdi:circle-half-full" width="20" height="20" style="color: orange;" /> -->
                             <Icon v-else icon="mdi:circle-outline" width="20" height="20" style="color: gray;" />
                         </div>
                     </div>
@@ -536,9 +534,28 @@ watch(workoutExecution, (newValue) => {
             </div>
 
             <div class="workout-btns">
-                <button class="btn cancel" @click="cancelWorkout">Cancel Workout</button>
-                <button class="btn complete" @click="completeWorkout">Complete Workout</button>
-            </div>
+                <button
+                    v-if="workoutExecution.status !== 'COMPLETED'"
+                    class="btn cancel"
+                    @click="cancelWorkout"
+                >
+                Cancel Workout
+                </button>
+                <button
+                    v-if="workoutExecution.status !== 'COMPLETED'"
+                    class="btn complete"
+                    @click="completeWorkout"
+                >
+                Complete Workout
+                </button>
+                <button
+                    v-if="workoutExecution.status === 'COMPLETED'"
+                    class="btn primary"
+                    @click="router.back()"
+                >
+                Go Back
+                </button>
+  </div>
         </div>
         <div v-else class="no-workout-data">
             <p>No active workout execution data available.</p>
@@ -890,11 +907,11 @@ watch(workoutExecution, (newValue) => {
     }
 
     .workout-btns .btn {
-        padding: 1rem 2.2rem;
+        padding: 0.9em 1.8rem; 
         border: none;
         border-radius: 8px;
         cursor: pointer;
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 600;
         transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.2s ease;
         text-transform: uppercase;
@@ -917,18 +934,6 @@ watch(workoutExecution, (newValue) => {
 
     .workout-btns .btn.complete:hover {
         background-color: #218838;
-    }
-
-    .workout-btns .btn {
-        padding: 1rem 2.2rem;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1.1rem;
-        font-weight: 600;
-        transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.2s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
 
     .btn.primary {

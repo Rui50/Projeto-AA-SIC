@@ -520,7 +520,7 @@ watch(workoutExecution, (newValue) => {
                                 </tr>
                                 </tbody>
                         </table>
-                        <div class="add-wrapper">
+                        <div class="add-wrapper" v-if="workoutExecution.status === 'IN_PROGRESS'">
                             <button class="add-set" @click="addSet">+ Add Set</button>
                         </div>
                     </div>

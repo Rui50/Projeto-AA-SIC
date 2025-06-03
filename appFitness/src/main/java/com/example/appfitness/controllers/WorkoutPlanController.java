@@ -90,6 +90,8 @@ public class WorkoutPlanController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWorkoutPlan(@PathVariable Integer id, @CookieValue(value = "token", defaultValue = "") String token) {
         try {
+
+            System.out.println("WorkoutPlanRequestDTO received: " + id);
             workoutPlanService.deleteWorkoutPlanById(id);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
@@ -188,6 +190,7 @@ public class WorkoutPlanController {
             @PathVariable Integer workoutPlanId,
             @PathVariable Integer exerciseDataId) {
         try {
+            System.out.println("Removing exercise from workout plan with ID: " + workoutPlanId);
             workoutPlanService.removeExerciseFromWorkoutPlan(workoutPlanId, exerciseDataId);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {

@@ -52,6 +52,9 @@ public class WorkoutPlan {
     @Enumerated(EnumType.STRING)
     private Set<DayOfWeek> scheduledDays;
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
+
     public void addExercise(ExerciseData exercise) {
         if (this.exercises == null) {
             this.exercises = new ArrayList<>();

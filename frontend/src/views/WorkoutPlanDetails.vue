@@ -309,7 +309,7 @@ onMounted(fetchWorkoutPlanDetails);
         background-color: var(--background-white-color);
         border-radius: 8px;
         padding: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     .workout-main-layour {
@@ -321,6 +321,7 @@ onMounted(fetchWorkoutPlanDetails);
     .exercise-list {
         display: flex;
         flex-direction: column;
+        padding: 2rem;
         gap: 1rem;
         max-height: 65vh;
         overflow-y: auto;
@@ -351,7 +352,7 @@ onMounted(fetchWorkoutPlanDetails);
         background-color: var(--background-white-color);
         border-radius: 8px;
         padding: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         cursor: pointer;
         transition: background-color 0.3s ease;
         position: relative;
@@ -424,7 +425,7 @@ onMounted(fetchWorkoutPlanDetails);
         background-color: var(--background-white-color);
         border-radius: 8px;
         padding: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         color: #888;
         font-size: 1.1rem;
         min-height: 400px;

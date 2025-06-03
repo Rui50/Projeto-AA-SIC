@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Integer> {
     // obter os workout plans de um user
-    @Query("SELECT wp FROM WorkoutPlan wp WHERE wp.owner.id = :userId")
+    @Query("SELECT wp FROM WorkoutPlan wp WHERE wp.owner.id = :userId AND wp.isDeleted = FALSE")
     List<WorkoutPlan> findByOwnerId(Integer userId);
 
     // Obtem os workouts ativos
@@ -23,7 +23,7 @@ public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Intege
     @Query("SELECT wp FROM WorkoutPlan wp WHERE wp.owner.id = :userId AND wp.name = :planName")
     Optional<WorkoutPlan> findByOwnerIdAndName(Integer userId, String planName);
 
-    @Query("SELECT wp FROM WorkoutPlan wp WHERE wp.createdBy = :professorId AND wp.owner.id = :ownerId ORDER BY wp.updatedAt DESC")
+    @Query("SELECT wp FROM WorkoutPlan wp WHERE wp.createdBy = :professorId AND wp.owner.id = :ownerId AND wp.isDeleted = FALSE ORDER BY wp.updatedAt DESC")
     List<WorkoutPlan> findByCreatedByAndOwnerIdOrderByUpdatedAtDesc(
             Integer professorId,
             Integer ownerId

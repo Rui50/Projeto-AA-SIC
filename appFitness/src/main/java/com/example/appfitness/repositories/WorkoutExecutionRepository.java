@@ -19,6 +19,9 @@ public interface WorkoutExecutionRepository extends JpaRepository<WorkoutExecuti
     @Query("SELECT we FROM WorkoutExecution we WHERE we.user.id = :userId")
     List<WorkoutExecution> findByUserId(Integer userId);
 
+    // ver se existe execuções de um workout
+    boolean existsByWorkoutPlanId(Integer workoutPlanId);
+
     // se quisermos os que ele deu skip or completou apenas
     @Query("SELECT we FROM WorkoutExecution we WHERE we.user.id = :userId AND we.status = :status")
     List<WorkoutExecution> findByUserIdAndStatus(Integer userId, WorkoutExecution.WorkoutStatus status);

@@ -20,7 +20,6 @@
     const route = useRoute()
     const router = useRouter()
 
-
     // nao esquecer de por o delete nesta pagina
 
     const workoutId = ref(null)
@@ -36,20 +35,20 @@
     const hasChanges = ref(false);
 
    const wereChangesMade = () => {
-    const currentScheduledDaysSorted = [...scheduledDays.value].sort();
-    const initialScheduledDaysSorted = [...initialWorkoutData.value.scheduledDays].sort();
+        const currentScheduledDaysSorted = [...scheduledDays.value].sort();
+        const initialScheduledDaysSorted = [...initialWorkoutData.value.scheduledDays].sort();
 
-    const currentExercisesString = JSON.stringify(exercises.value);
-    const initialExercisesString = JSON.stringify(initialWorkoutData.value.exercises);
+        const currentExercisesString = JSON.stringify(exercises.value);
+        const initialExercisesString = JSON.stringify(initialWorkoutData.value.exercises);
 
-    return (
-        workoutName.value !== initialWorkoutData.value.name ||
-        workoutDescription.value !== initialWorkoutData.value.description ||
-        scheduleType.value !== initialWorkoutData.value.scheduleType ||
-        JSON.stringify(currentScheduledDaysSorted) !== JSON.stringify(initialScheduledDaysSorted) ||
-        currentExercisesString !== initialExercisesString
-    );
-}
+        return (
+            workoutName.value !== initialWorkoutData.value.name ||
+            workoutDescription.value !== initialWorkoutData.value.description ||
+            scheduleType.value !== initialWorkoutData.value.scheduleType ||
+            JSON.stringify(currentScheduledDaysSorted) !== JSON.stringify(initialScheduledDaysSorted) ||
+            currentExercisesString !== initialExercisesString
+        );
+    }
 
     watch([workoutName, workoutDescription, scheduleType, scheduledDays, exercises], () => {
         if (initialWorkoutData.value) {
@@ -124,8 +123,11 @@
             description: workoutDescription.value,
             scheduleType: scheduleType.value,
             scheduledDays: scheduledDays.value,
+            active: initialWorkoutData.value.active,
             exercises: exercisesToSend
         }
+
+        console.log('Saving workout with payload:', payload);
 
         try {
             const response = await axios.put(`${API_PATHS.WORKOUT_BY_ID}${workoutId.value}`, payload, {
@@ -200,6 +202,7 @@
             });
 
             const workoutData = response.data;
+            console.log('Workout data fetched:', workoutData);
 
             if (workoutData) {
                 workoutName.value = workoutData.name || '';
@@ -213,8 +216,11 @@
                     description: workoutDescription.value,
                     scheduleType: scheduleType.value,
                     scheduledDays: JSON.parse(JSON.stringify(scheduledDays.value)),
-                    exercises: JSON.parse(JSON.stringify(exercises.value))
+                    exercises: JSON.parse(JSON.stringify(exercises.value)),
+                    active: workoutData.active
                 };
+
+                console.log('Initial workout data set:', initialWorkoutData.value);
 
                 hasChanges.value = false;
 

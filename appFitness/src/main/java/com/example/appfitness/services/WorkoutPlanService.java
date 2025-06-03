@@ -23,17 +23,21 @@ public class WorkoutPlanService {
     private ProfessorRepository professorRepository;
     private ExerciseRepository exerciseRepository;
     private ExerciseDataRepository exerciseDataRepository;
+    private WorkoutExecutionRepository workoutExecutionRepository;
 
     public WorkoutPlanService(WorkoutPlanRepository workoutPlanRepository,
                               ProfessorRepository professorRepository,
                               ExerciseRepository exerciseRepository,
                               UserRepository userRepository,
-                              ExerciseDataRepository exerciseDataRepository) {
+                              ExerciseDataRepository exerciseDataRepository,
+
+                              WorkoutExecutionRepository workoutExecutionRepository) {
         this.workoutPlanRepository = workoutPlanRepository;
         this.professorRepository = professorRepository;
         this.exerciseRepository = exerciseRepository;
         this.userRepository = userRepository;
         this.exerciseDataRepository = exerciseDataRepository;
+        this.workoutExecutionRepository = workoutExecutionRepository;
     }
 
     @Transactional
@@ -54,6 +58,7 @@ public class WorkoutPlanService {
 
         // doesnt start as active
         workoutPlan.setActive(false);
+        workoutPlan.setDeleted(false);
         workoutPlan.setExercises(new ArrayList<>());
         workoutPlan.setUpdatedAt(LocalDate.now());
 
@@ -161,7 +166,19 @@ public class WorkoutPlanService {
         if (!workoutPlanRepository.existsById(id)) {
             throw new RuntimeException("Workout Plan not found: " + id);
         }
-        workoutPlanRepository.deleteById(id);
+
+        WorkoutPlan workoutPlan = workoutPlanRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Workout Plan not found: " + id));
+
+        boolean hasExecutions = workoutExecutionRepository.existsByWorkoutPlanId(id);
+        if (hasExecutions) {
+            workoutPlan.setDeleted(true);
+            workoutPlanRepository.save(workoutPlan);
+        }
+        else {
+            workoutPlanRepository.deleteById(id);
+        }
+
     }
 
     @Transactional

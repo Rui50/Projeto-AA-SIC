@@ -104,6 +104,10 @@
         router.push(`/workout/execution/${workoutId}`);
     };
 
+    const goToWorkoutHistory = () => {
+        router.push(`/workout/history/${userStore.getUserId}`);
+    };
+
 </script>
 
 <template>
@@ -154,7 +158,7 @@
             <div class="recent-workouts">
                 <div class="recent-workouts-header">
                     <h3>Recent Workouts</h3>
-                    <button class="view-all" @click="router.push('/workouts')">View All</button>
+                    <button class="view-all" @click="goToWorkoutHistory">View All</button>
                 </div>
 
                 <div v-if="recentWorkouts.length === 0" class="no-data-message">No recent completed workouts.</div>

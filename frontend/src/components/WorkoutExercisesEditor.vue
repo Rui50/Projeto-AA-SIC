@@ -7,6 +7,9 @@
     import ExerciseLibrary from './ExerciseLibrary.vue'
     import WorkoutExerciseItem from './WorkoutExerciseItem.vue'
     import { API_PATHS } from '../api_paths'
+    import { useUserStore } from '../stores/userStore'
+
+    const userStore = useUserStore()
 
 
     const props = defineProps({
@@ -95,7 +98,7 @@
 
         try {
             if (!isNewFlag) {
-                await axios.delete(`${API_PATHS.WORKOUT_EXERCISE}${exerciseDataId}`, {
+                await axios.delete(API_PATHS.REMOVE_EXERCISE(props.workoutId, exerciseDataId), {
                     headers: {
                         Authorization: `Bearer ${userStore.getToken}`
                     }

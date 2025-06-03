@@ -13,6 +13,8 @@ export const API_PATHS = {
     WORKOUT_EXERCISE: `${API_BASE_URL}/api/workout-plans/exercises/`,
     WORKOUT_ACTIVATE: `${API_BASE_URL}/api/workout-plans/{id}/`,
 
+    REMOVE_EXERCISE: (id1, id2) => `${API_BASE_URL}/api/workout-plans/${id1}/exercises/${id2}`,
+
     WORKOUT_EXECUTION_START: `${API_BASE_URL}/api/workout-executions/start`,
     FINISH_WORKOUT: (id) => `${API_BASE_URL}/api/workout-executions/${id}/finish`,
     GET_WORKOUT_EXECUTION_BY_ID: (id) => `${API_BASE_URL}/api/workout-executions/${id}`,

@@ -46,13 +46,18 @@
         userStore.logout();
         router.push('/auth/login'); 
     };
+    // leva ao dashboard se carregar no logo
+    const goToDashboard = () => {
+        router.push('/');
+    };
+
 </script>
 
 <template>
     <nav class="navbar">
-        <a class="navbar-context">
+        <a class="navbar-context" @click="goToDashboard">
             <div class="app-logo">
-                <img src="../assets/Logo.svg" alt="Logo" class="logo" />
+                <img src="../assets/logo.svg" alt="Logo" class="logo" />
             </div>
             <span class="navbar-title">fitnessApp</span>
         </a>

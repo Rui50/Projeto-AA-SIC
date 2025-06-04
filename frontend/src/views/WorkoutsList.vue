@@ -5,6 +5,7 @@
     import { useUserStore } from '@/stores/userStore'
     import { useRoute } from 'vue-router'
     import { useRouter } from 'vue-router'
+    import { Icon } from "@iconify/vue";
     import axios from 'axios'
     import { API_PATHS } from '@/api_paths'
     import CreateWorkoutPopup from '@/components/CreateWorkoutPopup.vue'    
@@ -132,9 +133,13 @@
 
         <div class="workouts-list">
             <div class="workouts-header-list">
-                <h2>Active Workouts</h2>
-                <span class="workouts-count"> {{ activeWorkoutsCount }}</span>
+            <h2>Active Workouts</h2>
+            <div class="info-icon">
+                <Icon icon="mdi:information-outline" width="20" />
+                <span class="tooltip">Active workouts are currently in use and appear in your workout list</span>
             </div>
+            <span class="workouts-count"> {{ activeWorkoutsCount }}</span>
+        </div>
 
             <div class="workouts-grid-container"> <WorkoutCard
                     v-for="workout in activeWorkouts"
@@ -149,10 +154,15 @@
                 No active workouts found. Create one or activate an existing workout!
             </div>
 
-            <div class="separator" v-if="inactiveWorkoutsCount > 0 || activeWorkoutsCount > 0"></div> <div class="workouts-header-list">
-                <h2>Other Workouts</h2>
-                <span class="workouts-count"> {{ inactiveWorkoutsCount }}</span>
+            <div class="separator" v-if="inactiveWorkoutsCount > 0 || activeWorkoutsCount > 0"></div> 
+            <div class="workouts-header-list">
+            <h2>Other Workouts</h2>
+            <div class="info-icon">
+                <Icon icon="mdi:information-outline" width="20" />
+                <span class="tooltip">Other workouts are inactive and can be activated when needed</span>
             </div>
+            <span class="workouts-count"> {{ inactiveWorkoutsCount }}</span>
+        </div>
 
             <div class="workouts-grid-container"> <WorkoutCard
                     v-for="workout in inactiveWorkouts"
@@ -292,5 +302,55 @@
         gap: 1.5rem;
     }
 
+    .info-icon {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+        color: #6c757d;
+        margin-left: 0.3rem;
+    }
+
+    .info-icon:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .tooltip {
+        visibility: hidden;
+        width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.8rem;
+        font-weight: normal;
+    }
+
+    .tooltip::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #555 transparent transparent transparent;
+    }
+
+    .workouts-header-list {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        margin-bottom: 1.5rem;
+    }
 
 </style>

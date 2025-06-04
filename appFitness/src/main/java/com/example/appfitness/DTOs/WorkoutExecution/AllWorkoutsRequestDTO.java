@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class AllWorkoutsRequestDTO {
     private Integer userID; // prob not needed
     private Integer page;
-    private Integer limit;
+    private Integer itemsPerPage;
     private String searchQuery;
     private LocalDate startDate;
     private LocalDate endDate;

@@ -105,7 +105,7 @@
     };
 
     const goToWorkoutHistory = () => {
-        router.push(`/workout/history/${userStore.getUserId}`);
+        router.push(`/workouts/history/${userStore.getUserId}`);
     };
 
 </script>

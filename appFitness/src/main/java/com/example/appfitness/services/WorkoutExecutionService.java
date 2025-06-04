@@ -124,8 +124,8 @@ public class WorkoutExecutionService {
         Integer userId = request.getUserID();
 
         int page = (request.getPage() != null && request.getPage() > 0) ? request.getPage() : 1;
-        int limit = (request.getLimit() != null && request.getLimit() > 0) ? request.getLimit() : 10;
-
+        int limit = (request.getItemsPerPage() != null && request.getItemsPerPage() > 0) ? request.getItemsPerPage() : 10;
+        
         String searchQuery = request.getSearchQuery();
         LocalDate startDate = request.getStartDate();
         LocalDate endDate = request.getEndDate();
@@ -152,7 +152,7 @@ public class WorkoutExecutionService {
 
         // caso 1: tem search query
         if(searchQuery != null && !searchQuery.isEmpty()) {
-            Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(direction, "workoutPlan.name"));
+            Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(direction, sortByDef));
 
             // se tambem tem datas
             if(startDate != null && endDate != null) {

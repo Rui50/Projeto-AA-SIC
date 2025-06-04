@@ -15,6 +15,6 @@ public class AllWorkoutsResponseDTO {
     private List<WorkoutExecutionResponseDTO> workoutExecutions;
     private Long totalCount;
     private Integer currentPage;
-    private Integer pageSize;
     private Integer totalPages;
+    private Integer pageSize;
 }

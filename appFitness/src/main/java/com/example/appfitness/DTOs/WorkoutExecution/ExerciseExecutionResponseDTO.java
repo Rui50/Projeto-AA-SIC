@@ -23,6 +23,9 @@ public class ExerciseExecutionResponseDTO {
     private String status;
     private List<SetExecutionResponseDTO> performedSets;
 
+    // para o previous
+    private List<PreviousPerformedDTO> previousPerformed;
+
     public static ExerciseExecutionResponseDTO fromEntity(ExerciseExecution exerciseExecution) {
         ExerciseExecutionResponseDTO dto = new ExerciseExecutionResponseDTO();
         dto.setId(exerciseExecution.getId());

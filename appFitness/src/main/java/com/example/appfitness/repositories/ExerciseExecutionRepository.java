@@ -1,8 +1,6 @@
 package com.example.appfitness.repositories;
 
-import com.example.appfitness.models.ExerciseData;
 import com.example.appfitness.models.ExerciseExecution;
-import com.example.appfitness.models.WorkoutExecution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,4 +18,17 @@ public interface ExerciseExecutionRepository extends JpaRepository<ExerciseExecu
     // nao deve ser preciso -> pegar num exercise execution de um exercicio específico
     @Query("SELECT ee FROM ExerciseExecution ee WHERE ee.workoutExecution.id = :workoutExecutionId AND ee.exerciseData.id = :exerciseDataId")
     Optional<ExerciseExecution> findByWorkoutExecutionIdAndExerciseDataId(Integer workoutExecutionId, Integer exerciseDataId);
+
+    // query para encontrar o ultimo workout "com o mesmo nome" completado
+    @Query("SELECT ee FROM ExerciseExecution ee " +
+            "JOIN ee.workoutExecution we " +
+            "WHERE we.user.id = :userId " +
+            "AND ee.exerciseData.id = :exerciseDataId " +
+            "AND we.status = 'COMPLETED' " +
+           // "AND we.startTime < :currentWorkoutStartTime " +
+            "ORDER BY we.startTime DESC, ee.startTime DESC")
+    List<ExerciseExecution> findPreviousCompletedExerciseExecutions(
+            Integer userId,
+            Integer exerciseDataId
+    );
 }

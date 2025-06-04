@@ -119,12 +119,13 @@ public class WorkoutExecutionController {
 
     @GetMapping("/{id}")
     public ResponseEntity<WorkoutExecutionResponseDTO> getWorkoutExecutionById(@PathVariable Integer id) {
-        Optional<WorkoutExecution> workoutExecution = workoutExecutionService.getWorkoutExecutionById(id);
-        return workoutExecution.map(WorkoutExecutionResponseDTO::fromEntity)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        try {
+            WorkoutExecutionResponseDTO responseDTO = workoutExecutionService.getWorkoutExecutionById(id);
+            return ResponseEntity.ok(responseDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
-
     // provavelmente nao é necessário, mas caso seja
     //@PostMapping("/{executionId}/exercises/{exerciseDataId}/start")
     //@PutMapping("/{executionId}/exercises/{exerciseExecutionId}/finish")

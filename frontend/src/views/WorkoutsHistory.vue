@@ -167,8 +167,8 @@
             <div class="sort">               
                 <label for="sortOrder">Order:</label>
                 <select v-model="sortOrder" id="sortOrder">
-                    <option value="asc">Ascending</option>
-                    <option value="desc">Descending</option>
+                    <option value="asc">Date Ascending</option>
+                    <option value="desc">Date Descending</option>
                 </select>
                 <button @click="fetchAllWOrkouts">Apply Filters</button>
             </div>

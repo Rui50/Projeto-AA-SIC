@@ -155,7 +155,7 @@ onMounted(fetchWorkoutPlanDetails);
                             <thead>
                                 <tr>
                                     <th>Set</th>
-                                    <th>Previous</th>
+                                    <!--<th>Previous</th>-->
                                     <th>Weight (kg)</th>
                                     <th>Reps</th>
                                     <th>Rest time (s)</th>
@@ -164,7 +164,7 @@ onMounted(fetchWorkoutPlanDetails);
                             <tbody>
                                 <tr v-for="(plannedSet, setIndex) in currentSelectedExercise.plannedSets" :key="plannedSet.id || `plan-set-${setIndex}`">
                                     <td>{{ plannedSet.setNumber }}</td>
-                                    <td>{{ plannedSet.previousWeight || '-' }}</td>
+                                    <!--<td>{{ plannedSet.previousWeight || '-' }}</td>-->
                                     <td>{{ plannedSet.weight }}</td>
                                     <td>{{ plannedSet.reps }}</td>
                                     <td>{{ plannedSet.restTimeSugested }}</td>

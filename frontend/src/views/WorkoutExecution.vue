@@ -489,7 +489,7 @@ watch(workoutExecution, (newValue) => {
                                     :key="set.id || `temp-${set.tempId || setIndex}`" 
                                     :class="{ 'completed': set.completed }">
                                     <td>{{ set.setNumber }}</td>
-                                    <td>{{ set.previousWeight || '-' }}</td>
+                                    <td>{{ set.previousWeight || '-' }} x {{ set.previousReps || '-' }}</td>
                                     <td>
                                         <template v-if="set.weight !== null && set.reps !== null">
                                             {{ set.weight }}kg x {{ set.reps }}

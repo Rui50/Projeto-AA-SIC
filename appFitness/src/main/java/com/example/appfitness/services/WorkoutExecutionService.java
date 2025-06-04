@@ -1,8 +1,6 @@
 package com.example.appfitness.services;
 
-import com.example.appfitness.DTOs.WorkoutExecution.AllWorkoutsRequestDTO;
-import com.example.appfitness.DTOs.WorkoutExecution.AllWorkoutsResponseDTO;
-import com.example.appfitness.DTOs.WorkoutExecution.WorkoutExecutionResponseDTO;
+import com.example.appfitness.DTOs.WorkoutExecution.*;
 import com.example.appfitness.models.*;
 import com.example.appfitness.repositories.*;
 import jakarta.transaction.Transactional;
@@ -113,8 +111,54 @@ public class WorkoutExecutionService {
         workoutExecutionRepository.deleteById(id);
     }
 
-    public Optional<WorkoutExecution> getWorkoutExecutionById(Integer id) {
-        return workoutExecutionRepository.findById(id);
+    //    public Optional<WorkoutExecution> getWorkoutExecutionById(Integer id) {
+    public WorkoutExecutionResponseDTO getWorkoutExecutionById(Integer id) {
+
+        // pegar na workout execution da base de dados
+        WorkoutExecution workoutExecution = workoutExecutionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("WorkoutExecution not found with id " + id));
+
+        // converter para dto para popularmos
+        WorkoutExecutionResponseDTO responseDTO = WorkoutExecutionResponseDTO.fromEntity(workoutExecution);
+
+        List<ExerciseExecutionResponseDTO> exerciseExecutions = responseDTO.getExerciseExecutions();
+
+        // para cada ExerciseExecution associada a este workout execution, construir o DTO e meter os previous data se exister
+        for (ExerciseExecution ex : workoutExecution.getExerciseExecutions()) {
+            // converter para DTO
+            ExerciseExecutionResponseDTO eeDTO = ExerciseExecutionResponseDTO.fromEntity(ex);
+
+            // obter data previa (se existir)
+            List<ExerciseExecution> previousExerciseExecutions = exerciseExecutionRepository
+                    .findPreviousCompletedExerciseExecutions(
+                            workoutExecution.getUser().getId(),
+                            ex.getExerciseData().getId());
+
+            if (previousExerciseExecutions != null) {
+                // fetch one the latest one
+                ExerciseExecution previousExerciseExecution = previousExerciseExecutions.get(0);
+                List<PreviousPerformedDTO> previousPerformedDTOList = previousExerciseExecution
+                        .getPerformedSets()
+                        .stream()
+                        .map(setExecution -> {
+                            PreviousPerformedDTO previousPerformedDTO = new PreviousPerformedDTO();
+                            previousPerformedDTO.setSetNumber(setExecution.getSetNumber());
+                            previousPerformedDTO.setPreviousRepsPerformed(setExecution.getRepsPerformed());
+                            previousPerformedDTO.setPreviousWeightPerformed(setExecution.getWeightPerformed());
+                            return previousPerformedDTO;
+                        })
+                        .toList();
+
+                eeDTO.setPreviousPerformed(previousPerformedDTOList);
+            }
+            else {
+                eeDTO.setPreviousPerformed(new ArrayList<>());
+            }
+            exerciseExecutions.add(eeDTO);
+        }
+
+        responseDTO.setExerciseExecutions(exerciseExecutions);
+        return responseDTO;
     }
 
     // https://www.baeldung.com/spring-data-jpa-pagination-sorting

@@ -36,4 +36,6 @@ export const API_PATHS = {
     GET_LATEST_BODYMETRICS: (id) => `${API_BASE_URL}/api/bodyMetrics/${id}/latest`,
     BODY_METRICS: `${API_BASE_URL}/api/bodyMetrics`,
 
+    GET_WORKOUT_DASHBOARD: `${API_BASE_URL}/api/user/dashboard-workout`,
+
 }

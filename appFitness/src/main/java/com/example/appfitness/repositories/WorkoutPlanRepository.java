@@ -28,4 +28,6 @@ public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Intege
             Integer professorId,
             Integer ownerId
     );
+
+    List<WorkoutPlan> findByOwnerIdAndScheduleType(Integer ownerId, WorkoutPlan.WorkoutScheduleType scheduleType);
 }

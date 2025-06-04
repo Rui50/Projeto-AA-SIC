@@ -41,7 +41,7 @@ public class BodyMetricsController {
 
         // get the user
         User user = userService.getUserById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found: " + userId)); // Handle appropriately
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
         // pop objeto
         BodyMetrics bodyMetrics = new BodyMetrics();

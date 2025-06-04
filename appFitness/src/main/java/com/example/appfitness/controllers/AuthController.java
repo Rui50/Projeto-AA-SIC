@@ -55,7 +55,9 @@ public class AuthController {
             responseData.put("userId", authService.getUserIdFromToken(token));
             responseData.put("name", name);
             responseData.put("email", email);
+            responseData.put("metricType", authService.extractMetricType(token));
             responseData.put("message", "Login successful! (" + user.getEmail() + ")");
+
 
             // talvez mais tarde, metricType
 

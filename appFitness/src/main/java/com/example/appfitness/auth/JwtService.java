@@ -53,6 +53,11 @@ public class JwtService {
         return claims.get("role", String.class);
     }
 
+    public String extractMetricType(String token) {
+        final Claims claims = extractAllClaims(token);
+        return claims.get("metricType", String.class);
+    }
+
     public String generateToken(User user) {
         return buildToken(getClaimsForUser(user), user, jwtExpiration);
     }
@@ -71,8 +76,15 @@ public class JwtService {
             role = "PROFESSOR";
         }
         claims.put("role", role);
+
+        if (user.getMetricType() != null) {
+            claims.put("metricType", user.getMetricType().name());
+        }
+
         return claims;
     }
+
+    
 
     private String buildToken(Map<String, Object> extraClaims, User user, long expiration) {
         return Jwts

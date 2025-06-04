@@ -86,6 +86,7 @@
                 email: response.data.email,
                 name: response.data.name,
                 role: response.data.role,
+                metricType: response.data.metricType,
             })
 
             console.log(response.data)

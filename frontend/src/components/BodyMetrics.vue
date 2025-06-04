@@ -5,6 +5,8 @@
     import { API_PATHS } from '../api_paths'
     import { Icon } from '@iconify/vue'
     import axios from 'axios'
+    import { computed } from 'vue'
+
 
     const userStore = useUserStore()
     const router = useRouter()
@@ -33,8 +35,18 @@
             })
             const data = response.data
             console.log('Latest body metrics:', data)
-            weight.value = data.weight || 'N/A'
-            height.value = data.height || 'N/A'
+            
+            const rawWeight = data.weight || 0
+            const rawHeight = data.height || 0
+
+            weight.value = isImperial.value
+                ? convertMetricToImperial(rawWeight, 'weight')
+                : rawWeight
+
+            height.value = isImperial.value
+                ? convertMetricToImperial(rawHeight, 'height')
+                : rawHeight
+
             bodyFat.value = data.bodyFatPercentage || 'N/A'
             bmi.value = data.bmi || 'N/A'
             lastUpdated.value = data.updatedAt || 'No records yet'
@@ -55,8 +67,8 @@
         try {
             const payload = {
                 userId: userStore.getUserId, // nao é preciso se usarmos as cookies
-                height: parseFloat(height.value),
-                weight: parseFloat(weight.value),
+                height: isImperial.value ? convertImperialToMetric(height.value, 'height') : parseFloat(height.value),
+                weight: isImperial.value ? convertImperialToMetric(weight.value, 'weight') : parseFloat(weight.value),
                 bodyFatPercentage: parseFloat(bodyFat.value),
             }
 
@@ -75,14 +87,37 @@
     onMounted(() => {
         fetchLatestMetrics()
     })
+    
+    const isImperial = computed(() => userStore.getMetricType === 'IMPERIAL')
+    const weightUnit = computed(() => isImperial.value ? 'lbs' : 'kg')
+    const heightUnit = computed(() => isImperial.value ? 'in' : 'cm')
+    const convertMetricToImperial = (value, type) => {
+        if (type === 'weight') return +(value * 2.20462).toFixed(2) // kg -> lbs
+        if (type === 'height') return +(value * 0.393701).toFixed(2) // cm -> in
+        return value
+    }
+    const convertImperialToMetric = (value, type) => {
+        if (type === 'weight') return +(value / 2.20462).toFixed(2) // lbs -> kg
+        if (type === 'height') return +(value / 0.393701).toFixed(2) // in -> cm
+        return value
+    }  
+    
+    // Temporario apenas para testar mudanca de metrica
+    import { watch } from 'vue'
+    const localMetricType = ref(userStore.getMetricType)
+    watch(localMetricType, (newType, oldType) => {
+        if (newType === oldType) return
 
-    /*const weightUnit = computed(() => {
-        return userStore.getUserUnit === 'metric' ? 'kg' : 'lbs'
+        if (newType === 'IMPERIAL') {
+            weight.value = convertMetricToImperial(weight.value, 'weight')
+            height.value = convertMetricToImperial(height.value, 'height')
+        } else {
+            weight.value = convertImperialToMetric(weight.value, 'weight')
+            height.value = convertImperialToMetric(height.value, 'height')
+        }
+
+        userStore.setMetricType(localMetricType.value)
     })
-    const heightUnit = computed(() => {
-        return userStore.getUserUnit === 'metric' ? 'cm' : 'inches'
-    })*/
-    //
 
 </script>
 
@@ -94,11 +129,11 @@
         </div>
         <div class="metric-item">
             <div class="metric-label">Weight</div>
-            <div class="metric-value">{{ weight }}</div>
+            <div class="metric-value">{{ weight }} <span class="unit">{{ weightUnit }}</span></div>
         </div>
         <div class="metric-item">
             <div class="metric-label">Height</div>
-            <div class="metric-value">{{ height }}</div>
+            <div class="metric-value">{{ height }} <span class="unit">{{ heightUnit }}</span></div>
         </div>
         <div class="metric-item">
             <div class="metric-label">Body Fat</div>
@@ -117,17 +152,26 @@
             <div class="popup-content">
                 <h3>Update Body Metrics</h3>
                 <div class="input-group">
-                    <label>Weight (kg)</label>
+                    <label>Weight ({{ weightUnit }})</label>
                     <input v-model="weight" type="number" />
                 </div>
                 <div class="input-group">
-                    <label>Height (cm)</label>
+                    <label>Height ({{ heightUnit }})</label>
                     <input v-model="height" type="number" />
                 </div>
                 <div class="input-group">
                     <label>Body Fat (%)</label>
                     <input v-model="bodyFat" type="number" />
                 </div>
+                <!-- Temporario apenas para testar mudanca de metrica -->
+                    <div class="input-group">
+                        <label>Unit System</label>
+                        <select v-model="localMetricType">
+                            <option value="METRIC">Metric (kg / cm)</option>
+                            <option value="IMPERIAL">Imperial (lbs / in)</option>
+                        </select>
+                    </div>
+                <!-- -->                
                 <div class="popup-actions">
                     <button class="button secondary" @click="togglePopup">Cancel</button>
                     <button class="button primary" @click="updateMetrics">Save</button>
@@ -286,4 +330,5 @@
         font-size: 0.9rem;
         color: #757575;
     }
+
 </style>

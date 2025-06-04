@@ -105,6 +105,11 @@ public class AuthService {
         return jwtService.extractRole(token);
     }
 
+    public String extractMetricType(String token) {
+        return jwtService.extractMetricType(token);
+    }
+
+
     public Cookie generateCookie(String email, String password){
         String token = login(email, password);
         Cookie cookie = new Cookie("token", token);

@@ -1,10 +1,7 @@
 package com.example.appfitness.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.jmx.support.MetricType;
 
 import java.time.LocalDate;
@@ -15,6 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @Table(name = "BodyMetrics")
+@ToString
 public class BodyMetrics {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

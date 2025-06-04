@@ -125,7 +125,7 @@ public class WorkoutExecutionService {
 
         int page = (request.getPage() != null && request.getPage() > 0) ? request.getPage() : 1;
         int limit = (request.getItemsPerPage() != null && request.getItemsPerPage() > 0) ? request.getItemsPerPage() : 10;
-        
+
         String searchQuery = request.getSearchQuery();
         LocalDate startDate = request.getStartDate();
         LocalDate endDate = request.getEndDate();

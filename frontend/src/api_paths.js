@@ -33,4 +33,7 @@ export const API_PATHS = {
     GET_CLIENT_INFO: (id) => `${API_BASE_URL}/api/alunos/info/${id}`,
     GET_ALL_WORKOUTS: `${API_BASE_URL}/api/workout-executions/all`,
 
+    GET_LATEST_BODYMETRICS: (id) => `${API_BASE_URL}/api/bodyMetrics/${id}/latest`,
+    BODY_METRICS: `${API_BASE_URL}/api/bodyMetrics`,
+
 }

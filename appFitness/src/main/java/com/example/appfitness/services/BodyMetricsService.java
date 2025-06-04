@@ -33,7 +33,7 @@ public class BodyMetricsService {
     }
 
     public Optional<BodyMetrics> latestBodyMetricUser(Integer id) {
-        return bodyMetricsRepository.findTopByUserIdOrderByMeasurementDateDesc(id).stream().findFirst();
+        return bodyMetricsRepository.findTop1ByUserIdOrderByUpdatedAtDescIdDesc(id);
     }
 
     public List<BodyMetrics> findBodyMetricsByUserAndDate(Integer id, LocalDate date) {

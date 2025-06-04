@@ -28,6 +28,7 @@ public class BodyMetricsResposeDTO {
         dto.setId(bodyMetrics.getId());
         dto.setHeight(bodyMetrics.getHeight());
         dto.setWeight(bodyMetrics.getWeight());
+        dto.setBodyFatPercentage(bodyMetrics.getBodyFatPercentage());
         dto.setBmi(bodyMetrics.getBmi());
         dto.setUpdatedAt(bodyMetrics.getUpdatedAt());
         dto.setUserId(bodyMetrics.getUser().getId());

@@ -1,27 +1,88 @@
 <script setup>
-import { ref, defineProps } from 'vue'
+    import { ref, defineProps, onMounted } from 'vue'
+    import { useUserStore } from '@/stores/userStore'
+    import { useRouter } from 'vue-router'
+    import { API_PATHS } from '../api_paths'
+    import { Icon } from '@iconify/vue'
+    import axios from 'axios'
 
-    // Define props for metrics data
-    const props = defineProps({
-        userData: {
-            type: Object,
-            required: true
-        },
-    })
+    const userStore = useUserStore()
+    const router = useRouter()
+
 
     const popupState = ref(false)
 
     const togglePopup = () => {
         popupState.value = !popupState.value
     }
-    const weight = ref(5)
-    const height = ref(5)
-    const bodyFat = ref(5)
-    const bmi = ref(5)
+    const weight = ref()
+    const height = ref()
+    const bodyFat = ref()
+    const bmi = ref()
+    const lastUpdated = ref()
 
     const updateMetrics = () => {
+        updateBodyMetrics()
         togglePopup()
     }
+
+    const fetchLatestMetrics = async () => {
+        try {
+            const response = await axios.get(API_PATHS.GET_LATEST_BODYMETRICS(userStore.getUserId), {
+                withCredentials: true,
+            })
+            const data = response.data
+            console.log('Latest body metrics:', data)
+            weight.value = data.weight || 'N/A'
+            height.value = data.height || 'N/A'
+            bodyFat.value = data.bodyFatPercentage || 'N/A'
+            bmi.value = data.bmi || 'N/A'
+            lastUpdated.value = data.updatedAt || 'No records yet'
+
+
+        } catch (error) {
+            console.error('Error fetching latest body metrics:', error)
+        }
+    }
+
+    /**
+     *     private Integer userId;
+    private Double height;
+    private Double weight;
+    private Double bodyFatPercentage;
+     */
+    const updateBodyMetrics = async () => {
+        try {
+            const payload = {
+                userId: userStore.getUserId, // nao é preciso se usarmos as cookies
+                height: parseFloat(height.value),
+                weight: parseFloat(weight.value),
+                bodyFatPercentage: parseFloat(bodyFat.value),
+            }
+
+            const response = await axios.post(API_PATHS.BODY_METRICS, payload, {
+                withCredentials: true,
+            })
+
+            console.log('Body metrics updated successfully:', response.data)
+            alert('Body metrics updated successfully!')
+        } catch (error) {
+            console.error('Error updating body metrics:', error)
+            alert('Failed to update body metrics. Please try again.')
+        }
+    }
+
+    onMounted(() => {
+        fetchLatestMetrics()
+    })
+
+    /*const weightUnit = computed(() => {
+        return userStore.getUserUnit === 'metric' ? 'kg' : 'lbs'
+    })
+    const heightUnit = computed(() => {
+        return userStore.getUserUnit === 'metric' ? 'cm' : 'inches'
+    })*/
+    //
 
 </script>
 
@@ -33,23 +94,23 @@ import { ref, defineProps } from 'vue'
         </div>
         <div class="metric-item">
             <div class="metric-label">Weight</div>
-            <div class="metric-value">5 {{ weight }}</div>
+            <div class="metric-value">{{ weight }}</div>
         </div>
         <div class="metric-item">
             <div class="metric-label">Height</div>
-            <div class="metric-value">5 {{ height }}</div>
+            <div class="metric-value">{{ height }}</div>
         </div>
         <div class="metric-item">
             <div class="metric-label">Body Fat</div>
-            <div class="metric-value">5 {{ bodyFat }}</div>
+            <div class="metric-value">{{ bodyFat }}</div>
         </div>
         <div class="metric-item">
             <div class="metric-label">BMI</div>
-            <div class="metric-value">5 {{ bmi }}</div>
+            <div class="metric-value">{{ bmi }}</div>
         </div>
             <div class="last-updated">
             <div>Last updated</div>
-            <div>Date here</div>
+            <div>{{ lastUpdated }}</div>
         </div>
 
         <div v-if="popupState" class="popup-overlay">
@@ -66,10 +127,6 @@ import { ref, defineProps } from 'vue'
                 <div class="input-group">
                     <label>Body Fat (%)</label>
                     <input v-model="bodyFat" type="number" />
-                </div>
-                <div class="input-group">
-                    <label>BMI</label>
-                    <input v-model="bmi" type="number" />
                 </div>
                 <div class="popup-actions">
                     <button class="button secondary" @click="togglePopup">Cancel</button>

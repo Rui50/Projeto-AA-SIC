@@ -2,6 +2,7 @@ package com.example.appfitness.controllers;
 
 import com.example.appfitness.DTOs.bodyMetrics.BodyMetricsRequestDTO;
 import com.example.appfitness.DTOs.bodyMetrics.BodyMetricsResposeDTO;
+import com.example.appfitness.auth.AuthService;
 import com.example.appfitness.models.BodyMetrics;
 import com.example.appfitness.models.User;
 import com.example.appfitness.services.BodyMetricsService;
@@ -22,15 +23,21 @@ public class BodyMetricsController {
 
     private BodyMetricsService bodyMetricsService;
     private UserService userService;
+    private AuthService authService;
 
-    public BodyMetricsController(BodyMetricsService bodyMetricsService, UserService userService) {
+    public BodyMetricsController(BodyMetricsService bodyMetricsService,AuthService authService, UserService userService) {
         this.bodyMetricsService = bodyMetricsService;
         this.userService = userService;
+        this.authService = authService;
     }
 
     @PostMapping // se metermos campos no DTO podemos acrescentar @Valid para validar campos
-    public ResponseEntity<Object> createBodyMetrics(@RequestBody BodyMetricsRequestDTO createDTO) {
-        Integer userId = createDTO.getUserId();
+    public ResponseEntity<Object> createBodyMetrics(@RequestBody BodyMetricsRequestDTO createDTO,
+                                                    @CookieValue(value = "token", defaultValue = "") String token) {
+
+
+        int userId = Integer.parseInt(authService.getUserIdFromToken(token));
+        //Integer userId = createDTO.getUserId();
 
         // get the user
         User user = userService.getUserById(userId)
@@ -38,6 +45,7 @@ public class BodyMetricsController {
 
         // pop objeto
         BodyMetrics bodyMetrics = new BodyMetrics();
+        bodyMetrics.setUser(user);
         bodyMetrics.setWeight(createDTO.getWeight());
         bodyMetrics.setHeight(createDTO.getHeight());
         bodyMetrics.setBodyFatPercentage(createDTO.getBodyFatPercentage());
@@ -69,8 +77,10 @@ public class BodyMetricsController {
         return ResponseEntity.ok(response);
     }
 
+    // fazer um para obter a partir de um certo ponto?
+
     // pegar no ultimo (dashboard / display)
-    @GetMapping("/user/{userId}/latest")
+    @GetMapping("/{userId}/latest")
     public ResponseEntity<BodyMetricsResposeDTO> getLatestBodyMetrics(@PathVariable Integer userId) {
         Optional<BodyMetrics> lastestBM = bodyMetricsService.latestBodyMetricUser(userId);
         if (lastestBM.isPresent()) {

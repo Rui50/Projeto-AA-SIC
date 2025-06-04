@@ -24,8 +24,8 @@ public interface BodyMetricsRepository extends JpaRepository<BodyMetrics, Intege
 
     Optional<BodyMetrics> findFirstByUser_IdOrderByUpdatedAtDesc(Integer userId);
 
-    @Query("SELECT bm FROM BodyMetrics bm WHERE bm.user.id = :userId ORDER BY bm.updatedAt DESC")
-    List<BodyMetrics> findTopByUserIdOrderByMeasurementDateDesc(Integer userId);
+    Optional<BodyMetrics> findTop1ByUserIdOrderByUpdatedAtDescIdDesc(Integer userId);
+
 
     // Para obter a partir de uma certa data
     @Query("SELECT bm FROM BodyMetrics bm WHERE bm.user.id = :userId AND bm.updatedAt >= :startDate ORDER BY bm.updatedAt ASC")

@@ -1,5 +1,6 @@
 package com.example.appfitness.services;
 
+import com.example.appfitness.DTOs.Settings.SettingsDTO;
 import com.example.appfitness.models.User;
 import com.example.appfitness.repositories.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -33,6 +35,16 @@ public class UserService {
     public boolean emailExists(String email) {
         Integer result = userRepository.checkEmail(email);
         return result != null && result == 1;
+    }
+
+    public SettingsDTO updateSettings(SettingsDTO settings, User user) {
+        User.MetricType metricType = settings.getMetricType();
+        if (metricType != null) {
+            user.setMetricType(metricType);
+        }
+
+        userRepository.save(user);
+        return settings;
     }
 
     public Optional<String> getEmailFromUserId(int id) {

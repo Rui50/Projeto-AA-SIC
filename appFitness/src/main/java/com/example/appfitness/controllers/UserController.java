@@ -2,6 +2,7 @@ package com.example.appfitness.controllers;
 
 //import com.example.appfitness.auth.JwtService;
 import com.example.appfitness.DTOs.Aluno.DashboardWorkoutDTO;
+import com.example.appfitness.DTOs.Settings.SettingsDTO;
 import com.example.appfitness.auth.AuthService;
 import com.example.appfitness.models.User;
 import com.example.appfitness.models.WorkoutExecution;
@@ -90,7 +91,17 @@ public class UserController {
         return Optional.empty();
     }
 
+    @PostMapping("/settings")
+    private SettingsDTO updateSettings(@RequestBody SettingsDTO settings, @CookieValue(value = "token", defaultValue = "") String token){
+        System.out.println(settings);
 
+        Integer userId = Integer.valueOf(authService.getUserIdFromToken(token));
+
+        User user = userService.getUserById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+
+        return userService.updateSettings(settings, user);
+    }
 
     /*private final JwtService jwtService;
     private final UserService userService;

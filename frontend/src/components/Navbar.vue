@@ -76,9 +76,10 @@
                 <img src="../assets/13.jpg" alt="User Avatar" class="avatar" />
             </div>
             <span class="username">{{ displayUsername }}</span>
+            <!--
             <button @click="logout" class="logout-btn">
                 <Icon icon="ic:round-logout" width="24" height="24" />
-            </button>
+            </button>-->
         </div>
     </nav>
 

@@ -7,10 +7,15 @@
     import BodyMetrics from '@/components/BodyMetrics.vue'
     import WeeklySchedule from '@/components/WeeklySchedule.vue'
 
+    import Settings from '@/components/Settings.vue'
+
+    import { useUserStore } from '@/stores/userStore'
+
     import { API_PATHS } from '../api_paths'
     import axios from 'axios'
 
     const router = useRouter()
+    const userStore = useUserStore()
 
     const professor = ref(null)
 
@@ -25,6 +30,16 @@
             console.error('Error fetching professor data:', error)
         }
     }
+
+    const settingsPopupState = ref(false)
+    const toggleSettingsPopup = () => {
+        settingsPopupState.value = !settingsPopupState.value
+    };
+
+    const logout = () => {
+        userStore.logout();
+        router.push('/auth/login'); 
+    };
 
     onMounted(() => {
         fetchProfessor()
@@ -43,16 +58,17 @@
                         <img src="../assets/13.jpg" alt="Profile Image" />
                     </div>
                     <!--meter username?-->
+                    <h2>{{ userStore.getName }}</h2>
                     <div class="profile-options">
-                        <div class="profile-option">
+                        <!--<div class="profile-option">
                             <Icon class="icon"icon="iconamoon:profile-thin" width="24" height="24" />
                             <span>Profile</span>
-                        </div>
-                        <div class="profile-option">
+                        </div>-->
+                        <div class="profile-option" @click="toggleSettingsPopup">
                             <Icon class="icon" icon="mdi-light:settings" width="24" height="24" />
                             <span>Settings</span>
                         </div>
-                        <div class="profile-option">
+                        <div class="profile-option" @click="logout" >
                             <Icon class="icon" icon="material-symbols-light:logout" width="24" height="24" /> 
                             <span>Logout</span>
                         </div>
@@ -86,6 +102,7 @@
                 <!--Recent activity-->
             </div>
         </div>
+        <Settings v-if="settingsPopupState" @close="toggleSettingsPopup" />
     </div>
 </template>
 

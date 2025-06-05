@@ -46,4 +46,7 @@ export const API_PATHS = {
 
     GET_WORKOUT_DASHBOARD: `${API_BASE_URL}/api/user/dashboard-workout`,
 
+    // SETTINGS
+    UPDATE_SETTINGS: `${API_BASE_URL}/api/user/settings`,
+
 }

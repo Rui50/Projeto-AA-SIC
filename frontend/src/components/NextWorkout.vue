@@ -111,7 +111,7 @@ onMounted(() => {
 <template>
     <div class="card">
         <div class="workout-header">
-            <h2><h2>{{ workoutHeaderTitle }}</h2></h2> <button class="update-button" @click="handleViewAll">View All Plans</button>
+            <h2>{{ workoutHeaderTitle }}</h2> <button class="update-button" @click="handleViewAll">View All Plans</button>
         </div>
 
         <div v-if="workout.status === 'IN_PROGRESS'" class="workout-card in-progress">

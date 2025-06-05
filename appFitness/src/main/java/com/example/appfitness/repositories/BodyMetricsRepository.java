@@ -19,7 +19,7 @@ public interface BodyMetricsRepository extends JpaRepository<BodyMetrics, Intege
 
     // Para obter a mais recente, ordenamos e pegamos o primeiro resultado.
     @Query(value = "SELECT bm FROM BodyMetrics bm WHERE bm.user.id = :userId AND bm.updatedAt <= :targetDate ORDER BY bm.updatedAt DESC LIMIT 1")
-    Optional<BodyMetrics> findClosestBeforeDateForUser(Integer userId, LocalDate targetDate);
+    Optional<BodyMetrics> findClosestBeforeDateForUser(Integer userId, LocalDateTime targetDate);
     // Retorna lista, mas o serviço pega no primeiro
 
     Optional<BodyMetrics> findFirstByUser_IdOrderByUpdatedAtDesc(Integer userId);
@@ -31,5 +31,5 @@ public interface BodyMetricsRepository extends JpaRepository<BodyMetrics, Intege
     @Query("SELECT bm FROM BodyMetrics bm WHERE bm.user.id = :userId AND bm.updatedAt >= :startDate ORDER BY bm.updatedAt ASC")
     List<BodyMetrics> findByUserIdAndUpdatedAt(Integer userId, LocalDate startDate);
 
-    List<BodyMetrics> findByUser_IdAndUpdatedAtBetweenOrderByUpdatedAtAsc(Integer userId, LocalDate startDate, LocalDate endDate);
+    List<BodyMetrics> findByUser_IdAndUpdatedAtBetweenOrderByUpdatedAtAsc(Integer userId, LocalDateTime startDate, LocalDateTime endDate);
 }

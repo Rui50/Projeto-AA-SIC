@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,7 +50,7 @@ public class BodyMetricsController {
         bodyMetrics.setWeight(createDTO.getWeight());
         bodyMetrics.setHeight(createDTO.getHeight());
         bodyMetrics.setBodyFatPercentage(createDTO.getBodyFatPercentage());
-        bodyMetrics.setUpdatedAt(LocalDate.now());
+        bodyMetrics.setUpdatedAt(LocalDateTime.now());
 
         // para ja so aceitamos metric
         double bmi = calculateBMI(createDTO.getWeight(), createDTO.getHeight(), BodyMetrics.MetricType.METRIC);

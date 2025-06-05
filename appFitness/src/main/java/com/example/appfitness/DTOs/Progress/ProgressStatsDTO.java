@@ -12,5 +12,4 @@ public class ProgressStatsDTO {
     private Double totalWeightLifted;
     private Double currentBodyWeight;
     private double bodyWeightChange;
-    private String bodyWeightChangeDirection; // ganho ou perda
 }

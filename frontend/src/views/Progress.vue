@@ -24,7 +24,6 @@
         totalWeightLifted: 0,
         currentBodyWeight: 0,
         bodyWeightChange: null,
-        bodyWeightChangeDirection: null
     })
 
     const workoutVolumeChartData = ref({
@@ -142,7 +141,6 @@
                     label="Current Weight"
                     :value="progressStats.currentBodyWeight ? progressStats.currentBodyWeight.toFixed(1) + ' kg' : 'N/A'"
                     :change="progressStats.bodyWeightChange ? progressStats.bodyWeightChange.toFixed(1) + ' kg' : null"
-                    :change-direction="progressStats.bodyWeightChangeDirection"
                 />
             </div>
 
@@ -177,7 +175,7 @@
                             <td> {{ formatDate(workout.executionDate) }}</td>
                             <td>
                                 {{ workout.workoutName }}
-                                <div class="workout-details">{{ workout.exercises }} Exercises • {{ formatDuration(workout.duration) }}</div>
+                                <div class="workout-details">{{ workout.exercises }} Exercises <!--• {{ formatDuration(workout.duration) }}--></div>
                             </td>
                             <td> {{ formatDuration(workout.duration) }}</td>
                             <td>

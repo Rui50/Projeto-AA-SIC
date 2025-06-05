@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.jmx.support.MetricType;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -24,7 +25,7 @@ public class BodyMetrics {
     private Double bodyFatPercentage;
 
     @Column(nullable = false)
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     private MetricType metricType;

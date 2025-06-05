@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -18,7 +19,7 @@ public class BodyMetricsResposeDTO {
     private Double weight;
     private Double bmi;
     private Double bodyFatPercentage;
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
     //private BodyMetrics.MetricType metricType;
     private Integer userId;
 

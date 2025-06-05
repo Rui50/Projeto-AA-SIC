@@ -59,29 +59,24 @@ public class ProgressService {
 
         Double currentBodyWeight = 0.00;
         Double bodyWeightChange = null;
-        String change = null;
 
         Optional<BodyMetrics> latestWeightEntry = bodyMetricsRepository.findFirstByUser_IdOrderByUpdatedAtDesc(userId);
 
-        if(!"all".equalsIgnoreCase(timePeriod)) {
-            LocalDate bodyMetricsCompareStartDate = getStartDateTime(timePeriod).toLocalDate();
+        if (latestWeightEntry.isPresent()) {
+            currentBodyWeight = latestWeightEntry.get().getWeight();
+        }
 
-            Optional<BodyMetrics> closestBodyWeight = bodyMetricsRepository.findClosestBeforeDateForUser(userId, bodyMetricsCompareStartDate);
+        if(!"all".equalsIgnoreCase(timePeriod) && currentBodyWeight > 0) {
+            LocalDateTime bodyMetricsCompareStartDate = getStartDateTime(timePeriod);//.toLocalDate();
+            LocalDateTime bodyMetricsCompareEndDate = LocalDateTime.now();
 
-            if(closestBodyWeight.isPresent() ) {
-                double startWeight = closestBodyWeight.get().getWeight();
-                bodyWeightChange = startWeight - currentBodyWeight;
+            List<BodyMetrics> bmInSelectedPeriod = bodyMetricsRepository.findByUser_IdAndUpdatedAtBetweenOrderByUpdatedAtAsc(userId, bodyMetricsCompareStartDate, bodyMetricsCompareEndDate);
 
-                if (bodyWeightChange < 0) {
-                    change = "loss";
-                }
-                else if (bodyWeightChange > 0) {
-                    change = "gain";
-                }
-                else {
-                    change = "nochange";
-                }
-                bodyWeightChange = Math.abs(bodyWeightChange);
+            if(bmInSelectedPeriod != null && bmInSelectedPeriod.size() >= 2 ) {
+                //double startWeight = closestBodyWeight.get().getWeight();
+                double startWeight = bmInSelectedPeriod.getFirst().getWeight();
+
+                bodyWeightChange = currentBodyWeight - startWeight;
             }
         }
 
@@ -90,9 +85,6 @@ public class ProgressService {
         progressStatsDTO.setCurrentBodyWeight(currentBodyWeight);
         if (bodyWeightChange != null) {
             progressStatsDTO.setBodyWeightChange(bodyWeightChange);
-        }
-        if (change != null) {
-            progressStatsDTO.setBodyWeightChangeDirection(change);
         }
 
         progressStatsDTO.setTotalWeightLifted(totalWeightLifted);

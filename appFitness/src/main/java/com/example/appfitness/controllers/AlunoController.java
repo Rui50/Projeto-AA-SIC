@@ -3,29 +3,46 @@ package com.example.appfitness.controllers;
 import com.example.appfitness.DTOs.Aluno.AlunoDTO;
 import com.example.appfitness.DTOs.Aluno.AlunoResponseDTO;
 import com.example.appfitness.DTOs.Aluno.ClientInfoResponseDTOP;
+import com.example.appfitness.DTOs.Professor.ProfessorDTO;
+import com.example.appfitness.auth.AuthService;
 import com.example.appfitness.models.Aluno;
+import com.example.appfitness.models.User;
 import com.example.appfitness.services.AlunoService;
 import com.example.appfitness.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/alunos")
 public class AlunoController {
     private AlunoService alunoService;
     private UserService userService;
+    private AuthService authService;
 
-    public AlunoController(AlunoService alunoService, UserService userService) {
+    public AlunoController(AlunoService alunoService, UserService userService, AuthService authService) {
         this.alunoService = alunoService;
         this.userService = userService;
+        this.authService = authService;
     }
 
     @GetMapping
     public List<AlunoDTO> getAllAlunos() {
         return alunoService.findAlunosWithoutProfessor();
     }
+
+    @GetMapping("/professor")
+    public ResponseEntity<ProfessorDTO> getProfessor(@CookieValue(value = "token", defaultValue = "") String token) {
+        Integer userId = Integer.valueOf(authService.getUserIdFromToken(token));
+
+        Optional<ProfessorDTO> professorDTO = alunoService.getAlunoProfessor(userId);
+
+        return professorDTO.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
 
     @GetMapping("/{id}")
     public List<AlunoResponseDTO> getAlunosFromProfessor(@PathVariable int id) {

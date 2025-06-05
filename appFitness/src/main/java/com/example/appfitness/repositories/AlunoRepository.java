@@ -16,7 +16,6 @@ public interface AlunoRepository extends JpaRepository<Aluno, Integer> {
     @Query("SELECT a FROM Aluno a WHERE a.professor.id = :professor_id")
     Optional<List<Aluno>> findByProfessor(Integer professor_id);
 
-
     @Query("SELECT a FROM Aluno a WHERE a.email = :email")
     Optional<Aluno> findByEmail(String email);
 

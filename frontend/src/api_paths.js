@@ -28,6 +28,9 @@ export const API_PATHS = {
     // PROGRESS
     GET_PROGRESS: `${API_BASE_URL}/api/progress/dashboard`,
 
+    // GET_PROFESSOR
+    GET_PROFESSOR: `${API_BASE_URL}/api/alunos/professor`,
+
 
     // CLIENTS
     GET_ALL_CLIENTS: `${API_BASE_URL}/api/alunos`,

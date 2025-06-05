@@ -3,6 +3,7 @@ package com.example.appfitness.services;
 import com.example.appfitness.DTOs.Aluno.AlunoDTO;
 import com.example.appfitness.DTOs.Aluno.AlunoResponseDTO;
 import com.example.appfitness.DTOs.Aluno.ClientInfoResponseDTOP;
+import com.example.appfitness.DTOs.Professor.ProfessorDTO;
 import com.example.appfitness.DTOs.WorkoutPlan.WorkoutPlanResponseDTO;
 import com.example.appfitness.DTOs.bodyMetrics.BodyMetricsResposeDTO;
 import com.example.appfitness.models.*;
@@ -41,6 +42,25 @@ public class AlunoService {
         this.workoutPlanRepository = workoutPlanRepository;
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
     }
+
+    @Transactional
+    public Optional<ProfessorDTO> getAlunoProfessor(Integer id) {
+        Optional<Aluno> aluno = alunoRepository.findById(id);
+
+        if (aluno.isPresent()) {
+            Aluno al = aluno.get();
+            if(al.getProfessor() != null) {
+                ProfessorDTO professorDTO = new ProfessorDTO();
+                professorDTO.setId(al.getProfessor().getId());
+                professorDTO.setName(al.getProfessor().getName());
+                professorDTO.setEmail(al.getProfessor().getEmail());
+
+                return Optional.of(professorDTO);
+            }
+        }
+        return Optional.empty();
+    }
+
     @Transactional
     public Aluno salvar(Aluno aluno) {
         return alunoRepository.save(aluno);

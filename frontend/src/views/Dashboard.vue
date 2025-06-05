@@ -1,5 +1,5 @@
 <script setup>  
-    import { ref } from 'vue'
+    import { onMounted, ref } from 'vue'
     import { useRouter } from 'vue-router'
     import { Icon } from '@iconify/vue'
 
@@ -7,7 +7,28 @@
     import BodyMetrics from '@/components/BodyMetrics.vue'
     import WeeklySchedule from '@/components/WeeklySchedule.vue'
 
+    import { API_PATHS } from '../api_paths'
+    import axios from 'axios'
+
     const router = useRouter()
+
+    const professor = ref(null)
+
+    const fetchProfessor = async () => {
+        try {
+            const response = await axios.get(API_PATHS.GET_PROFESSOR, {
+                withCredentials: true,
+            })
+            professor.value = response.data
+            console.log('Professor data fetched:', professor.value)
+        } catch (error) {
+            console.error('Error fetching professor data:', error)
+        }
+    }
+
+    onMounted(() => {
+        fetchProfessor()
+    })
 
 </script>
 
@@ -39,7 +60,7 @@
                 </div> 
 
                 <!-- card with trainer info (if has one)-->
-                <div class="card">
+                <div class="card" v-if="professor">
                     <h2>Your Trainer</h2>
                     <div class="trainer-info">
                         <div class="trainer-card">
@@ -47,8 +68,8 @@
                                 <img src="../assets/13.jpg" alt="Trainer Image" />
                             </div>
                             <div class="trainer-details">
-                                <h3>Trainer Name</h3>
-                                <p> Number </p>
+                                <h3>{{ professor.name }}</h3>
+                                <p>{{ professor.email }}</p>
                             </div>
                         </div>
                     </div>

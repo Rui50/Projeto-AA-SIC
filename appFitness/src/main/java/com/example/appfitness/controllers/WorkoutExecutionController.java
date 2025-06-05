@@ -7,6 +7,7 @@ import com.example.appfitness.services.ExerciseService;
 import com.example.appfitness.services.UserService;
 import com.example.appfitness.services.WorkoutExecutionService;
 import com.example.appfitness.services.WorkoutPlanService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -77,6 +78,29 @@ public class WorkoutExecutionController {
         }
     }
 
+    @PutMapping("/sets/{setExecutionId}")
+    public ResponseEntity<SetExecutionResponseDTO> updateSetExecution(
+            @PathVariable Integer setExecutionId,
+            @RequestBody SetExecutionRequestDTO setExecutionDTO) {
+        try {
+            SetExecution setExecutionDetails = new SetExecution();
+            setExecutionDetails.setRepsPerformed(setExecutionDTO.getRepsPerformed());
+            setExecutionDetails.setWeightPerformed(setExecutionDTO.getWeightPerformed());
+            setExecutionDetails.setResTimePerformed(setExecutionDTO.getRestTimePerformed());
+
+            SetExecution updatedSet = workoutExecutionService.updateSetExecution(
+                    setExecutionId,
+                    setExecutionDetails
+            );
+            return ResponseEntity.ok(SetExecutionResponseDTO.fromEntity(updatedSet));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (RuntimeException e) {
+            System.err.println("Error updating set execution " + setExecutionId + ": " + e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     /*
     @PostMapping("/start")
     public ResponseEntity<WorkoutExecutionResponseDTO> startWorkout(@RequestBody WorkoutExecutionStartRequestDTO startDTO) {
@@ -120,6 +144,7 @@ public class WorkoutExecutionController {
     @GetMapping("/{id}")
     public ResponseEntity<WorkoutExecutionResponseDTO> getWorkoutExecutionById(@PathVariable Integer id) {
         try {
+            System.out.println("Received request to retrieve workout execution by id. ID: " + id);
             WorkoutExecutionResponseDTO responseDTO = workoutExecutionService.getWorkoutExecutionById(id);
             return ResponseEntity.ok(responseDTO);
         } catch (RuntimeException e) {

@@ -3,6 +3,7 @@ package com.example.appfitness.services;
 import com.example.appfitness.DTOs.WorkoutExecution.*;
 import com.example.appfitness.models.*;
 import com.example.appfitness.repositories.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.hibernate.jdbc.Work;
 import org.springframework.data.domain.Page;
@@ -118,10 +119,11 @@ public class WorkoutExecutionService {
         WorkoutExecution workoutExecution = workoutExecutionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("WorkoutExecution not found with id " + id));
 
-        // converter para dto para popularmos
+        // converter para dto e popula com fromEntity ( a parte do exercise execution)
         WorkoutExecutionResponseDTO responseDTO = WorkoutExecutionResponseDTO.fromEntity(workoutExecution);
 
-        List<ExerciseExecutionResponseDTO> exerciseExecutions = responseDTO.getExerciseExecutions();
+        // cria nova lista que vai ficar com os DTOS
+        List<ExerciseExecutionResponseDTO> exerciseExecutions = new ArrayList<>();
 
         // para cada ExerciseExecution associada a este workout execution, construir o DTO e meter os previous data se exister
         for (ExerciseExecution ex : workoutExecution.getExerciseExecutions()) {
@@ -134,24 +136,27 @@ public class WorkoutExecutionService {
                             workoutExecution.getUser().getId(),
                             ex.getExerciseData().getId());
 
-            if (previousExerciseExecutions != null) {
-                // fetch one the latest one
+            if (previousExerciseExecutions != null && !previousExerciseExecutions.isEmpty()) {
                 ExerciseExecution previousExerciseExecution = previousExerciseExecutions.get(0);
-                List<PreviousPerformedDTO> previousPerformedDTOList = previousExerciseExecution
-                        .getPerformedSets()
-                        .stream()
-                        .map(setExecution -> {
-                            PreviousPerformedDTO previousPerformedDTO = new PreviousPerformedDTO();
-                            previousPerformedDTO.setSetNumber(setExecution.getSetNumber());
-                            previousPerformedDTO.setPreviousRepsPerformed(setExecution.getRepsPerformed());
-                            previousPerformedDTO.setPreviousWeightPerformed(setExecution.getWeightPerformed());
-                            return previousPerformedDTO;
-                        })
-                        .toList();
 
-                eeDTO.setPreviousPerformed(previousPerformedDTOList);
-            }
-            else {
+                if (previousExerciseExecution.getPerformedSets() == null || previousExerciseExecution.getPerformedSets().isEmpty()) {
+                    eeDTO.setPreviousPerformed(new ArrayList<>());
+                } else {
+                    List<PreviousPerformedDTO> previousPerformedDTOList = previousExerciseExecution
+                            .getPerformedSets()
+                            .stream()
+                            .map(setExecution -> {
+                                PreviousPerformedDTO previousPerformedDTO = new PreviousPerformedDTO();
+                                previousPerformedDTO.setSetNumber(setExecution.getSetNumber());
+                                previousPerformedDTO.setPreviousRepsPerformed(setExecution.getRepsPerformed());
+                                previousPerformedDTO.setPreviousWeightPerformed(setExecution.getWeightPerformed());
+                                return previousPerformedDTO;
+                            })
+                            .toList();
+
+                    eeDTO.setPreviousPerformed(previousPerformedDTOList);
+                }
+            } else {
                 eeDTO.setPreviousPerformed(new ArrayList<>());
             }
             exerciseExecutions.add(eeDTO);
@@ -287,12 +292,20 @@ public class WorkoutExecutionService {
 
         return setExecutionRepository.save(setExecution);
     }
-    /*
+
     @Transactional
     // provavelmente vai ser necessário.
-    public SetExecution updateSetExecution(Integer workoutExecutionId, SetExecution setExecutionDetails) {
+    public SetExecution updateSetExecution(Integer setExecutionId, SetExecution setExecutionDetails) {
+        SetExecution existingSetExecution = setExecutionRepository.findById(setExecutionId)
+                .orElseThrow(() -> new EntityNotFoundException("Set execution not found with ID: " + setExecutionId));
 
-    }*/
+        existingSetExecution.setRepsPerformed(setExecutionDetails.getRepsPerformed());
+        existingSetExecution.setWeightPerformed(setExecutionDetails.getWeightPerformed());
+        existingSetExecution.setResTimePerformed(setExecutionDetails.getResTimePerformed());
+        existingSetExecution.setCompleted(true);
+
+        return setExecutionRepository.save(existingSetExecution);
+    }
 
     public Optional<ExerciseExecution> getExerciseExecutionById(Integer id) {
         return exerciseExecutionRepository.findById(id);

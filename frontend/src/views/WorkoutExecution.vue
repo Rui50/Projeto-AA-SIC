@@ -90,7 +90,9 @@ const fetchWorkoutExecution = async () => {
     }
 
         try {
+        console.log('Fetching workout execution data from API... ', API_PATHS.GET_WORKOUT_EXECUTION_BY_ID(executionId));
         const response = await axios.get(API_PATHS.GET_WORKOUT_EXECUTION_BY_ID(executionId), {
+            withCredentials: true,
             headers: { Authorization: `Bearer ${userStore.getToken}` }
         });
         workoutExecution.value = response.data;
@@ -177,6 +179,8 @@ const fetchWorkoutExecution = async () => {
     }
 };
 
+const updatingCount = ref(0);
+
 
 // selects an exercise from the list on the left 
 const selectExercise = (index) => {
@@ -206,13 +210,25 @@ const completeSet = async (plannedSet, setIndex) => {
             plannedSetId: plannedSet.id || null
         };
 
-        console.log('Recording set execution:', setExecutionDTO);
+        let response;
+                console.log('Recording set execution:', setExecutionDTO);
 
-        const response = await axios.post(
-            API_PATHS.RECORD_SET_EXECUTION(currentExercise.value.id),
-            setExecutionDTO,
-            { headers: { Authorization: `Bearer ${userStore.getToken}` } }
-        );
+
+        if (plannedSet.id && updatingCount.value > 0) {
+            response = await axios.put(
+                API_PATHS.UPDATE_SET_EXECUTION(plannedSet.id),
+                setExecutionDTO,
+                { withCredentials: true }
+            );
+            updatingCount.value--;
+        }
+        else{
+            response = await axios.post(
+                API_PATHS.RECORD_SET_EXECUTION(currentExercise.value.id),
+                setExecutionDTO,
+                { withCredentials: true }
+            );
+        }
 
         const recordedSet = response.data;
         console.log('Set recorded successfully:', recordedSet);
@@ -514,8 +530,26 @@ watch(workoutExecution, (newValue) => {
                                     </td>
                                     <td>{{ set.restTimeSugested || '-' }} s</td>
                                     <td>
-                                        <Icon v-if="set.completed" icon="mdi:check-circle" width="24" height="24" style="color: green;" />
-                                        <button v-else class="btn-complete" @click="completeSet(set, setIndex)">Record Set</button>
+                                        <div class="set-actions">
+                                        <template v-if="set.completed">
+                                            <Icon
+                                                icon="mdi:check-circle"
+                                                width="24"
+                                                height="24"
+                                                style="color: green;"
+                                            />
+                                            <Icon
+                                                icon="mdi:pencil"
+                                                width="24"
+                                                height="24"
+                                                style="color: #007bff; cursor: pointer; margin-left: 8px;"
+                                                @click="set.completed = false, updatingCount++"
+                                            />
+                                        </template>
+                                        <button v-else class="btn-complete" @click="completeSet(set, setIndex)">
+                                            Record Set
+                                        </button>
+                                        </div>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -555,7 +589,7 @@ watch(workoutExecution, (newValue) => {
                 >
                 Go Back
                 </button>
-  </div>
+            </div>
         </div>
         <div v-else class="no-workout-data">
             <p>No active workout execution data available.</p>

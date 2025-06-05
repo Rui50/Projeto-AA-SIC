@@ -21,6 +21,8 @@ export const API_PATHS = {
     FINISH_WORKOUT: (id) => `${API_BASE_URL}/api/workout-executions/${id}/finish`,
     GET_WORKOUT_EXECUTION_BY_ID: (id) => `${API_BASE_URL}/api/workout-executions/${id}`,
     RECORD_SET_EXECUTION: (exerciseExecutionId) => `${API_BASE_URL}/api/workout-executions/exercises/${exerciseExecutionId}/sets`,
+    UPDATE_SET_EXECUTION: (setId) => `${API_BASE_URL}/api/workout-executions/sets/${setId}`,
+
     WeeklySchedule: `${API_BASE_URL}/api/workout-plans/weekly-schedule/active`,
     
     EXERCISES_LIBRARY: `${API_BASE_URL}/api/exercises`,

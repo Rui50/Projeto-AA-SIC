@@ -25,7 +25,6 @@
 
     const selectExercise = (exercise) => {
         emit("exercise-selected", exercise)
-        closePopup()
     }
 
     const closePopup = () => {

@@ -42,7 +42,12 @@ public class ExerciseExecution {
     @OneToMany(mappedBy = "exerciseExecution", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SetExecution> performedSets = new ArrayList<>();
 
+    // nao deve ser necessário
     public enum Status {
         NOT_STARTED,
+        IN_PROGRESS,
+        COMPLETED,
+        SKIPPED,
+        CANCELLED
     }
 }

@@ -31,4 +31,9 @@ public interface ExerciseExecutionRepository extends JpaRepository<ExerciseExecu
             Integer userId,
             Integer exerciseDataId
     );
+
+    @Query("SELECT ee FROM ExerciseExecution ee " +
+            "JOIN FETCH ee.exerciseData ed " +
+            "WHERE ee.workoutExecution.id IN :workoutExecutionIds")
+    List<ExerciseExecution> findByWorkoutExecutionIdsWithExerciseData(List<Integer> workoutExecutionIds);
 }

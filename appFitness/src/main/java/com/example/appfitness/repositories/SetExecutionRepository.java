@@ -31,4 +31,7 @@ public interface SetExecutionRepository extends JpaRepository<SetExecution, Inte
             LocalDateTime startDate,
             LocalDateTime endDate
     );
+
+    @Query("SELECT ses FROM SetExecution ses WHERE ses.exerciseExecution.id IN :exerciseExecutionIds")
+    List<SetExecution> findByExerciseExecutionIds(List<Integer> exerciseExecutionIds);
 }

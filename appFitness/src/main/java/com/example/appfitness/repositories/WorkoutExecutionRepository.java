@@ -2,6 +2,7 @@ package com.example.appfitness.repositories;
 
 import com.example.appfitness.models.User;
 import com.example.appfitness.models.WorkoutExecution;
+import com.example.appfitness.models.SetExecution;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -71,4 +72,17 @@ public interface WorkoutExecutionRepository extends JpaRepository<WorkoutExecuti
             Pageable pageable);
 
     Page<WorkoutExecution> findByUser(User user, Pageable pageable);
+
+    @Query("SELECT we FROM WorkoutExecution we " +
+            "JOIN FETCH we.workoutPlan wp " +
+            "WHERE we.user.id = :userId " +
+            "AND we.status = :status " +
+            "AND we.executionDate BETWEEN :startDate AND :endDate " +
+            "ORDER BY we.executionDate ASC, wp.id ASC")
+    List<WorkoutExecution> findCompletedWorkoutExecutionsWithWorkoutPlan(
+            Integer userId,
+            WorkoutExecution.WorkoutStatus status,
+            LocalDate startDate,
+            LocalDate endDate
+    );
 }

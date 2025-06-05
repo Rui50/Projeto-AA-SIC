@@ -2,7 +2,7 @@
   <div class="schedule-card">
     <div class="schedule-header">
       <h3>Weekly Schedule</h3>
-      <a href="#" class="calendar-link">View Calendar</a>
+      <!--<a href="#" class="calendar-link">View Calendar</a>-->
     </div>
     <div class="schedule-grid">
       <div
@@ -18,9 +18,6 @@
               <span class="dot"></span>
               {{ event }}
             </div>
-          </template>
-          <template v-else>
-            <div class="day-event day-event--empty">Sem treino</div>
           </template>
         </div>
       </div>

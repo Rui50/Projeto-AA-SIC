@@ -59,7 +59,7 @@
             <div class="main-section">
                 <NextWorkout/>
 
-                <!--Calender here -->
+                <WeeklySchedule/>
 
                 <!--Recent activity-->
             </div>

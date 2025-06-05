@@ -5,6 +5,7 @@
 
     import NextWorkout from '@/components/NextWorkout.vue'
     import BodyMetrics from '@/components/BodyMetrics.vue'
+    import WeeklySchedule from '@/components/WeeklySchedule.vue'
 
     const router = useRouter()
 

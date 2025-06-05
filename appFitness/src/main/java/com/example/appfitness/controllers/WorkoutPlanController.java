@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/workout-plans")
@@ -197,5 +200,13 @@ public class WorkoutPlanController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/weekly-schedule/active")
+    public ResponseEntity<?> getActiveWeeklySchedule() {
+        // Método novo no service que retorna Map<String, List<String>> (ver abaixo)
+        Map<String, List<String>> schedule = workoutPlanService.getActiveWorkoutPlansByDay();
+
+    return ResponseEntity.ok(schedule);
+}
 
 }

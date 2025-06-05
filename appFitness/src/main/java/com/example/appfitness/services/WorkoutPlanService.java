@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.time.DayOfWeek;
 
 /**
  * Serviço responsavel por gerenciar o Workoutplan, exerciseData e SetData
@@ -266,6 +267,29 @@ public class WorkoutPlanService {
             }
         }
         return WorkoutPlanResponseDTO.fromEntity(workoutPlan, createdByUserName);
+    }
+
+    @Transactional
+    public Map<String, List<String>> getActiveWorkoutPlansByDay() {
+        List<WorkoutPlan> activePlans = workoutPlanRepository.findAllActive();
+
+
+        Map<String, List<String>> schedule = new HashMap<>();
+        for (WorkoutPlan plan : activePlans) {
+            // Aqui assume-se que `getScheduledDays()` devolve uma List<String> tipo ["MONDAY", "WEDNESDAY"]
+            if (plan.getScheduledDays() != null) {
+                for (DayOfWeek day : plan.getScheduledDays()) {
+                    String dayStr = capitalize(day.toString().toLowerCase());
+                    schedule.computeIfAbsent(dayStr, k -> new ArrayList<>()).add(plan.getName());
+                }
+            }
+        }
+        return schedule;
+    }
+
+    // Helper para capitalizar só a primeira letra
+    private String capitalize(String str) {
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 }
 

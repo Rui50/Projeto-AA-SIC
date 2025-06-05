@@ -24,7 +24,7 @@ public class AlunoController {
 
     @GetMapping
     public List<AlunoDTO> getAllAlunos() {
-        return alunoService.getAllAlunos();
+        return alunoService.findAlunosWithoutProfessor();
     }
 
     @GetMapping("/{id}")

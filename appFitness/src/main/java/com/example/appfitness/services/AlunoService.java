@@ -63,8 +63,11 @@ public class AlunoService {
         return alunoRepository.findByProfessor(professorId);
     }
 
-    public List<Aluno> findAlunosWithoutProfessor() {
-        return alunoRepository.findAlunosWithoutProfessor();
+    public List<AlunoDTO> findAlunosWithoutProfessor() {
+       // return alunoRepository.findAlunosWithoutProfessor();
+        return alunoRepository.findAlunosWithoutProfessor().stream()
+                .map(AlunoDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional

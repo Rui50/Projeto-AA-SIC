@@ -54,13 +54,19 @@ public class WorkoutExecutionController {
     }
 
     @PostMapping("/start")
-    public ResponseEntity<WorkoutExecutionResponseDTO> startWorkout(@RequestBody WorkoutExecutionStartRequestDTO startDTO) {
+    public ResponseEntity<?> startWorkout(@RequestBody WorkoutExecutionStartRequestDTO startDTO) {
         try {
             System.out.println("Received request to start workout. DTO: " + startDTO.toString());
 
             if (startDTO.getUserId() == null || startDTO.getWorkoutPlanId() == null) {
                 System.err.println("ERROR: Invalid startDTO: userId or workoutPlanId is null. DTO: " + startDTO.toString());
-                return null;
+                return ResponseEntity.badRequest().build();
+            }
+
+            // Verificação de workout em andamento
+            if (workoutExecutionService.hasWorkoutInProgress(startDTO.getUserId())) {
+                System.err.println("User already has a workout in progress. Blocking new workout.");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("User already has a workout in progress.");
             }
 
             System.out.println("Calling workoutExecutionService.startWorkout with userId=" + startDTO.getUserId() + " and workoutPlanId=" + startDTO.getWorkoutPlanId());
@@ -74,7 +80,7 @@ public class WorkoutExecutionController {
         } catch (RuntimeException e) {
             System.err.println("ERROR: RuntimeException occurred while starting workout for DTO: " + startDTO.toString());
             e.printStackTrace();
-            return null;
+            return ResponseEntity.badRequest().build();
         }
     }
 

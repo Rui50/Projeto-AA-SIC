@@ -327,4 +327,9 @@ public class WorkoutExecutionService {
         workoutExecutionRepository.deleteById(executionId);
     }
 
+    public boolean hasWorkoutInProgress(Integer userId) {
+        return workoutExecutionRepository.existsInProgressByUserId(userId);
+    }
+
+
 }

@@ -85,4 +85,8 @@ public interface WorkoutExecutionRepository extends JpaRepository<WorkoutExecuti
             LocalDate startDate,
             LocalDate endDate
     );
+
+    // Check if there is an in-progress workout execution for a user
+    @Query("SELECT COUNT(we) > 0 FROM WorkoutExecution we WHERE we.user.id = :userId AND we.status = 'IN_PROGRESS'")
+    boolean existsInProgressByUserId(Integer userId);
 }

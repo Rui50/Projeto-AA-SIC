@@ -3,6 +3,7 @@
     import WorkoutCard from '@/components/WorkoutCard.vue'
     import { ref, onMounted } from 'vue'
     import { useUserStore } from '@/stores/userStore'
+    import { useWorkoutStore } from '@/stores/workoutStore'
     import { useRoute } from 'vue-router'
     import { useRouter } from 'vue-router'
     import { Icon } from "@iconify/vue";
@@ -13,6 +14,7 @@
     const route = useRoute()
     const router = useRouter()
     const userStore = useUserStore();
+    const workoutStore = useWorkoutStore();
 
     const showCreateWorkoutPopup = ref(false)
     const ToggleCreateWorkoutPopup = () => {
@@ -20,11 +22,12 @@
     }
 
     // placeholders
+    /*
     const activeWorkouts = ref([])
     const inactiveWorkouts = ref([])
 
     const activeWorkoutsCount = ref(0)
-    const inactiveWorkoutsCount = ref(0)
+    const inactiveWorkoutsCount = ref(0)*/
 
     const handleCreateWorkout = async (workoutName) => {
         ToggleCreateWorkoutPopup();
@@ -47,6 +50,7 @@
             
             const createdWorkout = response.data;
             console.log('Workout created:', createdWorkout);
+            workoutStore.addWorkout(createdWorkout);
             // await fetchWorkouts();
             router.push(`/workout/edit/${createdWorkout.id}`);
         }
@@ -58,7 +62,10 @@
 
     const fetchWorkouts = async () => {
         // meter numa store?
-
+        if (workoutStore.getWorkoutPlans.length > 0) {
+            console.log('Workouts already fetched, skipping API call.');
+            return;
+        }
         try {
             const response = await axios.get(
                 `${API_PATHS.GET_WORKOUTS}${userStore.getUserId}`,
@@ -70,7 +77,9 @@
             );
             const workouts = response.data;
 
-            activeWorkouts.value = workouts.filter(w => w.active);
+            workoutStore.setWorkoutPlans(workouts);
+
+            /*activeWorkouts.value = workouts.filter(w => w.active);
             inactiveWorkouts.value = workouts.filter(w => !w.active);
 
             activeWorkoutsCount.value = activeWorkouts.value.length;
@@ -78,7 +87,7 @@
 
             console.log('Fetched workouts:', workouts);
             console.log('Active workouts:', activeWorkouts.value);
-            console.log('Inactive workouts:', inactiveWorkouts.value);
+            console.log('Inactive workouts:', inactiveWorkouts.value);*/
 
         } catch (error) {
             console.error('Error fetching workouts:', error);
@@ -98,7 +107,8 @@
                 }
             });
             console.log('Workout activated:', workoutId);
-            await fetchWorkouts();
+            workoutStore.updateWorkoutStatus(workoutId, true);
+            //await fetchWorkouts();
         } catch (error) {
             console.error('Error activating workout:', error);
             alert('Failed to activate workout. Please try again.');
@@ -113,7 +123,8 @@
                 }
             });
             console.log('Workout deactivated:', workoutId);
-            await fetchWorkouts();
+            workoutStore.updateWorkoutStatus(workoutId, false);
+            //await fetchWorkouts();
         } catch (error) {
             console.error('Error deactivating workout:', error);
             alert('Failed to deactivate workout. Please try again.');
@@ -138,44 +149,44 @@
                 <Icon icon="mdi:information-outline" width="20" />
                 <span class="tooltip">Active workouts are currently in use and will show on your calendar if they have a scheduled time</span>
             </div>
-            <span class="workouts-count"> {{ activeWorkoutsCount }}</span>
+            <span class="workouts-count"> {{ workoutStore.getActiveWorkoutsCount }}</span>
         </div>
 
             <div class="workouts-grid-container"> <WorkoutCard
-                    v-for="workout in activeWorkouts"
+                    v-for="workout in workoutStore.getActiveWorkoutPlans"
                     :key="workout.id"
                     :workout="workout"
                     @activate-workout="handleActivateWorkout"
                     @deactivate-workout="handleDeactivateWorkout"
                 />
             </div>
-            
-            <div v-if="activeWorkoutsCount === 0" class="no-workouts-message">
+
+            <div v-if="workoutStore.getActiveWorkoutsCount === 0" class="no-workouts-message">
                 No active workouts found. Create one or activate an existing workout!
             </div>
 
-            <div class="separator" v-if="inactiveWorkoutsCount > 0 || activeWorkoutsCount > 0"></div> 
+            <div class="separator" v-if="workoutStore.getInactiveWorkoutsCount > 0 || workoutStore.getActiveWorkoutsCount > 0"></div>
             <div class="workouts-header-list">
             <h2>Other Workouts</h2>
             <div class="info-icon">
                 <Icon icon="mdi:information-outline" width="20" />
                 <span class="tooltip">Other workouts are inactive and can be activated when needed</span>
             </div>
-            <span class="workouts-count"> {{ inactiveWorkoutsCount }}</span>
+            <span class="workouts-count"> {{ workoutStore.getInactiveWorkoutsCount }}</span>
         </div>
 
             <div class="workouts-grid-container"> <WorkoutCard
-                    v-for="workout in inactiveWorkouts"
+                    v-for="workout in workoutStore.getInactiveWorkoutPlans"
                     :key="workout.id"
                     :workout="workout"
                     @activate-workout="handleActivateWorkout"
                     @deactivate-workout="handleDeactivateWorkout"
                 />
             </div>
-            <div v-if="inactiveWorkoutsCount === 0 && activeWorkoutsCount > 0" class="no-workouts-message">
+            <div v-if="workoutStore.getInactiveWorkoutsCount === 0 && workoutStore.getActiveWorkoutsCount > 0" class="no-workouts-message">
                 No other workouts found.
             </div>
-             <div v-if="inactiveWorkoutsCount === 0 && activeWorkoutsCount === 0" class="no-workouts-message">
+             <div v-if="workoutStore.getInactiveWorkoutsCount === 0 && workoutStore.getActiveWorkoutsCount === 0" class="no-workouts-message">
                     No workouts found. Start by creating a new workout!
             </div>
         </div>

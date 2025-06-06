@@ -1,12 +1,16 @@
-# backend
+# Backend
 
 ## Project Setup
+
+Para instalar as dependências e compilar o projeto:
 
 ```sh
 ./mvnw clean install
 ```
 
-### Compile abd Run
+### Run the Application
+
+Para iniciar a aplicação localmente:
 
 ```sh
 ./mvnw spring-boot:run

@@ -569,21 +569,21 @@ watch(workoutExecution, (newValue) => {
 
             <div class="workout-btns">
                 <button
-                    v-if="workoutExecution.status !== 'COMPLETED'"
+                    v-if="workoutExecution.status === 'IN_PROGRESS'"
                     class="btn cancel"
                     @click="cancelWorkout"
                 >
                 Cancel Workout
                 </button>
                 <button
-                    v-if="workoutExecution.status !== 'COMPLETED'"
+                    v-if="workoutExecution.status === 'IN_PROGRESS'"
                     class="btn complete"
                     @click="completeWorkout"
                 >
                 Complete Workout
                 </button>
                 <button
-                    v-if="workoutExecution.status === 'COMPLETED'"
+                    v-if="workoutExecution.status !== 'IN_PROGRESS'"
                     class="btn primary"
                     @click="router.back()"
                 >

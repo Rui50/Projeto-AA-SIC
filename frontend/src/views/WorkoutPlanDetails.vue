@@ -10,6 +10,8 @@ import { API_PATHS } from '../api_paths';
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const hasWorkoutInProgress = ref(false);
+
 
 const workoutPlanDetails = ref(null);
 const isLoading = ref(true);
@@ -101,7 +103,24 @@ const startWorkout = async () => {
     }
 };
 
-onMounted(fetchWorkoutPlanDetails);
+const checkWorkoutInProgress = async () => {
+    try {
+        const userId = userStore.getUserId;
+        const response = await axios.get(API_PATHS.CHECK_WORKOUT_IN_PROGRESS(userId));
+        console.log('Response data:' + response.data);
+        hasWorkoutInProgress.value = response.data === true;
+    } catch (err) {
+        console.error('Error checking workout progress:', err);
+        hasWorkoutInProgress.value = false;
+    }
+};
+
+
+onMounted(async () => {
+    await fetchWorkoutPlanDetails();
+    await checkWorkoutInProgress();
+});
+
 </script>
 
 <template>
@@ -190,8 +209,19 @@ onMounted(fetchWorkoutPlanDetails);
 
             <div class="workout-btns">
                 <button class="btn cancel" @click="router.push('/workouts')">Back to Plans</button>
-                <button class="btn complete" @click="startWorkout">Start Workout</button>
+                <button
+                        class="btn complete"
+                        @click="startWorkout"
+                        :disabled="hasWorkoutInProgress"
+                        :class="{ 'disabled-btn': hasWorkoutInProgress }"
+                    >
+                        Start Workout
+                </button>
             </div>
+            <p v-if="hasWorkoutInProgress" class="error-message">
+                <font-awesome-icon :icon="['fas', 'exclamation-triangle']" />
+                You already have an active workout in progress.
+            </p>
         </div>
         <div v-else class="no-workout-data">
             <p>No workout plan found.</p>
@@ -492,5 +522,26 @@ onMounted(fetchWorkoutPlanDetails);
             flex: auto;
             min-width: unset;
         }
+    }
+
+    .disabled-btn {
+            background-color: #e9ecef !important;
+            color: #6c757d !important;
+            cursor: not-allowed;
+            border-color: #dee2e6 !important;
+            opacity: 0.8;
+        }
+
+    .error-message {
+            color: #dc3545;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            padding: 0.75rem 1rem;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 0.25rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
     }
 </style>

@@ -53,6 +53,12 @@ public class WorkoutExecutionController {
         this.exerciseService = exerciseService;
     }
 
+    @GetMapping("/in-progress/{userId}")
+    public ResponseEntity<Boolean> hasWorkoutInProgress(@PathVariable Integer userId) {
+        boolean inProgress = workoutExecutionService.hasWorkoutInProgress(userId);
+        return ResponseEntity.ok(inProgress);
+    }
+
     @PostMapping("/start")
     public ResponseEntity<?> startWorkout(@RequestBody WorkoutExecutionStartRequestDTO startDTO) {
         try {

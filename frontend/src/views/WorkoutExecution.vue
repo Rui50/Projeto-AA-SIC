@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Icon } from '@iconify/vue';
 import WorkoutCompleted from '@/components/WorkoutCompleted.vue'; 
 import { API_PATHS } from '../api_paths';
+import Loading from '@/components/Loading.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -257,26 +258,21 @@ const completeSet = async (plannedSet, setIndex) => {
 };
 
 const getExerciseExecutionStatus = (exerciseExecution) => {
-    if (!exerciseExecution || !exerciseExecution.exerciseData || !exerciseExecution.exerciseData.plannedSets) {
-        return 'NOT_STARTED';
-    }
-
     const totalPlannedSets = exerciseExecution.exerciseData.plannedSets.length;
     
-    const completedPlannedSetsCount = exerciseExecution.performedSets?.filter(setExec =>
-        setExec.plannedSetId && exerciseExecution.exerciseData.plannedSets.some(ps => ps.id === setExec.plannedSetId)
-    ).length || 0;
+    const completedPerformedSets = exerciseExecution.performedSets?.filter(setExec => setExec.completed).length || 0;
 
-    // sets without plannedSetId are new sets
-    const newSets = exerciseExecution.performedSets?.filter(setExec => !setExec.plannedSetId)?.length || 0;
-
-    if (completedPlannedSetsCount === 0 && newSets === 0) {
+    if (completedPerformedSets === 0) {
         return 'NOT_STARTED';
-    } else if (completedPlannedSetsCount >= totalPlannedSets && totalPlannedSets > 0) {
+    } 
+    else if (totalPlannedSets > 0 && 
+             exerciseExecution.exerciseData.plannedSets.every(set => set.completed)) {
         return 'COMPLETED';
     }
-    return 'NOT_STARTED';
-    };
+    else {
+        return 'IN_PROGRESS';
+    }
+};
 
 // adds a new set to the current exercise
 const addSet = () => {
@@ -423,9 +419,10 @@ watch(workoutExecution, (newValue) => {
     }
 }, { deep: true })
 </script>
+
 <template>
     <div class="workout-live-page">
-        <div v-if="isLoading" class="loading-state">Loading workout details...</div>
+        <Loading v-if="isLoading" />
         <div v-else-if="error" class="error-state">{{ error }}</div>
         <div v-else-if="workoutExecution" class="execution-content">
             <div class="workout-header">
@@ -463,8 +460,6 @@ watch(workoutExecution, (newValue) => {
                         <div class="exercise-muscle"> {{ exerciseExecution.exerciseData?.exercise?.muscleGroup || 'N/A' }}</div>
                         <div class="exercise-status">
                             <Icon v-if="getExerciseExecutionStatus(exerciseExecution) === 'COMPLETED'" icon="mdi:check-circle" width="20" height="20" style="color: green;" />
-                            <!--<Icon v-else-if="getExerciseExecutionStatus(exerciseExecution) === ''" icon="mdi:circle-half-full" width="20" height="20" style="color: orange;" /> -->
-                            <Icon v-else icon="mdi:circle-outline" width="20" height="20" style="color: gray;" />
                         </div>
                     </div>
                     <div v-if="!workoutExecution.exerciseExecutions || workoutExecution.exerciseExecutions.length === 0" class="no-exercises-message">
@@ -610,13 +605,11 @@ watch(workoutExecution, (newValue) => {
 
     .workout-live-page {
         padding: 1.5rem;
-        max-width: 1600px; 
+        max-width: 1500px; 
         margin: 0 auto;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         color: #333;
-        background-color: #f8f9fa;
         border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     .loading-state, .error-state, .no-workout-data {

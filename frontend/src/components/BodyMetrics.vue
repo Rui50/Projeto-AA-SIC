@@ -30,6 +30,11 @@
         togglePopup()
     }
 
+    const cancelUpdate = () => {
+        togglePopup()
+        fetchLatestMetrics()
+    }
+
     const fetchLatestMetrics = async () => {
         try {
             const response = await axios.get(API_PATHS.GET_LATEST_BODYMETRICS(userStore.getUserId), {
@@ -58,10 +63,17 @@
      */
     const updateBodyMetrics = async () => {
         try {
+            console.log('Updating body metrics with:', {
+                userId: userStore.getUserId,
+                height: height.value,
+                weight: weight.value,
+                bodyFatPercentage: parseFloat(bodyFat.value),
+            })
+
             const payload = {
                 userId: userStore.getUserId, // nao é preciso se usarmos as cookies
-                height: isImperial.value ? convertImperialToMetric(height.value, 'height') : parseFloat(height.value),
-                weight: isImperial.value ? convertImperialToMetric(weight.value, 'weight') : parseFloat(weight.value),
+                height: height.value,
+                weight: weight.value,
                 bodyFatPercentage: parseFloat(bodyFat.value),
             }
 
@@ -95,30 +107,41 @@
     }  
 
     const weightUnit = computed(() => isImperial.value ? 'lbs' : 'kg')
-    const weightFix = computed(() => {
-        console.log(`Current weight: ${weight.value}, isImperial: ${isImperial.value}`);
-
-        let returnValue = weight.value;
-        if (isImperial.value) {
-            returnValue = convertMetricToImperial(weight.value, 'weight');
+    const weightFix = computed({
+        get() {
+            if (isImperial.value) {
+                return convertMetricToImperial(weight.value, 'weight');
+            } else {
+                return weight.value;
+            }
+        },
+        set(val) {
+            if (isImperial.value) {
+                weight.value = convertImperialToMetric(val, 'weight');
+            } else {
+                weight.value = parseFloat(val);
+            }
         }
-
-        console.log(`Returning weight: ${returnValue} ${isImperial.value ? 'lbs' : 'kg'}`);
-        return returnValue;
     });
     
     const heightUnit = computed(() => isImperial.value ? 'in' : 'cm')
-    const heightFix = computed(() => {
-        console.log(`Current height: ${height.value}, isImperial: ${isImperial.value}`);
-
-        let returnValue = height.value;
-        if (isImperial.value) {
-            returnValue = convertMetricToImperial(height.value, 'height');
+    const heightFix = computed({
+        get() {
+            if (isImperial.value) {
+                return convertMetricToImperial(height.value, 'height');
+            } else {
+                return height.value;
+            }
+        },
+        set(val) {
+            if (isImperial.value) {
+                height.value = convertImperialToMetric(val, 'height');
+            } else {
+                height.value = parseFloat(val);
+            }
         }
-
-        console.log(`Returning height: ${returnValue} ${isImperial.value ? 'in' : 'cm'}`);
-        return returnValue;
     });
+
 
 </script>
 
@@ -154,27 +177,18 @@
                 <h3>Update Body Metrics</h3>
                 <div class="input-group">
                     <label>Weight ({{ weightUnit }})</label>
-                    <input v-model="weight" type="number" />
+                    <input v-model="weightFix" type="number" min="0" step="0.1" />
                 </div>
                 <div class="input-group">
                     <label>Height ({{ heightUnit }})</label>
-                    <input v-model="height" type="number" />
+                    <input v-model="heightFix" type="number" min="0" step="0.1" />
                 </div>
                 <div class="input-group">
                     <label>Body Fat (%)</label>
                     <input v-model="bodyFat" type="number" />
-                </div>
-                <!-- Temporario apenas para testar mudanca de metrica
-                    <div class="input-group">
-                        <label>Unit System</label>
-                        <select v-model="localMetricType">
-                            <option value="METRIC">Metric (kg / cm)</option>
-                            <option value="IMPERIAL">Imperial (lbs / in)</option>
-                        </select>
-                    </div>
-                -->                
+                </div>             
                 <div class="popup-actions">
-                    <button class="button secondary" @click="togglePopup">Cancel</button>
+                    <button class="button secondary" @click="cancelUpdate">Cancel</button>
                     <button class="button primary" @click="updateMetrics">Save</button>
                 </div>
             </div>

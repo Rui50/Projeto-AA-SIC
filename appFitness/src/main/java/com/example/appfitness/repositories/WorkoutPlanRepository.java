@@ -30,6 +30,8 @@ public interface WorkoutPlanRepository extends JpaRepository<WorkoutPlan, Intege
 
     List<WorkoutPlan> findByOwnerIdAndScheduleType(Integer ownerId, WorkoutPlan.WorkoutScheduleType scheduleType);
 
+    List<WorkoutPlan> findByOwnerIdAndScheduleTypeAndActiveTrue(Integer ownerId, WorkoutPlan.WorkoutScheduleType scheduleType);
+
     // pega em todos os ativos (para mostrar no calendário geral)
     @Query("SELECT wp FROM WorkoutPlan wp WHERE wp.active = TRUE AND wp.isDeleted = FALSE")
     List<WorkoutPlan> findAllActive();

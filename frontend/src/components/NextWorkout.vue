@@ -54,7 +54,19 @@ const formattedStartTime = computed(() => {
 const formattedNextScheduledDate = computed(() => {
     if (workout.value.status === 'SCHEDULED' && workout.value.nextScheduledWorkout) {
         const date = new Date(workout.value.nextScheduledWorkout);
-        return date.toLocaleDateString('en-US', {
+        const today = new Date();
+
+        // Verifica se é o mesmo dia (ano, mês, dia)
+        const isToday =
+            date.getFullYear() === today.getFullYear() &&
+            date.getMonth() === today.getMonth() &&
+            date.getDate() === today.getDate();
+
+        if (isToday) {
+            return 'Today';
+        }
+
+        return 'Next: ' + date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -140,7 +152,7 @@ onMounted(() => {
                 </div>
                 <div class="workout-item" v-if="workout.nextScheduledWorkout">
                     <Icon class="icon" icon="mdi:calendar-month-outline" width="24" height="24" />
-                    Next: {{ formattedNextScheduledDate }}
+                    {{ formattedNextScheduledDate }}
                 </div>
                 </div>
             <button class="next-workout-button" @click="handleNavigation">

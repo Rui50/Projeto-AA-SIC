@@ -40,7 +40,13 @@ public class DashboardWorkoutDTO {
         dto.setStatus(WorkoutStatusType.IN_PROGRESS);
         dto.setWorkoutExecutionid(workoutExecution.getId());
         dto.setWorkoutName(workoutExecution.getWorkoutPlan().getName());
-        dto.setExerciseCount(workoutExecution.getExerciseExecutions().size()+1);
+
+        int count = (int) workoutExecution.getExerciseExecutions()
+            .stream()
+            .filter(ee -> !ee.getExerciseData().isDeleted())
+            .count();
+        dto.setExerciseCount(count);
+
         dto.setStartTime(workoutExecution.getStartTime());
 
         return dto;
@@ -52,7 +58,12 @@ public class DashboardWorkoutDTO {
         dto.setWorkoutPlanId(plan.getId());
         dto.setNextScheduledWorkout(nextDate);
         dto.setWorkoutName(plan.getName());
-        dto.setExerciseCount(plan.getExercises().size()+1);
+
+        int count = (int) plan.getExercises()
+            .stream()
+            .filter(e -> !e.isDeleted())
+            .count();
+        dto.setExerciseCount(count);
 
         return dto;
     }

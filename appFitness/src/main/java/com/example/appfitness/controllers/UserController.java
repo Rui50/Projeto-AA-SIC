@@ -52,7 +52,7 @@ public class UserController {
 
         // se temos algum scheduled
 
-        List<WorkoutPlan> workoutPlans = workoutPlanRepository.findByOwnerIdAndScheduleType(userId, WorkoutPlan.WorkoutScheduleType.Fixed);
+        List<WorkoutPlan> workoutPlans = workoutPlanRepository.findByOwnerIdAndScheduleTypeAndActiveTrue(userId, WorkoutPlan.WorkoutScheduleType.Fixed);
 
         // mapa plano -> dia
         Optional<Map.Entry<WorkoutPlan, LocalDate>> scheduledWorkouts = workoutPlans

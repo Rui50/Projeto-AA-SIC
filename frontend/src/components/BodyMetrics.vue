@@ -36,19 +36,9 @@
                 withCredentials: true,
             })
             const data = response.data
-            console.log('Latest body metrics:', data)
-            
-            const rawWeight = data.weight || 'N/A'
-            const rawHeight = data.height || 'N/A'
-
-            weight.value = isImperial.value
-                ? convertMetricToImperial(rawWeight, 'weight')
-                : rawWeight
-
-            height.value = isImperial.value
-                ? convertMetricToImperial(rawHeight, 'height')
-                : rawHeight
-
+            console.log('Latest body metrics:', data)            
+            weight.value = data.weight || 'N/A'
+            height.value = data.height || 'N/A'
             bodyFat.value = data.bodyFatPercentage || 'N/A'
             bmi.value = data.bmi || 'N/A'
             lastUpdated.value = data.updatedAt 
@@ -93,8 +83,6 @@
     })
     
     const isImperial = computed(() => userStore.getMetricType === 'IMPERIAL')
-    const weightUnit = computed(() => isImperial.value ? 'lbs' : 'kg')
-    const heightUnit = computed(() => isImperial.value ? 'in' : 'cm')
     const convertMetricToImperial = (value, type) => {
         if (type === 'weight') return +(value * 2.20462).toFixed(2) // kg -> lbs
         if (type === 'height') return +(value * 0.393701).toFixed(2) // cm -> in
@@ -105,23 +93,32 @@
         if (type === 'height') return +(value / 0.393701).toFixed(2) // in -> cm
         return value
     }  
-    
-    // Temporario apenas para testar mudanca de metrica
-    import { watch } from 'vue'
-    const localMetricType = ref(userStore.getMetricType)
-    watch(localMetricType, (newType, oldType) => {
-        if (newType === oldType) return
 
-        if (newType === 'IMPERIAL') {
-            weight.value = convertMetricToImperial(weight.value, 'weight')
-            height.value = convertMetricToImperial(height.value, 'height')
-        } else {
-            weight.value = convertImperialToMetric(weight.value, 'weight')
-            height.value = convertImperialToMetric(height.value, 'height')
+    const weightUnit = computed(() => isImperial.value ? 'lbs' : 'kg')
+    const weightFix = computed(() => {
+        console.log(`Current weight: ${weight.value}, isImperial: ${isImperial.value}`);
+
+        let returnValue = weight.value;
+        if (isImperial.value) {
+            returnValue = convertMetricToImperial(weight.value, 'weight');
         }
 
-        userStore.setMetricType(localMetricType.value)
-    })
+        console.log(`Returning weight: ${returnValue} ${isImperial.value ? 'lbs' : 'kg'}`);
+        return returnValue;
+    });
+    
+    const heightUnit = computed(() => isImperial.value ? 'in' : 'cm')
+    const heightFix = computed(() => {
+        console.log(`Current height: ${height.value}, isImperial: ${isImperial.value}`);
+
+        let returnValue = height.value;
+        if (isImperial.value) {
+            returnValue = convertMetricToImperial(height.value, 'height');
+        }
+
+        console.log(`Returning height: ${returnValue} ${isImperial.value ? 'in' : 'cm'}`);
+        return returnValue;
+    });
 
 </script>
 
@@ -133,11 +130,11 @@
         </div>
         <div class="metric-item">
             <div class="metric-label">Weight</div>
-            <div class="metric-value">{{ weight }} <span class="unit">{{ weightUnit }}</span></div>
+            <div class="metric-value">{{ weightFix }} <span class="unit">{{ weightUnit }}</span></div>
         </div>
         <div class="metric-item">
             <div class="metric-label">Height</div>
-            <div class="metric-value">{{ height }} <span class="unit">{{ heightUnit }}</span></div>
+            <div class="metric-value">{{ heightFix }} <span class="unit">{{ heightUnit }}</span></div>
         </div>
         <div class="metric-item">
             <div class="metric-label">Body Fat</div>

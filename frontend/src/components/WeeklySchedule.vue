@@ -19,7 +19,6 @@
               v-for="(event, idx) in day.events" 
               :key="event.id || idx"
               @click="goToWorkoutPlan(event.id)"
-              style="cursor: pointer;"
             >
               <span class="dot"></span>
               {{ event.name }}
@@ -181,6 +180,12 @@ function goToWorkoutPlan(id) {
   align-items: center;
   font-size: 0.98rem;
   justify-content: center;
+  cursor: pointer;
+}
+.day-event:hover {
+  background-color: #d0d4ff;
+  color: #1a2a9c;
+  border-radius: 6px;
 }
 .day-event .dot {
   width: 8px;

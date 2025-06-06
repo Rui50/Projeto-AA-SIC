@@ -136,7 +136,7 @@
             <h2>Active Workouts</h2>
             <div class="info-icon">
                 <Icon icon="mdi:information-outline" width="20" />
-                <span class="tooltip">Active workouts are currently in use and appear in your workout list</span>
+                <span class="tooltip">Active workouts are currently in use and will show on your calendar if they have a scheduled time</span>
             </div>
             <span class="workouts-count"> {{ activeWorkoutsCount }}</span>
         </div>
@@ -171,9 +171,9 @@
                     @activate-workout="handleActivateWorkout"
                     @deactivate-workout="handleDeactivateWorkout"
                 />
-                <div v-if="inactiveWorkoutsCount === 0 && activeWorkoutsCount > 0" class="no-workouts-message">
-                    No other workouts found.
-                </div>
+            </div>
+            <div v-if="inactiveWorkoutsCount === 0 && activeWorkoutsCount > 0" class="no-workouts-message">
+                No other workouts found.
             </div>
              <div v-if="inactiveWorkoutsCount === 0 && activeWorkoutsCount === 0" class="no-workouts-message">
                     No workouts found. Start by creating a new workout!

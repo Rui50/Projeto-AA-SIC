@@ -8,6 +8,7 @@
     import { API_PATHS } from '@/api_paths'
     import { useUserStore } from '@/stores/userStore'
     import { useRoute } from 'vue-router'
+    import Loading from '@/components/Loading.vue'
 
     import WorkoutScheduleEditor from '@/components/WorkoutScheduleEditor.vue'
     import WorkoutExercisesEditor from '@/components/WorkoutExercisesEditor.vue'
@@ -34,7 +35,7 @@
     const initialWorkoutData = ref(null);
     const hasChanges = ref(false);
 
-   const wereChangesMade = () => {
+    const wereChangesMade = () => {
         const currentScheduledDaysSorted = [...scheduledDays.value].sort();
         const initialScheduledDaysSorted = [...initialWorkoutData.value.scheduledDays].sort();
 
@@ -239,7 +240,7 @@
 
 <template>
     <div class="edit-workout">
-        <div v-if="isLoading" class="loading-indicator">Loading workout...</div>
+        <Loading v-if="isLoading"/>
         <div v-else-if="errorMessage" class="error-message">{{ errorMessage }}</div>
         <div v-else>
             <div class="edit-workout-header">

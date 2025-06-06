@@ -75,7 +75,12 @@ public class WorkoutExecutionService {
         }
 
         if (workoutPlan.getExercises() != null && !workoutPlan.getExercises().isEmpty()) {
-            for (ExerciseData plannedExerciseData : workoutPlan.getExercises()) {
+            List<ExerciseData> filteredDels = workoutPlan.getExercises().stream()
+                    .filter(ExerciseData::isDeleted)
+                    .toList();
+
+
+            for (ExerciseData plannedExerciseData : filteredDels) {
                 ExerciseExecution exerciseExecution = new ExerciseExecution();
                 exerciseExecution.setWorkoutExecution(workout);
                 exerciseExecution.setExerciseData(plannedExerciseData);
@@ -119,6 +124,10 @@ public class WorkoutExecutionService {
         WorkoutExecution workoutExecution = workoutExecutionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("WorkoutExecution not found with id " + id));
 
+        List<ExerciseExecution> filteredDeleted = workoutExecution.getExerciseExecutions().stream()
+                .filter(ee -> !ee.getExerciseData().isDeleted()) // Filter based on the associated ExerciseData's status
+                .toList();
+
         // converter para dto e popula com fromEntity ( a parte do exercise execution)
         WorkoutExecutionResponseDTO responseDTO = WorkoutExecutionResponseDTO.fromEntity(workoutExecution);
 
@@ -126,7 +135,7 @@ public class WorkoutExecutionService {
         List<ExerciseExecutionResponseDTO> exerciseExecutions = new ArrayList<>();
 
         // para cada ExerciseExecution associada a este workout execution, construir o DTO e meter os previous data se exister
-        for (ExerciseExecution ex : workoutExecution.getExerciseExecutions()) {
+        for (ExerciseExecution ex : filteredDeleted) {
             // converter para DTO
             ExerciseExecutionResponseDTO eeDTO = ExerciseExecutionResponseDTO.fromEntity(ex);
 

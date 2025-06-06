@@ -10,14 +10,21 @@ import org.springframework.stereotype.Repository;
 
 import java.time.DayOfWeek;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExerciseDataRepository extends JpaRepository<ExerciseData, Integer> {
     // devolve os exercise data de um workoutPlan
-    @Query("SELECT ed FROM ExerciseData ed WHERE ed.workoutPlan.Id = :workoutPlanId")
+    @Query("SELECT ed FROM ExerciseData ed WHERE ed.workoutPlan.id = :workoutPlanId")
     List<ExerciseData> findByWorkoutPlanId(Integer workoutPlanId);
 
-    @Query("SELECT ed FROM ExerciseData ed WHERE ed.workoutPlan.Id = :workoutPlanId AND ed.exercise.id = :exerciseId")
+    @Query("SELECT ed FROM ExerciseData ed WHERE ed.workoutPlan.id = :workoutPlanId AND ed.exercise.id = :exerciseId")
     List<ExerciseData> findByWorkoutPlanIdAndExerciseId(Integer workoutPlanId, Integer exerciseId);
 
+    @Query("SELECT ed FROM ExerciseData ed WHERE ed.id = :id AND ed.isDeleted = false")
+    Optional<ExerciseData> findByIdAndNotDeleted(Integer id);
+
+    // Find all ExerciseData for a workout plan that are not deleted
+    @Query("SELECT ed FROM ExerciseData ed WHERE ed.workoutPlan.id = :workoutPlanId AND ed.isDeleted = false ORDER BY ed.id")
+    List<ExerciseData> findByWorkoutPlanIdAndNotDeleted(Integer workoutPlanId);
 }

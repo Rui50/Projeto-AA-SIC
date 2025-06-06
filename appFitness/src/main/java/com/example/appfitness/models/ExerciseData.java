@@ -34,6 +34,8 @@ public class ExerciseData {
     @JoinColumn(name = "workoutPlan_id", nullable = false)
     private WorkoutPlan workoutPlan;
 
+    private boolean isDeleted = false;
+
     // é preciso aqui?
 
     public void addPlannedSet(SetData setData) {

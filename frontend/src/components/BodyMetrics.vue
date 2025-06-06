@@ -7,10 +7,12 @@
     import axios from 'axios'
     import { computed } from 'vue'
 
+    import { useToast } from 'vue-toastification'
+
+    const toast = useToast()
 
     const userStore = useUserStore()
     const router = useRouter()
-
 
     const popupState = ref(false)
 
@@ -36,8 +38,8 @@
             const data = response.data
             console.log('Latest body metrics:', data)
             
-            const rawWeight = data.weight || 0
-            const rawHeight = data.height || 0
+            const rawWeight = data.weight || 'N/A'
+            const rawHeight = data.height || 'N/A'
 
             weight.value = isImperial.value
                 ? convertMetricToImperial(rawWeight, 'weight')
@@ -49,8 +51,9 @@
 
             bodyFat.value = data.bodyFatPercentage || 'N/A'
             bmi.value = data.bmi || 'N/A'
-            lastUpdated.value = data.updatedAt || 'No records yet'
-
+            lastUpdated.value = data.updatedAt 
+                ? new Date(data.updatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) 
+                : 'No records yet'
 
         } catch (error) {
             console.error('Error fetching latest body metrics:', error)
@@ -77,10 +80,11 @@
             })
 
             console.log('Body metrics updated successfully:', response.data)
-            alert('Body metrics updated successfully!')
+            toast.success('Body metrics updated successfully!')
+            
         } catch (error) {
             console.error('Error updating body metrics:', error)
-            alert('Failed to update body metrics. Please try again.')
+            toast.error('Failed to update body metrics. Please try again.')
         }
     }
 
@@ -137,7 +141,7 @@
         </div>
         <div class="metric-item">
             <div class="metric-label">Body Fat</div>
-            <div class="metric-value">{{ bodyFat }}</div>
+            <div class="metric-value">{{ bodyFat }} %</div>
         </div>
         <div class="metric-item">
             <div class="metric-label">BMI</div>
@@ -163,7 +167,7 @@
                     <label>Body Fat (%)</label>
                     <input v-model="bodyFat" type="number" />
                 </div>
-                <!-- Temporario apenas para testar mudanca de metrica -->
+                <!-- Temporario apenas para testar mudanca de metrica
                     <div class="input-group">
                         <label>Unit System</label>
                         <select v-model="localMetricType">
@@ -171,7 +175,7 @@
                             <option value="IMPERIAL">Imperial (lbs / in)</option>
                         </select>
                     </div>
-                <!-- -->                
+                -->                
                 <div class="popup-actions">
                     <button class="button secondary" @click="togglePopup">Cancel</button>
                     <button class="button primary" @click="updateMetrics">Save</button>

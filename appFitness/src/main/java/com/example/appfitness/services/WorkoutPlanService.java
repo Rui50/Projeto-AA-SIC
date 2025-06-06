@@ -23,6 +23,7 @@ public class WorkoutPlanService {
     private UserRepository userRepository;
     private ProfessorRepository professorRepository;
     private ExerciseRepository exerciseRepository;
+    private ExerciseExecutionRepository exerciseExecutionRepository;
     private ExerciseDataRepository exerciseDataRepository;
     private WorkoutExecutionRepository workoutExecutionRepository;
 
@@ -31,7 +32,7 @@ public class WorkoutPlanService {
                               ExerciseRepository exerciseRepository,
                               UserRepository userRepository,
                               ExerciseDataRepository exerciseDataRepository,
-
+                              ExerciseExecutionRepository exerciseExecutionRepository,
                               WorkoutExecutionRepository workoutExecutionRepository) {
         this.workoutPlanRepository = workoutPlanRepository;
         this.professorRepository = professorRepository;
@@ -39,6 +40,7 @@ public class WorkoutPlanService {
         this.userRepository = userRepository;
         this.exerciseDataRepository = exerciseDataRepository;
         this.workoutExecutionRepository = workoutExecutionRepository;
+        this.exerciseExecutionRepository = exerciseExecutionRepository;
     }
 
     @Transactional
@@ -54,7 +56,7 @@ public class WorkoutPlanService {
         workoutPlan.setCreatedBy(creatorId);
 
         if (workoutPlan.getScheduleType() == null) {
-            workoutPlan.setScheduleType(WorkoutPlan.WorkoutScheduleType.Free); // Or FIXED, based on your business logic
+            workoutPlan.setScheduleType(WorkoutPlan.WorkoutScheduleType.Free);
         }
 
         // doesnt start as active
@@ -207,6 +209,7 @@ public class WorkoutPlanService {
         exerciseData.setExercise(exercise);
         exerciseData.setWorkoutPlan(workoutPlan);
         exerciseData.setNote(note);
+        exerciseData.setDeleted(false);
 
         for(SetData setData : plannedSets) {
             exerciseData.addPlannedSet(setData);
@@ -252,10 +255,18 @@ public class WorkoutPlanService {
             throw new RuntimeException("Exercise Data " + exerciseDataId + " not from Workout Plan " + workoutPlanId);
         }
 
-        workoutPlan.getExercises().remove(exerciseDataToRemove);
-        workoutPlanRepository.save(workoutPlan);
+        boolean hasExecutions = exerciseExecutionRepository.existsByExerciseDataId(exerciseDataId);
 
-        exerciseDataRepository.delete(exerciseDataToRemove);
+        if(hasExecutions) {
+            exerciseDataToRemove.setDeleted(true);
+            exerciseDataRepository.save(exerciseDataToRemove);
+        }
+        else {
+            workoutPlan.getExercises().remove(exerciseDataToRemove);
+            workoutPlanRepository.save(workoutPlan);
+
+            exerciseDataRepository.delete(exerciseDataToRemove);
+        }
     }
 
     public WorkoutPlanResponseDTO toResponseDTOfix(WorkoutPlan workoutPlan) {
@@ -266,6 +277,14 @@ public class WorkoutPlanService {
                 createdByUserName = creatorUser.get().getName();
             }
         }
+
+        // filtrar os que foram "soft-deleted"
+
+        List<ExerciseData> notDeleted = workoutPlan.getExercises().stream()
+                .filter(ed -> !ed.isDeleted())
+                .toList();
+
+        workoutPlan.setExercises(notDeleted);
         return WorkoutPlanResponseDTO.fromEntity(workoutPlan, createdByUserName);
     }
 

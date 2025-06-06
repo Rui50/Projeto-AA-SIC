@@ -19,6 +19,8 @@ public interface ExerciseExecutionRepository extends JpaRepository<ExerciseExecu
     @Query("SELECT ee FROM ExerciseExecution ee WHERE ee.workoutExecution.id = :workoutExecutionId AND ee.exerciseData.id = :exerciseDataId")
     Optional<ExerciseExecution> findByWorkoutExecutionIdAndExerciseDataId(Integer workoutExecutionId, Integer exerciseDataId);
 
+    boolean existsByExerciseDataId(Integer exerciseDataId);
+
     // query para encontrar o ultimo workout "com o mesmo nome" completado
     @Query("SELECT ee FROM ExerciseExecution ee " +
             "JOIN ee.workoutExecution we " +

@@ -372,7 +372,7 @@ h1 {
 .performance-graph{
     background-color: var(--background-color-whitee);
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 1rem;
     margin-top: 2rem;
 }
@@ -481,7 +481,7 @@ h1 {
 .recent-workouts {
     background-color: var(--background-color-whitee);
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     margin-top: 2rem; 
 }

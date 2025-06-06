@@ -131,6 +131,16 @@
         router.push(`/workouts/history/${userStore.getUserId}`);
     };
 
+    const formatWeight = (weightKg) => {
+        if (weightKg === null || weightKg === undefined) return 'N/A';
+        if (userStore.getMetricType === 'IMPERIAL') {
+            const weightLbs = weightKg * 2.20462;
+            return `${weightLbs.toFixed(2)} lbs`;
+        } else {
+            return `${weightKg.toFixed(2)} kg`;
+        }
+    };
+
 
     /***
      * 
@@ -205,12 +215,12 @@
                 />
                 <StatCard
                     label="Total Weight Lifted"
-                    :value="progressStats.totalWeightLifted ? progressStats.totalWeightLifted.toFixed(2) + ' kg' : '0 kg'"
+                    :value="progressStats.totalWeightLifted ? formatWeight(progressStats.totalWeightLifted) : '0 kg'"
                 />
                 <StatCard
                     label="Current Weight"
-                    :value="progressStats.currentBodyWeight ? progressStats.currentBodyWeight.toFixed(1) + ' kg' : 'N/A'"
-                    :change="progressStats.bodyWeightChange ? progressStats.bodyWeightChange.toFixed(1) + ' kg' : null"
+                    :value="progressStats.currentBodyWeight ? formatWeight(progressStats.currentBodyWeight) : 'N/A'"
+                    :change="progressStats.bodyWeightChange ? formatWeight(progressStats.bodyWeightChange) : null"
                 />
             </div>
 

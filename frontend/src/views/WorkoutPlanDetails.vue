@@ -15,6 +15,14 @@ const workoutPlanDetails = ref(null);
 const isLoading = ref(true);
 const error = ref(null);
 
+const formatWeight = (weight) => {
+    if (userStore.getMetricType === 'METRIC') {
+        return `${weight} kg`;
+    } else {
+        return `${(weight * 2.20462).toFixed(2)} lbs`;
+    }
+}
+
 
 const currentSelectedExerciseIndex = ref(0);
 const currentSelectedExercise = computed(() => {
@@ -156,7 +164,8 @@ onMounted(fetchWorkoutPlanDetails);
                                 <tr>
                                     <th>Set</th>
                                     <!--<th>Previous</th>-->
-                                    <th>Weight (kg)</th>
+                                    <th v-if="userStore.getMetricType === 'METRIC'">Weight (kg)</th>
+                                    <th v-else>Weight (lbs)</th>
                                     <th>Reps</th>
                                     <th>Rest time (s)</th>
                                 </tr>
@@ -165,7 +174,7 @@ onMounted(fetchWorkoutPlanDetails);
                                 <tr v-for="(plannedSet, setIndex) in currentSelectedExercise.plannedSets" :key="plannedSet.id || `plan-set-${setIndex}`">
                                     <td>{{ plannedSet.setNumber }}</td>
                                     <!--<td>{{ plannedSet.previousWeight || '-' }}</td>-->
-                                    <td>{{ plannedSet.weight }}</td>
+                                    <td>{{ formatWeight(plannedSet.weight) }}</td>
                                     <td>{{ plannedSet.reps }}</td>
                                     <td>{{ plannedSet.restTimeSugested }}</td>
                                 </tr>

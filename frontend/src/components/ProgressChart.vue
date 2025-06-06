@@ -5,6 +5,9 @@ import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, Li
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement);
 
+import { useUserStore } from '@/stores/userStore'
+const userStore = useUserStore();
+
 const props = defineProps({
     chartType: {
         type: String,
@@ -15,6 +18,7 @@ const props = defineProps({
         required: true,
     }
 });
+
 
 const chartRef = ref(null);
 
@@ -107,7 +111,7 @@ const chartOptions = computed(() => ({
                 color: '#666',
                 callback: function(value) {
                     if (props.chartType === 'volumePerWorkoutPlan') { // depois trocar para lb tambem dependendo da metrica do user
-                        return value + ' kg';
+                        return value + ' ' + getUnit();
                     }
                     return value;
                 }
@@ -136,10 +140,11 @@ const chartTitle = computed(() => {
 });
 
 const getYAxisLabel = (type) => {
+    const unit = getUnit();
     switch (type) {
         //case 'bodyWeight': return 'Weight (kg)';
         //case 'totalVolume':
-        case 'volumePerWorkoutPlan': return 'Volume (kg)'; 
+        case 'volumePerWorkoutPlan': return `Volume (${unit})`; 
         //case 'workoutsCompleted': return 'Count';
         default: return 'Value';
     }
@@ -154,8 +159,15 @@ const processChartData = () => {
         return;
     }
 
-    const labels = props.chartData.map(item => item.date);
-    const dataValues = props.chartData.map(item => item.value);
+
+    const unit = getUnit();
+    const fixedForMetric =  props.chartData.map(entry => ({
+        date: entry.date,
+        value: convertWeight(entry.value),
+    }));
+
+    const labels = fixedForMetric.map(item => item.date);
+    const dataValues = fixedForMetric.map(item => item.value);
 
     let datasetLabel = '';
     let backgroundColor = '';
@@ -164,7 +176,7 @@ const processChartData = () => {
 
     switch (props.chartType) {
         case 'volumePerWorkoutPlan': 
-            datasetLabel = 'Volume Lifted (kg)';
+            datasetLabel = `Volume Lifted (${getUnit()})`;
             backgroundColor = 'rgba(78, 106, 245, 0.6)';
             borderColor = 'rgba(78, 106, 245, 1)'; 
             break;
@@ -204,6 +216,15 @@ const processChartData = () => {
         }]
     };
 };
+
+const convertWeight = (kg) => {
+  return userStore.getMetricType === 'IMPERIAL'
+    ? (kg * 2.20462).toFixed(2)
+    : kg.toFixed(2);
+};
+
+
+const getUnit = () => userStore.getMetricType === 'IMPERIAL' ? 'lbs' : 'kg';
 
 watch(() => [props.chartData, props.chartType], () => {
     processChartData();

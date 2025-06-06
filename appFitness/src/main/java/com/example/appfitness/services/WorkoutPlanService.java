@@ -289,9 +289,8 @@ public class WorkoutPlanService {
     }
 
     @Transactional
-    public Map<String, List<Integer>> getActiveWorkoutPlansByDayForOwner(Integer ownerId) {
+    public Map<String, List<Integer>> getActiveWorkoutPlansByDayForOwner(Integer ownerId) { 
         List<WorkoutPlan> activePlans = workoutPlanRepository.findAllActiveByOwnerId(ownerId);
-
 
         Map<String, List<Integer>> schedule = new HashMap<>();
         for (WorkoutPlan plan : activePlans) {
@@ -303,7 +302,7 @@ public class WorkoutPlanService {
                 }
             }
         }
-        return schedule;
+        return schedule; // Retorna um mapa onde a chave é o dia da semana e o valor é uma lista de IDs de planos de treino ativos
     }
 
     // Helper para capitalizar só a primeira letra

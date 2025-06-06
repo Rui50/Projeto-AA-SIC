@@ -6,13 +6,16 @@ import axios from 'axios';
 import { Icon } from '@iconify/vue';
 import { API_PATHS } from '../api_paths';
 
+import { useWorkoutStore } from '@/stores/workoutStore';
+import { useWorkoutExecutionStore } from '@/stores/workoutExecutionStore';
+
 
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const workoutStore = useWorkoutStore();
+const workoutExecutionStore = useWorkoutExecutionStore();
 const hasWorkoutInProgress = ref(false);
-
-
 const workoutPlanDetails = ref(null);
 const isLoading = ref(true);
 const error = ref(null);
@@ -41,9 +44,18 @@ watch(workoutPlanDetails, (newValue) => {
 }, { immediate: true }); 
 
 const fetchWorkoutPlanDetails = async () => {
-    let id = route.params.id;
+    const id = parseInt(route.params.id);
     isLoading.value = true;
     error.value = null;
+
+    const storedPlan = workoutStore.getWorkoutPlans.find(plan => plan.id === id);
+    if (storedPlan) {
+        workoutPlanDetails.value = storedPlan;
+        isLoading.value = false;
+        console.log('Workout plan details loaded from store:', storedPlan);
+        return;
+    }
+
     try {
         const response = await axios.get(API_PATHS.WORKOUT_BY_ID + id, {
             headers: { Authorization: `Bearer ${userStore.getToken}` }
@@ -104,6 +116,11 @@ const startWorkout = async () => {
 };
 
 const checkWorkoutInProgress = async () => {
+    if (workoutExecutionStore.getWorkoutExecution?.status === 'IN_PROGRESS') {
+        console.log('Workout already in progress, no need to re-check.');
+        hasWorkoutInProgress.value = true;
+        return;
+    }
     try {
         const userId = userStore.getUserId;
         const response = await axios.get(API_PATHS.CHECK_WORKOUT_IN_PROGRESS(userId));
@@ -219,7 +236,7 @@ onMounted(async () => {
                 </button>
             </div>
             <p v-if="hasWorkoutInProgress" class="error-message">
-                <font-awesome-icon :icon="['fas', 'exclamation-triangle']" />
+                <!--<font-awesome-icon :icon="['fas', 'exclamation-triangle']" />-->
                 You already have an active workout in progress.
             </p>
         </div>

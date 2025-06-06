@@ -76,7 +76,7 @@ public class WorkoutExecutionService {
 
         if (workoutPlan.getExercises() != null && !workoutPlan.getExercises().isEmpty()) {
             List<ExerciseData> filteredDels = workoutPlan.getExercises().stream()
-                    .filter(ExerciseData::isDeleted)
+                    .filter(ed -> !ed.isDeleted())
                     .toList();
 
 
@@ -125,7 +125,7 @@ public class WorkoutExecutionService {
                 .orElseThrow(() -> new RuntimeException("WorkoutExecution not found with id " + id));
 
         List<ExerciseExecution> filteredDeleted = workoutExecution.getExerciseExecutions().stream()
-                .filter(ee -> !ee.getExerciseData().isDeleted()) // Filter based on the associated ExerciseData's status
+                .filter(ee -> !ee.getExerciseData().isDeleted())
                 .toList();
 
         // converter para dto e popula com fromEntity ( a parte do exercise execution)

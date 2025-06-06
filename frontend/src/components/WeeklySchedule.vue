@@ -14,9 +14,15 @@
         <div class="day-date">{{ day.date }}</div>
         <div class="day-events">
           <template v-if="day.events.length">
-            <div class="day-event" v-for="(event, idx) in day.events" :key="idx">
+            <div 
+              class="day-event" 
+              v-for="(event, idx) in day.events" 
+              :key="event.id || idx"
+              @click="goToWorkoutPlan(event.id)"
+              style="cursor: pointer;"
+            >
               <span class="dot"></span>
-              {{ event }}
+              {{ event.name }}
             </div>
           </template>
         </div>
@@ -29,6 +35,9 @@
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import { API_PATHS } from '../api_paths';	
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const dayShorts = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const dayFullNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -92,6 +101,13 @@ onMounted(async () => {
     console.error(e);
   }
 });
+
+// Navegação para o plano de treino
+function goToWorkoutPlan(id) {
+  if (id) {    
+    router.push(`/workout/${id}`);
+  }
+}
 </script>
 
 <style scoped>

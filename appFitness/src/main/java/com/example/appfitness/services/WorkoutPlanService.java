@@ -289,17 +289,17 @@ public class WorkoutPlanService {
     }
 
     @Transactional
-    public Map<String, List<String>> getActiveWorkoutPlansByDayForOwner(Integer ownerId) {
+    public Map<String, List<Integer>> getActiveWorkoutPlansByDayForOwner(Integer ownerId) {
         List<WorkoutPlan> activePlans = workoutPlanRepository.findAllActiveByOwnerId(ownerId);
 
 
-        Map<String, List<String>> schedule = new HashMap<>();
+        Map<String, List<Integer>> schedule = new HashMap<>();
         for (WorkoutPlan plan : activePlans) {
             // Aqui assume-se que `getScheduledDays()` devolve uma List<String> tipo ["MONDAY", "WEDNESDAY"]
             if (plan.getScheduledDays() != null) {
                 for (DayOfWeek day : plan.getScheduledDays()) {
                     String dayStr = capitalize(day.toString().toLowerCase());
-                    schedule.computeIfAbsent(dayStr, k -> new ArrayList<>()).add(plan.getName());
+                    schedule.computeIfAbsent(dayStr, k -> new ArrayList<>()).add(plan.getId());
                 }
             }
         }

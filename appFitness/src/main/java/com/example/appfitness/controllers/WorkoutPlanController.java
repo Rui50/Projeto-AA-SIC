@@ -4,6 +4,7 @@ import com.example.appfitness.DTOs.WorkoutPlan.ExerciseDataRequestDTO;
 import com.example.appfitness.DTOs.WorkoutPlan.ExerciseDataResponseDTO;
 import com.example.appfitness.DTOs.WorkoutPlan.WorkoutPlanRequestDTO;
 import com.example.appfitness.DTOs.WorkoutPlan.WorkoutPlanResponseDTO;
+import com.example.appfitness.DTOs.WorkoutPlan.WorkoutPlanSummary;
 import com.example.appfitness.auth.AuthService;
 import com.example.appfitness.models.ExerciseData;
 import com.example.appfitness.models.SetData;
@@ -206,7 +207,24 @@ public class WorkoutPlanController {
         @CookieValue(value = "token", defaultValue = "") String token
     ) {
         Integer ownerId = Integer.valueOf(authService.getUserIdFromToken(token));
-        Map<String, List<String>> schedule = workoutPlanService.getActiveWorkoutPlansByDayForOwner(ownerId);
-    return ResponseEntity.ok(schedule);
+        Map<String, List<Integer>> schedule = workoutPlanService.getActiveWorkoutPlansByDayForOwner(ownerId);
+
+        Map<String, List<WorkoutPlanSummary>> scheduleWithDetails = new HashMap<>();
+        for (Map.Entry<String, List<Integer>> entry : schedule.entrySet()) {
+            String day = entry.getKey();
+            List<Integer> planIds = entry.getValue();
+
+            List<WorkoutPlanSummary> planSummaries = planIds.stream()
+                .map(id -> workoutPlanService.getWorkoutPlanById(id)
+                    .map(WorkoutPlanSummary::fromEntity)
+                    .orElse(new WorkoutPlanSummary(null, "Unknown Plan"))
+                )
+                .collect(Collectors.toList());
+
+            scheduleWithDetails.put(day, planSummaries);
+        }
+
+        return ResponseEntity.ok(scheduleWithDetails);
     }
+
 }

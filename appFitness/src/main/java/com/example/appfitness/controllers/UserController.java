@@ -61,7 +61,8 @@ public class UserController {
                     Optional<LocalDate> nextDate = getNextScheduledWorkout(plan.getScheduledDays());
                     return nextDate.map(date -> Map.entry(plan, date)).orElse(null);
                 })
-                .min(Comparator.comparing(workoutPlanLocalDateEntry -> workoutPlanLocalDateEntry != null ? workoutPlanLocalDateEntry.getValue() : null));
+                .filter(Objects::nonNull) // evitar null pointers
+                .min(Comparator.comparing(Map.Entry::getValue));
 
         if (scheduledWorkouts.isPresent()) {
             Map.Entry<WorkoutPlan, LocalDate> candidate = scheduledWorkouts.get();

@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '../stores/userStore';
+import { useWorkoutExecutionStore } from '@/stores/workoutExecutionStore';
 import axios from 'axios';
 import { Icon } from '@iconify/vue';
 import WorkoutCompleted from '@/components/WorkoutCompleted.vue'; 
@@ -11,8 +12,8 @@ import Loading from '@/components/Loading.vue';
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
+const workoutExecutionStore = useWorkoutExecutionStore();
 
-const workoutExecution = ref(null); // fetched workout execution data
 const isLoading = ref(true);       
 const error = ref(null);            // Error message if needed
 
@@ -23,20 +24,7 @@ let timerInterval = null;           // timer for updating elapsed time
 
 const showWorkoutCompletedPopup = ref(false);
 
-// current exercise seelected
-const currentExerciseIndex = ref(0);
-
-
-// current exercise object based on the currentExerciseIndex
-const currentExercise = computed(() => {
-    if (workoutExecution.value && workoutExecution.value.exerciseExecutions && workoutExecution.value.exerciseExecutions.length > 0) {
-        return workoutExecution.value.exerciseExecutions[currentExerciseIndex.value];
-    }
-    return null;
-});
-
-
-const workoutExecutionForPopup = computed(() => workoutExecution.value);
+const workoutExecutionForPopup = computed(() => workoutExecutionStore.getWorkoutExecution);
 
 // format the elapsed time to HH:MM:SS
 const formattedElapsedTime = computed(() => {
@@ -55,9 +43,9 @@ const startTimer = () => {
     if (timerInterval) { 
         return;
     }
-    if (workoutExecution.value && workoutExecution.value.startTime) {
+    if (workoutExecutionStore.getWorkoutExecution && workoutExecutionStore.getWorkoutExecution.startTime) {
         // Use the startTime from the backend
-        const executionStart = new Date(workoutExecution.value.startTime);
+        const executionStart = new Date(workoutExecutionStore.getWorkoutExecution.startTime);
         startTime.value = executionStart.getTime();
     } else {
         startTime.value = Date.now();
@@ -79,7 +67,7 @@ const stopTimer = () => {
 const fetchWorkoutExecution = async () => {
     isLoading.value = true;
     error.value = null;
-    const executionId = route.params.id; 
+    const executionId = parseInt(route.params.id); // so we can compare it with the store data
 
     console.log('Fetching workout execution for ID:', executionId); 
 
@@ -90,19 +78,43 @@ const fetchWorkoutExecution = async () => {
         return;
     }
 
-        try {
-        console.log('Fetching workout execution data from API... ', API_PATHS.GET_WORKOUT_EXECUTION_BY_ID(executionId));
+
+    if (workoutExecutionStore.getWorkoutExecution && workoutExecutionStore.getWorkoutExecution.id === executionId) {
+        console.log('Workout execution already populated in store.');
+        // if data in store, just restart timer
+        if (workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS') {
+            const storedExecution = workoutExecutionStore.getWorkoutExecution;
+            if (storedExecution.startTime) {
+                startTime.value = new Date(storedExecution.startTime).getTime();
+                elapsedTime.value = Date.now() - startTime.value;
+                startTimer();
+            }
+        } else if (workoutExecutionStore.getWorkoutExecution.endTime && workoutExecutionStore.getWorkoutExecution.startTime) {
+            const start = new Date(workoutExecutionStore.getWorkoutExecution.startTime).getTime();
+            const end = new Date(workoutExecutionStore.getWorkoutExecution.endTime).getTime();
+            elapsedTime.value = end - start;
+            stopTimer();
+        }
+        isLoading.value = false;
+        return; 
+    }
+
+
+    try {
         const response = await axios.get(API_PATHS.GET_WORKOUT_EXECUTION_BY_ID(executionId), {
             withCredentials: true,
             headers: { Authorization: `Bearer ${userStore.getToken}` }
         });
-        workoutExecution.value = response.data;
-        
-        if (!workoutExecution.value) {
+        //workoutExecution.value = response.data;
+
+        // saving the data to store
+        workoutExecutionStore.setWorkoutExecution(response.data);
+
+        if (!workoutExecutionStore.getWorkoutExecution) {
             throw new Error('No workout execution data found for the provided ID.');
         }
-        
-        workoutExecution.value.exerciseExecutions.forEach(executedExercise => {
+
+        workoutExecutionStore.getWorkoutExecution.exerciseExecutions.forEach(executedExercise => {
             const plannedSetsMap = new Map(executedExercise.exerciseData.plannedSets.map(s => [s.id, s]));
             const addedSets = [];
 
@@ -148,25 +160,25 @@ const fetchWorkoutExecution = async () => {
 
 
         })
-        
-        console.log('Workout execution fetched successfully:', workoutExecution.value);
-        console.log('Fetched workout execution data:', workoutExecution.value);
+
+        console.log('Workout execution fetched successfully:', workoutExecutionStore.getWorkoutExecution);
+        console.log('Fetched workout execution data:', workoutExecutionStore.getWorkoutExecution);
 
         //  select the first exercise or the first uncompleted one
-        if (workoutExecution.value.exerciseExecutions && workoutExecution.value.exerciseExecutions.length > 0) {
-            currentExerciseIndex.value = 0; 
+        if (workoutExecutionStore.getWorkoutExecution.exerciseExecutions && workoutExecutionStore.getWorkoutExecution.exerciseExecutions.length > 0) {
+            workoutExecutionStore.setCurrentExerciseIndex(0);
         } else {
             console.warn('Workout execution has no associated exercise executions.');
         }
 
         // if the workout is in progress, start the timer
-        if (workoutExecution.value.status === 'IN_PROGRESS') {
+        if (workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS') {
             startTimer();
         } else {
             stopTimer();
-            if (workoutExecution.value.endTime && workoutExecution.value.startTime) {
-                const start = new Date(workoutExecution.value.startTime).getTime();
-                const end = new Date(workoutExecution.value.endTime).getTime();
+            if (workoutExecutionStore.getWorkoutExecution.endTime && workoutExecutionStore.getWorkoutExecution.startTime) {
+                const start = new Date(workoutExecutionStore.getWorkoutExecution.startTime).getTime();
+                const end = new Date(workoutExecutionStore.getWorkoutExecution.endTime).getTime();
                 elapsedTime.value = end - start;
             }
         }
@@ -185,12 +197,12 @@ const updatingCount = ref(0);
 
 // selects an exercise from the list on the left 
 const selectExercise = (index) => {
-    currentExerciseIndex.value = index;
+    workoutExecutionStore.setCurrentExerciseIndex(index);
 };
 
 // to register a completed set
 const completeSet = async (plannedSet, setIndex) => {
-    if (!currentExercise.value) {
+    if (!workoutExecutionStore.getCurrentExercise) {
         alert('No exercise selected to record a set.');
         return;
     }
@@ -225,7 +237,7 @@ const completeSet = async (plannedSet, setIndex) => {
         }
         else{
             response = await axios.post(
-                API_PATHS.RECORD_SET_EXECUTION(currentExercise.value.id),
+                API_PATHS.RECORD_SET_EXECUTION(workoutExecutionStore.getCurrentExercise.id),
                 setExecutionDTO,
                 { withCredentials: true }
             );
@@ -236,7 +248,7 @@ const completeSet = async (plannedSet, setIndex) => {
 
         // now we update this specific set
 
-        const targetSet = currentExercise.value.exerciseData.plannedSets.find(
+        const targetSet = workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.find(
             s => (s.id === plannedSet.id && !s.isAdded) || (s.isAdded)
         );
 
@@ -248,7 +260,7 @@ const completeSet = async (plannedSet, setIndex) => {
             targetSet.completed = recordedSet.completed;  
         }
 
-        currentExercise.value.exerciseData.plannedSets.sort((a, b) => a.setNumber - b.setNumber);
+        workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.sort((a, b) => a.setNumber - b.setNumber);
 
 
     } catch (err) {
@@ -276,9 +288,9 @@ const getExerciseExecutionStatus = (exerciseExecution) => {
 
 // adds a new set to the current exercise
 const addSet = () => {
-    if (currentExercise.value) {
-        const nextSetNumber = (currentExercise.value.exerciseData.plannedSets && currentExercise.value.exerciseData.plannedSets.length > 0
-            ? Math.max(...currentExercise.value.exerciseData.plannedSets.map(s => s.setNumber || 0)) + 1 //
+    if (workoutExecutionStore.getCurrentExercise) {
+        const nextSetNumber = (workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets && workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.length > 0
+            ? Math.max(...workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.map(s => s.setNumber || 0)) + 1 //
             : 1);
 
         const newSet = {
@@ -293,13 +305,13 @@ const addSet = () => {
             isAdded: true, 
             isCompleted: false,
         };
-        currentExercise.value.exerciseData.plannedSets.push(newSet);
+        workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.push(newSet);
         console.log('Ad-hoc set added:', newSet);
     }
 };
 
 const completeWorkout = async () => {
-    if (!workoutExecution.value) return;
+    if (!workoutExecutionStore.getWorkoutExecution) return;
 
     stopTimer();
     showWorkoutCompletedPopup.value = true;
@@ -307,7 +319,7 @@ const completeWorkout = async () => {
 
 // saving the workout completion from the popup
 const handleSaveWorkoutFromPopup = async (feedbackNote) => {
-    if (!workoutExecution.value) return;
+    if (!workoutExecutionStore.getWorkoutExecution) return;
 
     const finishRequest = {
         feedback: feedbackNote, 
@@ -316,7 +328,7 @@ const handleSaveWorkoutFromPopup = async (feedbackNote) => {
 
     try {
         await axios.put(
-            API_PATHS.FINISH_WORKOUT(workoutExecution.value.id),
+            API_PATHS.FINISH_WORKOUT(workoutExecutionStore.getWorkoutExecution.id),
             finishRequest,
             {
                 headers: {
@@ -343,7 +355,7 @@ const handleCloseWorkoutPopup = () => {
 
 // cancelling the workout
 const cancelWorkout = async () => {
-    if (!workoutExecution.value) return;
+    if (!workoutExecutionStore.getWorkoutExecution) return;
 
     if (confirm('Are you sure you want to cancel this workout? All progress will be lost.')) {
         stopTimer(); 
@@ -353,7 +365,7 @@ const cancelWorkout = async () => {
                 status: "CANCELLED" 
             };
             await axios.put(
-                API_PATHS.FINISH_WORKOUT(workoutExecution.value.id),
+                API_PATHS.FINISH_WORKOUT(workoutExecutionStore.getWorkoutExecution.id),
                 cancelRequest,
                 {
                     headers: {
@@ -369,29 +381,6 @@ const cancelWorkout = async () => {
         }
     }
 }
-
-/**const cancelWorkout = async () => {
-    if (!workoutExecution.value) return;
-
-    if (confirm('Are you sure you want to cancel this workout? All progress will be lost.')) {
-        stopTimer(); 
-        try {
-            await axios.delete(
-                API_PATHS.GET_WORKOUT_EXECUTION_BY_ID(workoutExecution.value.id),
-                {
-                    headers: {
-                        Authorization: `Bearer ${userStore.getToken}`
-                    }
-                }
-            );
-            console.log('Workout cancelled successfully.');
-            router.push('/workouts'); 
-        } catch (err) {
-            console.error('Error cancelling workout:', err);
-            alert('Failed to cancel workout. Please try again.');
-        }
-    }
-} */
 
 onMounted(() => {
     const executionId = route.params.id;
@@ -409,24 +398,24 @@ onUnmounted(() => {
 });
 
 
-watch(workoutExecution, (newValue) => {
+watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
     if (newValue && newValue.exerciseExecutions && newValue.exerciseExecutions.length > 0) {
-        if (currentExerciseIndex.value >= newValue.exerciseExecutions.length) {
-            currentExerciseIndex.value = 0; 
+        if (workoutExecutionStore.currentExerciseIndex >= newValue.exerciseExecutions.length) {
+            workoutExecutionStore.setCurrentExerciseIndex(0);
         }
     } else if (newValue && (!newValue.exerciseExecutions || newValue.exerciseExecutions.length === 0)) {
-        currentExerciseIndex.value = 0; 
+        workoutExecutionStore.setCurrentExerciseIndex(0);
     }
-}, { deep: true })
+}, { deep: true, immediate: true })
 </script>
 
 <template>
     <div class="workout-live-page">
         <Loading v-if="isLoading" />
         <div v-else-if="error" class="error-state">{{ error }}</div>
-        <div v-else-if="workoutExecution" class="execution-content">
+        <div v-else-if="workoutExecutionStore.getWorkoutExecution" class="execution-content">
             <div class="workout-header">
-                <h1>{{ workoutExecution.workoutName || `Workout Execution ID: ${workoutExecution.id}` }}</h1>
+                <h1>{{ workoutExecutionStore.getWorkoutExecution.workoutName || `Workout Execution ID: ${workoutExecutionStore.getWorkoutExecution.id}` }}</h1>
                 <div class="timer">
                     <span class="timer-value">{{ formattedElapsedTime }}</span>
                 </div>
@@ -435,25 +424,25 @@ watch(workoutExecution, (newValue) => {
             <div class="workout-data">
                 <div class="workout-data-item">
                     <Icon icon="meteor-icons:list" width="24" height="24" />
-                    <span> {{ workoutExecution.exerciseExecutions ? workoutExecution.exerciseExecutions.length : 0 }} Exercises</span>
+                    <span> {{ workoutExecutionStore.getWorkoutExecution.exerciseExecutions ? workoutExecutionStore.getWorkoutExecution.exerciseExecutions.length : 0 }} Exercises</span>
                 </div>
                 <!--<div class="workout-data-item">
                     <Icon icon="ion:person-outline" width="24" height="24" />
                     <span> User: {{ workoutExecution.userId }}</span>
                 </div>-->
-                <div class="workout-data-item" v-if="workoutExecution.executionDate">
+                <div class="workout-data-item" v-if="workoutExecutionStore.getWorkoutExecution.executionDate">
                     <Icon icon="mdi:calendar" width="24" height="24" />
-                    <span>Date: {{ workoutExecution.executionDate }}</span>
+                    <span>Date: {{ workoutExecutionStore.getWorkoutExecution.executionDate }}</span>
                 </div>
             </div>
 
             <div class="workout-main-layout">
                 <div class="exercise-list">
                     <div
-                        v-for="(exerciseExecution, index) in workoutExecution.exerciseExecutions"
+                        v-for="(exerciseExecution, index) in workoutExecutionStore.getWorkoutExecution.exerciseExecutions"
                         :key="exerciseExecution.id"
                         class="exercise-card"
-                        :class="{ 'active': index === currentExerciseIndex }"
+                        :class="{ 'active': index === workoutExecutionStore.currentExerciseIndex }"
                         @click="selectExercise(index)"
                     >
                         <div class="exercise-name">{{ exerciseExecution.exerciseData?.exercise?.name || 'N/A' }}</div>
@@ -462,23 +451,23 @@ watch(workoutExecution, (newValue) => {
                             <Icon v-if="getExerciseExecutionStatus(exerciseExecution) === 'COMPLETED'" icon="mdi:check-circle" width="20" height="20" style="color: green;" />
                         </div>
                     </div>
-                    <div v-if="!workoutExecution.exerciseExecutions || workoutExecution.exerciseExecutions.length === 0" class="no-exercises-message">
+                    <div v-if="!workoutExecutionStore.getWorkoutExecution.exerciseExecutions || workoutExecutionStore.getWorkoutExecution.exerciseExecutions.length === 0" class="no-exercises-message">
                         No exercises defined for this workout plan.
                     </div>
                 </div>
 
-                <div class="exercise-details" v-if="currentExercise">
+                <div class="exercise-details" v-if="workoutExecutionStore.getCurrentExercise">
                     <div class="exercise-header">
-                        <div class="ex-name">{{ currentExercise.exerciseData?.exercise?.name || 'Exercise Details' }}</div>
-                        <div class="ex-muscle">{{ currentExercise.exerciseData?.exercise?.muscleGroup || '' }}</div>
+                        <div class="ex-name">{{ workoutExecutionStore.getCurrentExercise.exerciseData?.exercise?.name || 'Exercise Details' }}</div>
+                        <div class="ex-muscle">{{ workoutExecutionStore.getCurrentExercise.exerciseData?.exercise?.muscleGroup || '' }}</div>
                     </div>
-                    <div class="professor-note" v-if="currentExercise.exerciseData?.professorNote">
+                    <div class="professor-note" v-if="workoutExecutionStore.getCurrentExercise.exerciseData?.professorNote">
                         <div class="professor-note-header">
                             <Icon icon="ph:note-thin" width="24" height="24" />
                             <span>Professor's Note</span>
                         </div>
                         <div class="professor-note-content">
-                            <span>{{ currentExercise.exerciseData.professorNote }}</span>
+                            <span>{{ workoutExecutionStore.getCurrentExercise.exerciseData.professorNote }}</span>
                         </div>
                     </div>
 
@@ -496,7 +485,7 @@ watch(workoutExecution, (newValue) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(set, setIndex) in currentExercise.exerciseData?.plannedSets"
+                                <tr v-for="(set, setIndex) in workoutExecutionStore.getCurrentExercise.exerciseData?.plannedSets"
                                     :key="set.id || `temp-${set.tempId || setIndex}`" 
                                     :class="{ 'completed': set.completed }">
                                     <td>{{ set.setNumber }}</td>
@@ -549,14 +538,14 @@ watch(workoutExecution, (newValue) => {
                                 </tr>
                                 </tbody>
                         </table>
-                        <div class="add-wrapper" v-if="workoutExecution.status === 'IN_PROGRESS'">
+                        <div class="add-wrapper" v-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'">
                             <button class="add-set" @click="addSet">+ Add Set</button>
                         </div>
                     </div>
                 </div>
                 <div v-else class="no-exercise-selected">
                     No exercise selected. Please select an exercise from the list.
-                    <span v-if="workoutExecution && workoutExecution.exerciseExecutions && workoutExecution.exerciseExecutions.length === 0">
+                    <span v-if="workoutExecutionStore.getWorkoutExecution && workoutExecutionStore.getWorkoutExecution.exerciseExecutions && workoutExecutionStore.getWorkoutExecution.exerciseExecutions.length === 0">
                         This workout plan might not have any exercises configured.
                     </span>
                 </div>
@@ -564,21 +553,21 @@ watch(workoutExecution, (newValue) => {
 
             <div class="workout-btns">
                 <button
-                    v-if="workoutExecution.status === 'IN_PROGRESS'"
+                    v-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'"
                     class="btn cancel"
                     @click="cancelWorkout"
                 >
                 Cancel Workout
                 </button>
                 <button
-                    v-if="workoutExecution.status === 'IN_PROGRESS'"
+                    v-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'"
                     class="btn complete"
                     @click="completeWorkout"
                 >
                 Complete Workout
                 </button>
                 <button
-                    v-if="workoutExecution.status !== 'IN_PROGRESS'"
+                    v-if="workoutExecutionStore.getWorkoutExecution.status !== 'IN_PROGRESS'"
                     class="btn primary"
                     @click="router.back()"
                 >

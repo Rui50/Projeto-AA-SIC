@@ -50,7 +50,7 @@
             
             const createdWorkout = response.data;
             console.log('Workout created:', createdWorkout);
-            workoutStore.addWorkout(createdWorkout);
+            workoutStore.addWorkoutPlan(createdWorkout);
             // await fetchWorkouts();
             router.push(`/workout/edit/${createdWorkout.id}`);
         }

@@ -274,7 +274,7 @@
 
             <div class="recent-workouts">
                 <div class="recent-workouts-header">
-                    <h3>Recent Workouts</h3>
+                    <h3>Recent Completed Workouts</h3>
                     <button class="view-all" @click="goToWorkoutHistory">View All</button>
                 </div>
 

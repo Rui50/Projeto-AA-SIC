@@ -128,7 +128,7 @@ onMounted(fetchWorkoutPlanDetails);
                 </div>
             </div>
 
-            <div class="workout-main-layour">
+            <div class="workout-main-layout">
                 <div class="exercise-list">
                     <div
                         v-for="(exerciseData, index) in workoutPlanDetails.exercises"
@@ -139,6 +139,9 @@ onMounted(fetchWorkoutPlanDetails);
                     >
                         <div class="exercise-name">{{ exerciseData.exercise.name }}</div>
                         <div class="exercise-muscle"> {{ exerciseData.exercise.muscleGroup }}</div>
+                    </div>
+                    <div v-if="!workoutPlanDetails.exercises || workoutPlanDetails.exercises.length === 0" class="no-exercises-message">
+                        No exercises defined for this workout plan.
                     </div>
                 </div>
 
@@ -163,7 +166,6 @@ onMounted(fetchWorkoutPlanDetails);
                             <thead>
                                 <tr>
                                     <th>Set</th>
-                                    <!--<th>Previous</th>-->
                                     <th v-if="userStore.getMetricType === 'METRIC'">Weight (kg)</th>
                                     <th v-else>Weight (lbs)</th>
                                     <th>Reps</th>
@@ -173,7 +175,6 @@ onMounted(fetchWorkoutPlanDetails);
                             <tbody>
                                 <tr v-for="(plannedSet, setIndex) in currentSelectedExercise.plannedSets" :key="plannedSet.id || `plan-set-${setIndex}`">
                                     <td>{{ plannedSet.setNumber }}</td>
-                                    <!--<td>{{ plannedSet.previousWeight || '-' }}</td>-->
                                     <td>{{ formatWeight(plannedSet.weight) }}</td>
                                     <td>{{ plannedSet.reps }}</td>
                                     <td>{{ plannedSet.restTimeSugested }}</td>
@@ -192,251 +193,304 @@ onMounted(fetchWorkoutPlanDetails);
                 <button class="btn complete" @click="startWorkout">Start Workout</button>
             </div>
         </div>
-        <div v-else>
+        <div v-else class="no-workout-data">
             <p>No workout plan found.</p>
+            <button @click="router.push('/workouts')" class="btn primary">Go to Workouts List</button>
         </div>
     </div>
 </template>
 
 <style scoped>
-    .btn {
-        padding: 0.8rem 1.2rem;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 500;
-        transition: background-color 0.3s ease;
-        color: white;
-    }
-
-    .btn.cancel { 
-        background-color: #6c757d; 
-    }
-
-    .btn.cancel:hover {
-        background-color: #5a6268;
-    }
-
-    .btn.complete {
-        background-color: #28a745; 
-    }
-
-    .btn.complete:hover {
-        background-color: #218838;
-    }
-
-
-    h2 {
-        font-size: 1.5rem;
-        font-weight: 700;
-    }
-
-    .set-details {
-        margin-top: 1rem;
-    }
-
-    .sets-table {
-        width: 100%;
-        margin-top: 1rem;
-        border-collapse: collapse;
-    }
-
-    .sets-table th, .sets-table td {
-        padding: 0.5rem;
-        text-align: center;
-        padding: 10px;;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .sets-table th {
-        font-weight: 600;
-        background-color: #F3F4F6;
-        color: #111827;
-    }
-
-    .sets-table tr:last-child td {
-        border-bottom: none;
-    }
-
-
-
-    .sets-table input{
-        display: none;
-    }
-
-    .workout-btns {
-        display: flex;
-        justify-content: flex-end;
-        gap: 1rem;
-        margin-top: 2rem;
-    }
-
-    .professor-note {
-        background-color: #FEF3C7;
-        border-left: 4px solid #F6A71E;
-        padding: 1rem;
-        margin-bottom: 20px;
-        border-radius: 8px;
-    }
-
-    .professor-note-header {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    .professor-note-content {
-        font-size: 0.9rem;
-        color: #111827;
-    }
-
-    .exercise-header {
-        display: flex;
-        justify-content: flex-start;
-        gap: 1rem;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .ex-name {
-        font-size: 1.8rem;
-        font-weight: 700;
-    }
-
-    .ex-muscle {
-        font-size: 0.8rem;
-        background-color: rgb(158, 158, 158);
-        padding: 0.4rem 1.5rem;
-        color: white;
-        border-radius: 1rem;
-    }
-
-    .exercise-details {
-        background-color: var(--background-white-color);
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .workout-main-layour {
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        gap: 2rem;
-    }
-
-    .exercise-list {
-        display: flex;
-        flex-direction: column;
-        padding: 2rem;
-        gap: 1rem;
-        max-height: 65vh;
-        overflow-y: auto;
-        padding-right: 0.8rem;
-        scroll-behavior: smooth;
-        scrollbar-width: thin; 
-    }
-
-    .exercise-list::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .exercise-list::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    .exercise-list::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 10px;
-    }
-
-    .exercise-list::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8;
-    }
-
-    .exercise-card {
-        background-color: var(--background-white-color);
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        position: relative;
-    }
-
-    .exercise-card:hover {
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    }
-
-    .exercise-card.active {
-        border-left: 5px solid var(--accent-color);
-    }
-
-    .exercise-name {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: var(--text-dark-gray);
-    }
-
-    .exercise-muscle {
-        font-size: 1rem;
-        color: var(--text-light-gray);
-        margin-top: 0.5rem;
-    }
-
-    .exercise-status {
-        display: none;
-    }
-
-    .workout-page{
+    .workout-page {
+        padding: 1.5rem;
         max-width: 1500px;
         margin: 0 auto;
-        padding: 2rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
+        border-radius: 10px;
+    }
+
+    .loading-state, .error-state, .no-workout-data {
+        text-align: center;
+        padding: 2.5rem;
+        font-size: 1.25rem;
+        color: #555;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .error-state {
+        color: #dc3545;
+    }
+
+    .no-workout-data .btn {
+        margin-top: 1rem;
     }
 
     .workout-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #eee;
     }
 
     .workout-header h1 {
-        font-size: 2rem;
+        font-size: 2.2rem;
+        margin: 0;
+        color: #212529;
         font-weight: 700;
-        color: var(--accent-color);
     }
 
     .workout-data {
         display: flex;
-        align-items: center;
         gap: 2rem;
         margin-bottom: 2rem;
-        justify-content: flex-start;
+        color: #6c757d;
+        font-size: 1rem;
+        flex-wrap: wrap;
     }
 
     .workout-data-item {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 1rem;
-        color: var(--text-light-gray);
+        gap: 0.6rem;
+        background-color: #e9ecef;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+
+    .workout-main-layout {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .exercise-list {
+        flex: 0 0 300px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        padding: 1.2rem;
+        overflow-y: auto;
+        max-height: calc(100vh - 280px);
+        min-height: 200px;
+    }
+
+    .no-exercises-message {
+        padding: 1rem;
+        color: #888;
+        text-align: center;
+        font-style: italic;
+        font-size: 0.9em;
+    }
+
+    .exercise-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        margin-bottom: 0.7rem;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        transition: background-color 0.25s ease, box-shadow 0.25s ease;
+        border: 1px solid #dee2e6;
+    }
+
+    .exercise-card:hover {
+        background-color: #e2e6ea;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .exercise-card.active {
+        background-color: #007bff;
+        color: white;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        border-color: #007bff;
+    }
+
+    .exercise-card.active .exercise-name,
+    .exercise-card.active .exercise-muscle {
+        color: white;
+    }
+
+    .exercise-card .exercise-name {
+        font-weight: 600;
+        flex-grow: 1;
+        font-size: 1.05rem;
+    }
+
+    .exercise-card .exercise-muscle {
+        font-size: 0.88rem;
+        color: #888;
+        margin-left: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .exercise-card.active .exercise-muscle {
+        color: #e0e0e0;
+    }
+
+    .exercise-details {
+        flex-grow: 1;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
+        min-width: 400px;
     }
 
     .no-exercise-selected {
         flex-grow: 1;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
-        background-color: var(--background-white-color);
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        padding: 2rem;
         color: #888;
+        font-size: 1.15rem;
+        text-align: center;
+    }
+
+    .exercise-header {
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .ex-name {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .ex-muscle {
         font-size: 1.1rem;
-        min-height: 400px;
+        color: #777;
+    }
+
+    .professor-note {
+        background-color: #e7f3ff;
+        border-left: 5px solid #007bff;
+        padding: 1.2rem;
+        border-radius: 6px;
+        margin-bottom: 2rem;
+    }
+
+    .professor-note-header {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-weight: 600;
+        color: #0056b3;
+        margin-bottom: 0.7rem;
+        font-size: 1.1em;
+    }
+
+    .professor-note-content {
+        font-size: 1rem;
+        color: #333;
+        line-height: 1.5;
+    }
+
+    .set-details h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.5rem;
+    }
+
+    .sets-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 2rem;
+    }
+
+    .sets-table th, .sets-table td {
+        border: 1px solid #e9ecef;
+        padding: 1rem;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .sets-table th {
+        background-color: #f2f2f2;
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.95rem;
+        white-space: nowrap;
+    }
+
+    .workout-btns {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 2.5rem;
+    }
+
+    .workout-btns .btn {
+        padding: 0.9em 1.8rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .workout-btns .btn.cancel {
+        background-color: #747474;
+        color: white;
+    }
+
+    .workout-btns .btn.cancel:hover {
+        background-color: #1b1b1b;
+    }
+
+    .workout-btns .btn.complete {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .workout-btns .btn.complete:hover {
+        background-color: #218838;
+    }
+
+    .btn.primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn.primary:hover {
+        background-color: #0069d9;
+    }
+
+    @media (max-width: 900px) {
+        .workout-main-layout {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .exercise-list {
+            flex: auto;
+            max-height: 300px;
+        }
+
+        .exercise-details {
+            flex: auto;
+            min-width: unset;
+        }
     }
 </style>

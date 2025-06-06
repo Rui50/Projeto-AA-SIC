@@ -350,7 +350,7 @@ th:last-child, td:last-child {
     color: #4CAF50;
 }
 
-.status-badge.missed {
+.status-badge.cancelled {
     background-color: #ffebee;
     color: #f44336;
 }

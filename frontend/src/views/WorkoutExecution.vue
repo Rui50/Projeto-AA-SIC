@@ -426,7 +426,7 @@ watch(workoutExecution, (newValue) => {
         <div v-else-if="error" class="error-state">{{ error }}</div>
         <div v-else-if="workoutExecution" class="execution-content">
             <div class="workout-header">
-                <h1>{{ workoutExecution.workoutPlan?.name || `Workout Execution ID: ${workoutExecution.id}` }}</h1>
+                <h1>{{ workoutExecution.workoutName || `Workout Execution ID: ${workoutExecution.id}` }}</h1>
                 <div class="timer">
                     <span class="timer-value">{{ formattedElapsedTime }}</span>
                 </div>
@@ -437,10 +437,10 @@ watch(workoutExecution, (newValue) => {
                     <Icon icon="meteor-icons:list" width="24" height="24" />
                     <span> {{ workoutExecution.exerciseExecutions ? workoutExecution.exerciseExecutions.length : 0 }} Exercises</span>
                 </div>
-                <div class="workout-data-item">
+                <!--<div class="workout-data-item">
                     <Icon icon="ion:person-outline" width="24" height="24" />
                     <span> User: {{ workoutExecution.userId }}</span>
-                </div>
+                </div>-->
                 <div class="workout-data-item" v-if="workoutExecution.executionDate">
                     <Icon icon="mdi:calendar" width="24" height="24" />
                     <span>Date: {{ workoutExecution.executionDate }}</span>

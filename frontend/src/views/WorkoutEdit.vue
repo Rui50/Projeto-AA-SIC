@@ -7,6 +7,7 @@
     import axios from 'axios'
     import { API_PATHS } from '@/api_paths'
     import { useUserStore } from '@/stores/userStore'
+    import { useWorkoutStore } from '@/stores/workoutStore'
     import { useRoute } from 'vue-router'
     import Loading from '@/components/Loading.vue'
 
@@ -18,6 +19,7 @@
     const toast = useToast()
 
     const userStore = useUserStore()
+    const workoutStore = useWorkoutStore()
     const route = useRoute()
     const router = useRouter()
 
@@ -130,6 +132,8 @@
 
         console.log('Saving workout with payload:', payload);
 
+        console.log('sending request to ', `${API_PATHS.WORKOUT_BY_ID}${workoutId.value}`)
+
         try {
             const response = await axios.put(`${API_PATHS.WORKOUT_BY_ID}${workoutId.value}`, payload, {
                 headers: {
@@ -172,6 +176,7 @@
             console.log('Workout deleted successfully');
             //alert('Workout deleted successfully!');~
             toast.success('Workout deleted successfully!');
+            workoutStore.removeWorkoutPlan(workoutId.value);
             hasChanges.value = false;
             router.push('/workouts');
         } catch (error) {

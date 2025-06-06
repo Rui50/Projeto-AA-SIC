@@ -29,4 +29,6 @@ public class SetData {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exerciseData_id", nullable = false)
     private ExerciseData exerciseData;
+
+    private boolean isDeleted = false;
 }

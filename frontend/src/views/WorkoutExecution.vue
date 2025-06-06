@@ -215,6 +215,9 @@ const completeSet = async (plannedSet, setIndex) => {
     }
 
     try {
+        console.log('Preparing to record set execution:', plannedSet);
+        
+
         const setExecutionDTO = {
             setNumber: plannedSet.setNumber,
             repsPerformed: plannedSet.repsPerformed,
@@ -249,8 +252,10 @@ const completeSet = async (plannedSet, setIndex) => {
         // now we update this specific set
 
         const targetSet = workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.find(
-            s => s.id === recordedSet.id || (plannedSet.tempId && s.tempId === plannedSet.tempId)
+            s => s.id === recordedSet.plannedSetId || (plannedSet.tempId && s.tempId === plannedSet.tempId)
         );
+
+        console.log('Target set for update:', targetSet);
 
         if (targetSet) {
             targetSet.weightPerformed = recordedSet.weightPerformed;
@@ -348,6 +353,7 @@ const handleSaveWorkoutFromPopup = async (feedbackNote) => {
         );
         console.log('Workout completed and saved successfully!');
         showWorkoutCompletedPopup.value = false;
+        workoutExecutionStore.resetStore(); 
         router.push('/workouts'); 
     } catch (err) {
         console.error('Error saving completed workout:', err);

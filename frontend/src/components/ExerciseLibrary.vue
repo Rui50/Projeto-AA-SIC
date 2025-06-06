@@ -4,6 +4,7 @@
     import { Icon } from '@iconify/vue'
     import axios from 'axios'
     import { API_PATHS } from '@/api_paths'
+    import { useWorkoutStore } from '@/stores/workoutStore'
 
     const props = defineProps({
         popupState: {
@@ -11,6 +12,8 @@
             default: false
         },
     })
+
+    const workoutStore = useWorkoutStore()
 
     const emit = defineEmits(["close", "exercise-selected"])
 
@@ -36,9 +39,14 @@
 
     const fetchExercises = async () => {
         isLoading.value = true
+        if (workoutStore.getExerciseLibrary && workoutStore.getExerciseLibrary.length > 0) {
+            isLoading.value = false
+            return
+        }
+
         try {
             const response = await axios.get(API_PATHS.EXERCISES_LIBRARY)
-            exercisesList.value = response.data
+            workoutStore.setExerciseLibrary(response.data)
         } catch (error) {
             console.error('Error fetching exercises:', error)
         } finally {
@@ -58,14 +66,14 @@
             selectedMuscleGroup.value = '';
             selectedType.value = '';
             // if it fails we have some "fallback"
-            if (exercisesList.value.length === 0) {
+            if (workoutStore.getExerciseLibrary.length === 0) {
                 fetchExercises();
             }
         }
     });
 
     const filteredExercises = computed(() => {
-        let filtered = exercisesList.value;
+        let filtered = workoutStore.getExerciseLibrary;
 
         // Filter by search text
         if (searchText.value) {

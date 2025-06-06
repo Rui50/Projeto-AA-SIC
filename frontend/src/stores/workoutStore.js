@@ -5,12 +5,14 @@ export const useWorkoutStore = defineStore('workout', () => {
 
     // state
     const workoutPlans = ref([]);
+    const exerciseLibrary = ref([]);
 
 
     // getters
     const getWorkoutPlans = computed(() => workoutPlans.value);
     const getActiveWorkoutPlans = computed(() => workoutPlans.value.filter(w => w.active));
     const getInactiveWorkoutPlans = computed(() => workoutPlans.value.filter(w => !w.active));
+    const getExerciseLibrary = computed(() => exerciseLibrary.value);
 
     // Getters for counts
     const getActiveWorkoutsCount = computed(() => getActiveWorkoutPlans.value.length);
@@ -25,6 +27,11 @@ export const useWorkoutStore = defineStore('workout', () => {
     const addWorkoutPlan = (plan) => {
         workoutPlans.value.push(plan);
     }
+
+    const setExerciseLibrary = (exercises) => {
+        exerciseLibrary.value = exercises;
+    }
+
 
     const updateWorkoutPlan = (updatedPlan) => {
         const index = workoutPlans.value.findIndex(w => w.id === updatedPlan.id);
@@ -48,7 +55,14 @@ export const useWorkoutStore = defineStore('workout', () => {
         console.log('Workout plan removed from store, ID:', planId);
     };
 
+    const clearExerciseLibrary = () => {
+        exerciseLibrary.value = [];
+    };
+
     return {
+        getExerciseLibrary,
+        setExerciseLibrary,
+        clearExerciseLibrary,
         workoutPlans,
         getWorkoutPlans,
         getActiveWorkoutPlans,

@@ -202,11 +202,11 @@ public class WorkoutPlanController {
     }
 
     @GetMapping("/weekly-schedule/active")
-    public ResponseEntity<?> getActiveWeeklySchedule() {
-        // Método novo no service que retorna Map<String, List<String>> (ver abaixo)
-        Map<String, List<String>> schedule = workoutPlanService.getActiveWorkoutPlansByDay();
-
+    public ResponseEntity<?> getActiveWeeklyScheduleForOwner(
+        @CookieValue(value = "token", defaultValue = "") String token
+    ) {
+        Integer ownerId = Integer.valueOf(authService.getUserIdFromToken(token));
+        Map<String, List<String>> schedule = workoutPlanService.getActiveWorkoutPlansByDayForOwner(ownerId);
     return ResponseEntity.ok(schedule);
-}
-
+    }
 }

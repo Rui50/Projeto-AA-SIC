@@ -84,7 +84,9 @@ watch(events, () => {
 // Busca eventos ao montar
 onMounted(async () => {
   try {
-    const res = await axios.get(API_PATHS.WeeklySchedule);
+    const res = await axios.get(API_PATHS.WeeklySchedule, {
+      withCredentials: true
+    });
     events.value = res.data;
   } catch (e) {
     console.error(e);

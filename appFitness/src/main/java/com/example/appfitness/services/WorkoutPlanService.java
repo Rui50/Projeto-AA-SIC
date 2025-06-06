@@ -289,8 +289,8 @@ public class WorkoutPlanService {
     }
 
     @Transactional
-    public Map<String, List<String>> getActiveWorkoutPlansByDay() {
-        List<WorkoutPlan> activePlans = workoutPlanRepository.findAllActive();
+    public Map<String, List<String>> getActiveWorkoutPlansByDayForOwner(Integer ownerId) {
+        List<WorkoutPlan> activePlans = workoutPlanRepository.findAllActiveByOwnerId(ownerId);
 
 
         Map<String, List<String>> schedule = new HashMap<>();

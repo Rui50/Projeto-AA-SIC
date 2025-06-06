@@ -220,7 +220,7 @@ const completeSet = async (plannedSet, setIndex) => {
             repsPerformed: plannedSet.repsPerformed,
             weightPerformed: plannedSet.weightPerformed,
             restTimePerformed: plannedSet.restTimePerformed || null, 
-            plannedSetId: plannedSet.id || null
+            plannedSetId: plannedSet.isAdHoc ? null : plannedSet.id
         };
 
         let response;
@@ -249,7 +249,7 @@ const completeSet = async (plannedSet, setIndex) => {
         // now we update this specific set
 
         const targetSet = workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.find(
-            s => (s.id === plannedSet.id && !s.isAdded) || (s.isAdded)
+            s => s.id === recordedSet.id || (plannedSet.tempId && s.tempId === plannedSet.tempId)
         );
 
         if (targetSet) {
@@ -258,10 +258,17 @@ const completeSet = async (plannedSet, setIndex) => {
             targetSet.restTimePerformed = recordedSet.restTimePerformed;
             targetSet.id = recordedSet.id; 
             targetSet.completed = recordedSet.completed;  
+
+            if (targetSet.tempId && targetSet.id) {
+                delete targetSet.tempId;
+            }
+            targetSet.isAdHoc = recordedSet.plannedSetId === null;
+
+            workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.sort((a, b) => a.setNumber - b.setNumber);
         }
-
-        workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.sort((a, b) => a.setNumber - b.setNumber);
-
+        else {
+            console.warn('Recorded set not found in local store for update:', recordedSet);
+        }
 
     } catch (err) {
         console.error('Error recording set:', err);
@@ -286,6 +293,8 @@ const getExerciseExecutionStatus = (exerciseExecution) => {
     }
 };
 
+const tempSetIdCounter = ref(0) // to fix some issues with the added sets
+
 // adds a new set to the current exercise
 const addSet = () => {
     if (workoutExecutionStore.getCurrentExercise) {
@@ -294,6 +303,7 @@ const addSet = () => {
             : 1);
 
         const newSet = {
+            tempId: `added-${Date.now()}-${tempSetIdCounter.value++}`,
             id: null,
             setNumber: nextSetNumber,
             reps: null,
@@ -303,7 +313,7 @@ const addSet = () => {
             repsPerformed: null,
             weightPerformed: null,
             isAdded: true, 
-            isCompleted: false,
+            completed: false,
         };
         workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.push(newSet);
         console.log('Ad-hoc set added:', newSet);
@@ -373,6 +383,8 @@ const cancelWorkout = async () => {
                     }
                 }
             );
+            workoutExecutionStore.resetStore();
+
             console.log('Workout cancelled successfully.');
             router.push('/workouts'); 
         } catch (err) {

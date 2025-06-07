@@ -510,8 +510,9 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                             </thead>
                             <tbody>
                                 <tr v-for="(set, setIndex) in workoutExecutionStore.getCurrentExercise.exerciseData?.plannedSets"
-                                    :key="set.id || `temp-${set.tempId || setIndex}`" 
-                                    :class="{ 'completed': set.completed }">
+                                    :key="set.id || `temp-${set.tempId || setIndex}`"
+                                    :class="{ 'completed': set.completed, 'not-executed': workoutExecutionStore.getWorkoutExecution.status === 'COMPLETED' && !set.completed }"
+                                >
                                     <td>{{ set.setNumber }}</td>
                                     <td>{{ set.previousWeight || '-' }} x {{ set.previousReps || '-' }}</td>
                                     <td>
@@ -538,7 +539,7 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                                     </td>
                                     <td>{{ set.restTimeSugested || '-' }} s</td>
                                     <td>
-                                        <div class="set-actions">
+                                    <div class="set-actions">
                                         <template v-if="set.completed">
                                             <Icon
                                                 icon="mdi:check-circle"
@@ -554,10 +555,10 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                                                 @click="set.completed = false, updatingCount++"
                                             />
                                         </template>
-                                        <button v-else class="btn-complete" @click="completeSet(set, setIndex)">
+                                        <button v-else-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'" class="btn-complete" @click="completeSet(set, setIndex)">
                                             Record Set
                                         </button>
-                                        </div>
+                                    </div>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -626,6 +627,19 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
 </template>
 
 <style scoped>
+
+    .sets-table tr.not-executed {
+        background-color: #e9ecef; 
+        color: #6c757d; 
+        pointer-events: none; 
+        opacity: 0.7;
+    }
+
+    .sets-table tr.not-executed input[type="number"] {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        cursor: not-allowed; 
+    }
 
     .workout-live-page {
         padding: 1.5rem;

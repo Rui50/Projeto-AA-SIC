@@ -9,6 +9,13 @@ import { API_PATHS } from '../api_paths';
 import { useWorkoutStore } from '@/stores/workoutStore';
 import { useWorkoutExecutionStore } from '@/stores/workoutExecutionStore';
 
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
+
+const showConfirmStartModal = ref(false);
+
+const toggleConfirmationModal = () => {
+    showConfirmStartModal.value = !showConfirmStartModal.value;
+};
 
 const route = useRoute();
 const router = useRouter();
@@ -228,7 +235,7 @@ onMounted(async () => {
                 <button class="btn cancel" @click="router.push('/workouts')">Back to Plans</button>
                 <button
                         class="btn complete"
-                        @click="startWorkout"
+                        @click="toggleConfirmationModal"
                         :disabled="hasWorkoutInProgress"
                         :class="{ 'disabled-btn': hasWorkoutInProgress }"
                     >
@@ -245,6 +252,16 @@ onMounted(async () => {
             <button @click="router.push('/workouts')" class="btn primary">Go to Workouts List</button>
         </div>
     </div>
+     <ConfirmationModal
+        :show="showConfirmStartModal"
+        title="Confirm Workout Start"
+        :message="`Are you sure you want to start &quot;${workoutPlanDetails?.name}&quot;?`"
+        confirm-button-text="Yes, Start Workout"
+        cancel-button-text="No, Cancel"
+        @confirm="startWorkout"
+        @cancel="showConfirmStartModal = false"
+        @close="showConfirmStartModal = false"
+    />
 </template>
 
 <style scoped>

@@ -141,10 +141,13 @@
                 }
             });
 
+            workoutStore.updateWorkoutPlan(response.data);
+
             console.log('Workout updated successfully:', response.data);
             // mensagem de sucesso
             toast.success('Workout updated successfully!');
             hasChanges.value = false;
+            
             initialWorkoutData.value = { ...response.data }; // ou payload
             //initialWorkoutData.value.exercises = JSON.parse(JSON.stringify(response.data.exercises || []));
 

@@ -45,7 +45,7 @@
             weight.value = data.weight || 'N/A'
             height.value = data.height || 'N/A'
             bodyFat.value = data.bodyFatPercentage || 'N/A'
-            bmi.value = data.bmi || 'N/A'
+            bmi.value = (data.bmi).toFixed(2) || 'N/A'
             lastUpdated.value = data.updatedAt 
                 ? new Date(data.updatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) 
                 : 'No records yet'
@@ -82,6 +82,16 @@
             })
 
             console.log('Body metrics updated successfully:', response.data)
+            
+            // Update local BMI
+            if (weight.value && height.value) {
+                // Calculate BMI: weight (kg) / (height (m) * height (m))
+                const heightInMeters = height.value / 100; // cm to m
+                bmi.value = +(weight.value / (heightInMeters * heightInMeters)).toFixed(2);
+            } else {
+                bmi.value = 'N/A';
+            }
+
             toast.success('Body metrics updated successfully!')
             
         } catch (error) {

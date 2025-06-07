@@ -3,6 +3,7 @@ package com.example.appfitness.repositories;
 import com.example.appfitness.models.User;
 import com.example.appfitness.models.WorkoutExecution;
 import com.example.appfitness.models.SetExecution;
+import com.example.appfitness.models.WorkoutPlan;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -90,4 +91,16 @@ public interface WorkoutExecutionRepository extends JpaRepository<WorkoutExecuti
     // Check if there is an in-progress workout execution for a user
     @Query("SELECT COUNT(we) > 0 FROM WorkoutExecution we WHERE we.user.id = :userId AND we.status = 'IN_PROGRESS'")
     boolean existsInProgressByUserId(Integer userId);
+
+    @Query("SELECT COUNT(we) > 0 FROM WorkoutExecution we " +
+            "WHERE we.user = :user " +
+            "AND we.workoutPlan = :workoutPlan " +
+            "AND we.executionDate = :executionDate " +
+            "AND we.status = :status")
+    boolean existsByUserAndWorkoutPlanAndExecutionDateAndStatus(
+            User user,
+            WorkoutPlan workoutPlan,
+            LocalDate executionDate,
+            WorkoutExecution.WorkoutStatus status
+    );
 }

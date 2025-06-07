@@ -12,6 +12,7 @@ import com.example.appfitness.repositories.WorkoutExecutionRepository;
 import com.example.appfitness.repositories.WorkoutPlanRepository;
 
 import com.example.appfitness.services.UserService;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,7 +42,7 @@ public class UserController {
         User user = userService.getUserById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + userId));
 
-
+        // verificar se está um work em progresso
         Optional<WorkoutExecution> inProgressWorkout = workoutExecutionRepository.findByUserAndStatus(user, WorkoutExecution.WorkoutStatus.IN_PROGRESS);
 
         // se está a decorrer um workout
@@ -58,7 +59,7 @@ public class UserController {
         Optional<Map.Entry<WorkoutPlan, LocalDate>> scheduledWorkouts = workoutPlans
                 .stream()
                 .map(plan -> {
-                    Optional<LocalDate> nextDate = getNextScheduledWorkout(plan.getScheduledDays());
+                    Optional<LocalDate> nextDate = getNextScheduledWorkoutForPlan(user, plan);
                     return nextDate.map(date -> Map.entry(plan, date)).orElse(null);
                 })
                 .filter(Objects::nonNull) // evitar null pointers
@@ -76,17 +77,34 @@ public class UserController {
     }
 
 
-    private Optional<LocalDate> getNextScheduledWorkout(Set<DayOfWeek> scheduledDays){
+    private Optional<LocalDate> getNextScheduledWorkoutForPlan(User user, WorkoutPlan plan) {
         LocalDate today = LocalDate.now();
-        DayOfWeek dayOfWeek = today.getDayOfWeek();
 
-        if(scheduledDays.contains(dayOfWeek)){
-            return Optional.of(today);
+        LocalDate searchStart = today;
+
+        if (plan.getScheduledDays().contains(today.getDayOfWeek())) {
+            System.out.println("data sending to rep" + user + plan + today);
+            boolean wasAlreadyCompletedToday = workoutExecutionRepository
+                    .existsByUserAndWorkoutPlanAndExecutionDateAndStatus(
+                            user, plan, today, WorkoutExecution.WorkoutStatus.COMPLETED
+                    );
+
+            System.out.println(wasAlreadyCompletedToday);
+
+            if (!wasAlreadyCompletedToday) {
+                return Optional.of(today);
+            }
+            else{
+                searchStart = today.plusDays(1);
+            }
+        }
+        else{
+            searchStart = today.plusDays(1);
         }
 
         for(int i = 0; i <= 7; i++){
-            LocalDate dateToCheck = today.plusDays(i);
-            if(scheduledDays.contains(dateToCheck.getDayOfWeek())){
+            LocalDate dateToCheck = searchStart.plusDays(i);
+            if(plan.getScheduledDays().contains(dateToCheck.getDayOfWeek())){
                 return Optional.of(dateToCheck);
             }
         }

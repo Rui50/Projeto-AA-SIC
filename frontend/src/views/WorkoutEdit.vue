@@ -175,11 +175,12 @@
                     Authorization: `Bearer ${userStore.getToken}`
                 }
             });
+            workoutStore.removeWorkoutPlan(workoutId.value);
+
 
             console.log('Workout deleted successfully');
-            //alert('Workout deleted successfully!');~
+            //alert('Workout deleted successfully!');
             toast.success('Workout deleted successfully!');
-            workoutStore.removeWorkoutPlan(workoutId.value);
             hasChanges.value = false;
             router.push('/workouts');
         } catch (error) {

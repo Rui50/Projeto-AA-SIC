@@ -118,60 +118,57 @@ public class WorkoutExecutionService {
     }
 
     //    public Optional<WorkoutExecution> getWorkoutExecutionById(Integer id) {
-    public WorkoutExecutionResponseDTO getWorkoutExecutionById(Integer id) {
 
-        // pegar na workout execution da base de dados
+    public WorkoutExecutionResponseDTO getWorkoutExecutionById(Integer id) {
         WorkoutExecution workoutExecution = workoutExecutionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("WorkoutExecution not found with id " + id));
 
-        List<ExerciseExecution> filteredDeleted = workoutExecution.getExerciseExecutions().stream()
-                .filter(ee -> !ee.getExerciseData().isDeleted())
-                .toList();
-
-        // converter para dto e popula com fromEntity ( a parte do exercise execution)
         WorkoutExecutionResponseDTO responseDTO = WorkoutExecutionResponseDTO.fromEntity(workoutExecution);
 
-        // cria nova lista que vai ficar com os DTOS
-        List<ExerciseExecutionResponseDTO> exerciseExecutions = new ArrayList<>();
+        System.out.println("Workout Execution Response: " + responseDTO);
 
-        // para cada ExerciseExecution associada a este workout execution, construir o DTO e meter os previous data se exister
-        for (ExerciseExecution ex : filteredDeleted) {
-            // converter para DTO
-            ExerciseExecutionResponseDTO eeDTO = ExerciseExecutionResponseDTO.fromEntity(ex);
+        if (responseDTO.getExerciseExecutions() != null) {
+            for (ExerciseExecutionResponseDTO eeDTO : responseDTO.getExerciseExecutions()) {
+                ExerciseExecution originalExExecution = workoutExecution.getExerciseExecutions().stream()
+                        .filter(e -> e.getId() == eeDTO.getId())
+                        .findFirst()
+                        .orElse(null);
 
-            // obter data previa (se existir)
-            List<ExerciseExecution> previousExerciseExecutions = exerciseExecutionRepository
-                    .findPreviousCompletedExerciseExecutions(
-                            workoutExecution.getUser().getId(),
-                            ex.getExerciseData().getId());
+                if (originalExExecution != null && originalExExecution.getExerciseData() != null) {
+                    List<ExerciseExecution> previousExerciseExecutions = exerciseExecutionRepository
+                            .findPreviousCompletedExerciseExecutions(
+                                    workoutExecution.getUser().getId(),
+                                    originalExExecution.getExerciseData().getId());
 
-            if (previousExerciseExecutions != null && !previousExerciseExecutions.isEmpty()) {
-                ExerciseExecution previousExerciseExecution = previousExerciseExecutions.get(0);
+                    if (previousExerciseExecutions != null && !previousExerciseExecutions.isEmpty()) {
+                        ExerciseExecution previousExerciseExecution = previousExerciseExecutions.get(0);
 
-                if (previousExerciseExecution.getPerformedSets() == null || previousExerciseExecution.getPerformedSets().isEmpty()) {
-                    eeDTO.setPreviousPerformed(new ArrayList<>());
+                        List<SetExecution> previousPerformedSets = previousExerciseExecution.getPerformedSets();
+                        if (previousPerformedSets == null) {
+                            previousPerformedSets = new ArrayList<>();
+                        }
+
+                        List<PreviousPerformedDTO> previousPerformedDTOList = previousPerformedSets
+                                .stream()
+                                .filter(se -> se.getPlannedSet() == null || !se.getPlannedSet().isDeleted())
+                                .map(setExecution -> {
+                                    PreviousPerformedDTO previousPerformedDTO = new PreviousPerformedDTO();
+                                    previousPerformedDTO.setSetNumber(setExecution.getSetNumber());
+                                    previousPerformedDTO.setPreviousRepsPerformed(setExecution.getRepsPerformed());
+                                    previousPerformedDTO.setPreviousWeightPerformed(setExecution.getWeightPerformed());
+                                    return previousPerformedDTO;
+                                })
+                                .toList();
+
+                        eeDTO.setPreviousPerformed(previousPerformedDTOList);
+                    } else {
+                        eeDTO.setPreviousPerformed(new ArrayList<>());
+                    }
                 } else {
-                    List<PreviousPerformedDTO> previousPerformedDTOList = previousExerciseExecution
-                            .getPerformedSets()
-                            .stream()
-                            .map(setExecution -> {
-                                PreviousPerformedDTO previousPerformedDTO = new PreviousPerformedDTO();
-                                previousPerformedDTO.setSetNumber(setExecution.getSetNumber());
-                                previousPerformedDTO.setPreviousRepsPerformed(setExecution.getRepsPerformed());
-                                previousPerformedDTO.setPreviousWeightPerformed(setExecution.getWeightPerformed());
-                                return previousPerformedDTO;
-                            })
-                            .toList();
-
-                    eeDTO.setPreviousPerformed(previousPerformedDTOList);
+                    eeDTO.setPreviousPerformed(new ArrayList<>());
                 }
-            } else {
-                eeDTO.setPreviousPerformed(new ArrayList<>());
             }
-            exerciseExecutions.add(eeDTO);
         }
-
-        responseDTO.setExerciseExecutions(exerciseExecutions);
         return responseDTO;
     }
 

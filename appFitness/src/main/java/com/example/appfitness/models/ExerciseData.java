@@ -1,10 +1,7 @@
 package com.example.appfitness.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +20,18 @@ public class ExerciseData {
     // o exercicio a que se refere
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exercise_id", nullable = false)
+    @ToString.Exclude
     private Exercise exercise;
 
     @OneToMany(mappedBy = "exerciseData", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<SetData> plannedSets = new ArrayList<>();
 
     private String note;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workoutPlan_id", nullable = false)
+    @ToString.Exclude
     private WorkoutPlan workoutPlan;
 
     private boolean isDeleted = false;

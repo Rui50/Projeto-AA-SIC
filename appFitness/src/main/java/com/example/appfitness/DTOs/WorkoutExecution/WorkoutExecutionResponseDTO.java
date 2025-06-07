@@ -43,12 +43,15 @@ public class WorkoutExecutionResponseDTO {
         if (workoutExecution.getWorkoutPlan() != null) {
             dto.setWorkoutPlanId(workoutExecution.getWorkoutPlan().getId());
         }
-        /*
+
         if (workoutExecution.getExerciseExecutions() != null) {
             dto.setExerciseExecutions(workoutExecution.getExerciseExecutions().stream()
                     .map(ExerciseExecutionResponseDTO::fromEntity)
                     .collect(Collectors.toList()));
-        }*/
+        }
+        else {
+            dto.setExerciseExecutions(List.of());
+        }
         return dto;
     }
 }

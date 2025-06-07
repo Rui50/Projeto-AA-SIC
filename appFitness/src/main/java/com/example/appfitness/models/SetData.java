@@ -2,10 +2,7 @@ package com.example.appfitness.models;
 
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Duration;
 
@@ -28,6 +25,7 @@ public class SetData {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exerciseData_id", nullable = false)
+    @ToString.Exclude
     private ExerciseData exerciseData;
 
     private boolean isDeleted = false;

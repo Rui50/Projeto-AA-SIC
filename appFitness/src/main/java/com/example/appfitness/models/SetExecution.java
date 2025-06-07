@@ -1,10 +1,7 @@
 package com.example.appfitness.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Duration;
 
@@ -27,9 +24,11 @@ public class SetExecution {
     private boolean isCompleted; // because of newlly added
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "set_data_id")
+    @ToString.Exclude
     private SetData plannedSet;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exerciseExecution_id", nullable = false)
+    @ToString.Exclude
     private ExerciseExecution exerciseExecution;
 }

@@ -1,10 +1,7 @@
 package com.example.appfitness.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.stat.internal.StatsHelper;
 
 import java.time.LocalDateTime;
@@ -30,6 +27,7 @@ public class ExerciseExecution {
     // relacionar com o workoutexecution
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workoutExecution_id", nullable = false)
+    @ToString.Exclude
     private WorkoutExecution workoutExecution;
 
     private LocalDateTime startTime;

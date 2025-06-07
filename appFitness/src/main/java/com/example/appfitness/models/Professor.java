@@ -1,10 +1,7 @@
 package com.example.appfitness.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
@@ -18,8 +15,10 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "Professor")
 @PrimaryKeyJoinColumn(name = "id")
+@ToString
 public class Professor extends User{
     @OneToMany(mappedBy = "professor", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Aluno> alunos;
 
     // planos de treino que ele criou
@@ -31,7 +30,5 @@ public class Professor extends User{
     // pedidos de professor recebidos por user
 
     // Templates de treino
-
-
 }
 

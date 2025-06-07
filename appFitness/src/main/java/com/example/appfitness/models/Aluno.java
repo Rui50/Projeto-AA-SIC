@@ -13,12 +13,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Table(name="Aluno")
 @PrimaryKeyJoinColumn(name = "id")
+@ToString
 public class Aluno extends User  {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "professor_id")
+    @ToString.Exclude
     private Professor professor;
-
 
     // se decidirmos fazer os requests
 }

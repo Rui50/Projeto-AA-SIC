@@ -1,10 +1,7 @@
 package com.example.appfitness.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 @Table(name = "WorkoutExecution")
 public class WorkoutExecution {
     @Id
@@ -24,10 +22,12 @@ public class WorkoutExecution {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workout_plan_id", nullable = false)
+    @ToString.Exclude
     private WorkoutPlan workoutPlan;
 
     private LocalDateTime startTime;
@@ -41,6 +41,7 @@ public class WorkoutExecution {
 
     // exercicios executados
     @OneToMany(mappedBy = "workoutExecution", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<ExerciseExecution> exerciseExecutions = new ArrayList<>();
 
 

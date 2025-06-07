@@ -77,6 +77,7 @@ public interface WorkoutExecutionRepository extends JpaRepository<WorkoutExecuti
             "JOIN FETCH we.workoutPlan wp " +
             "WHERE we.user.id = :userId " +
             "AND we.status = :status " +
+            "AND wp.isDeleted is False " +
             "AND we.executionDate BETWEEN :startDate AND :endDate " +
             "ORDER BY we.executionDate ASC, wp.id ASC")
     List<WorkoutExecution> findCompletedWorkoutExecutionsWithWorkoutPlan(

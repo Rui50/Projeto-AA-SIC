@@ -203,6 +203,31 @@
             return;
         }
 
+        const workoutOnStore = workoutStore.getWorkoutPlans.find(plan => plan.id == workoutId.value);
+
+        if (workoutOnStore) {
+            console.log('Workout found in store:', workoutOnStore);
+            workoutName.value = workoutOnStore.name || '';
+            workoutDescription.value = workoutOnStore.description || '';
+            scheduleType.value = workoutOnStore.scheduleType || 'Free';
+            scheduledDays.value = workoutOnStore.scheduledDays || [];
+            exercises.value = workoutOnStore.exercises || [];
+
+            initialWorkoutData.value = { 
+                name: workoutName.value,
+                description: workoutDescription.value,
+                scheduleType: scheduleType.value,
+                scheduledDays: JSON.parse(JSON.stringify(scheduledDays.value)),
+                exercises: JSON.parse(JSON.stringify(exercises.value)),
+                active: workoutOnStore.active
+            };
+
+            hasChanges.value = false;
+            isLoading.value = false;
+            console.log('Initial workout data set from store:', initialWorkoutData.value);
+            return;
+        }
+
         try {
             const response = await axios.get(`${API_PATHS.WORKOUT_BY_ID}${workoutId.value}`, {
                 headers: {

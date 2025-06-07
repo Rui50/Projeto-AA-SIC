@@ -332,6 +332,24 @@ const addSet = () => {
     }
 };
 
+const removeSet = async (setToRemove) => {
+    if (!workoutExecutionStore.getCurrentExercise) {
+        return;
+    }
+
+    const index = workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.findIndex(
+        s => (setToRemove.tempId && s.tempId === setToRemove.tempId)
+    );
+
+    if (index !== -1) {
+        workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.splice(index, 1);
+        workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.forEach((set, i) => {
+            set.setNumber = i + 1;
+        });
+        console.log('Ad-hoc set removed:', setToRemove);
+    }
+};
+
 const completeWorkout = async () => {
     if (!workoutExecutionStore.getWorkoutExecution) return;
 
@@ -558,7 +576,15 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                                         <button v-else-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'" class="btn-complete" @click="completeSet(set, setIndex)">
                                             Record Set
                                         </button>
-                                    </div>
+                                        <Icon
+                                            v-if="set.isAdded && !set.id && !set.completed &&workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'"
+                                            icon="material-symbols:remove-rounded"
+                                            width="24"
+                                            height="24"
+                                            class="remove-set-icon"
+                                            @click="removeSet(set)"
+                                        />
+                                        </div>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -627,7 +653,23 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
 </template>
 
 <style scoped>
+    .set-actions {
+        display: flex;
+        justify-content: center; 
+        align-items: center;
+        gap: 8px; 
+    }
 
+    .remove-set-icon {
+        color: #dc3545; 
+        cursor: pointer;
+        transition: color 0.2s ease;
+        margin-left: 8px; 
+    }
+
+    .remove-set-icon:hover {
+        color: #c82333;
+    }
     .sets-table tr.not-executed {
         background-color: #e9ecef; 
         color: #6c757d; 

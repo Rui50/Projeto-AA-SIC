@@ -18,7 +18,7 @@ import java.time.Duration;
 public class SetData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     private Integer setNumber; // indica se é o primeiro set, segundo, etc
 

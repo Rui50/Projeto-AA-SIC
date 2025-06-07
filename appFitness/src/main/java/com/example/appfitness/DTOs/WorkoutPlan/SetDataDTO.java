@@ -1,10 +1,7 @@
 package com.example.appfitness.DTOs.WorkoutPlan;
 
 import com.example.appfitness.models.SetData;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Duration;
 
@@ -12,6 +9,7 @@ import java.time.Duration;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class SetDataDTO {
     private Integer id;
     private Integer setNumber;
@@ -28,7 +26,7 @@ public class SetDataDTO {
         dto.setRestTimeSugested(setData.getRestTimeSugested());
         return dto;
     }
-
+    /*
     @Override
     public String toString() {
         return "SetDataDTO{" +
@@ -38,6 +36,6 @@ public class SetDataDTO {
                 ", weight=" + weight +
                 ", restTimeSugested=" + restTimeSugested +
                 '}';
-    }
+    }*/
 
 }

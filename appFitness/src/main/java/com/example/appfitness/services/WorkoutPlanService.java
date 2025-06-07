@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.time.DayOfWeek;
+import java.util.stream.Collectors;
 
 /**
  * Serviço responsavel por gerenciar o Workoutplan, exerciseData e SetData
@@ -26,6 +27,8 @@ public class WorkoutPlanService {
     private ExerciseExecutionRepository exerciseExecutionRepository;
     private ExerciseDataRepository exerciseDataRepository;
     private WorkoutExecutionRepository workoutExecutionRepository;
+    private SetExecutionRepository setExecutionRepository;
+    private SetDataRepository setDataRepository;
 
     public WorkoutPlanService(WorkoutPlanRepository workoutPlanRepository,
                               ProfessorRepository professorRepository,
@@ -33,7 +36,9 @@ public class WorkoutPlanService {
                               UserRepository userRepository,
                               ExerciseDataRepository exerciseDataRepository,
                               ExerciseExecutionRepository exerciseExecutionRepository,
-                              WorkoutExecutionRepository workoutExecutionRepository) {
+                              WorkoutExecutionRepository workoutExecutionRepository,
+                              SetExecutionRepository setExecutionRepository,
+                              SetDataRepository setDataRepository) {
         this.workoutPlanRepository = workoutPlanRepository;
         this.professorRepository = professorRepository;
         this.exerciseRepository = exerciseRepository;
@@ -41,6 +46,8 @@ public class WorkoutPlanService {
         this.exerciseDataRepository = exerciseDataRepository;
         this.workoutExecutionRepository = workoutExecutionRepository;
         this.exerciseExecutionRepository = exerciseExecutionRepository;
+        this.setExecutionRepository = setExecutionRepository;
+        this.setDataRepository = setDataRepository;
     }
 
     @Transactional
@@ -71,94 +78,180 @@ public class WorkoutPlanService {
     public Optional<WorkoutPlan> getWorkoutPlanById(Integer id) {
         return workoutPlanRepository.findById(id);
     }
-
     @Transactional
     public WorkoutPlan updateWorkoutPlan(Integer workoutPlanId, WorkoutPlanRequestDTO updateDTO) {
         WorkoutPlan workoutPlan = workoutPlanRepository.findById(workoutPlanId)
                 .orElseThrow(() -> new RuntimeException("Workout Plan not found: " + workoutPlanId));
 
+        System.out.println("REQUEST RECEIVED FOR UPDATE " + updateDTO);
+
         workoutPlan.setName(updateDTO.getName());
         workoutPlan.setDescription(updateDTO.getDescription());
         workoutPlan.setScheduleType(updateDTO.getScheduleType());
-        workoutPlan.setScheduledDays(updateDTO.getScheduledDays());
+        if (updateDTO.getScheduledDays() != null) {
+            workoutPlan.setScheduledDays(new HashSet<>(updateDTO.getScheduledDays()));
+        } else {
+            workoutPlan.setScheduledDays(new HashSet<>());
+        }
         workoutPlan.setUpdatedAt(LocalDate.now());
-
-        // secalhar algumas coisas fazemos o update de outra maneira tipo o active
         workoutPlan.setActive(updateDTO.isActive());
 
-        // usar isto daqui para baixo depende
-        // podemos ou fazer tudo em batch ou fazer calls a api em todos os ex
-        Map<Integer, ExerciseData> existingExercises = new HashMap<>();
-        if (workoutPlan.getExercises() != null) {
-            for (ExerciseData ed : workoutPlan.getExercises()) {
-                existingExercises.put(ed.getId(), ed);
-            }
-        }
+        // mapa id -> exercise data            M
+        Map<Integer, ExerciseData> existingExercisesMap = workoutPlan.getExercises().stream()
+                .filter(ed -> ed.getId() != null) // nao ter os novos
+                .collect(Collectors.toMap(ExerciseData::getId, exerciseData -> exerciseData));
 
-        workoutPlan.getExercises().clear();
+        Set<Integer> exercisesToKeepIds = new HashSet<>();
+        
+        // guarda os exercicios que vao continuar no plano ou levar softdelete
+        List<ExerciseData> exercisesToKeep = new ArrayList<>();
+        
+        // exercicios que vao levar delete
+        List<ExerciseData> exercisesToDelete = new ArrayList<>(); 
 
-        if(updateDTO.getExercises() != null) {
-            for(ExerciseDataRequestDTO exDTO :  updateDTO.getExercises()){
+        if (updateDTO.getExercises() != null) {
+            for (ExerciseDataRequestDTO exDTO : updateDTO.getExercises()) {
                 ExerciseData exerciseData;
 
-                // caso em que o exercicio existe
-                if(exDTO.getId() != null) {
-                    exerciseData = existingExercises.get(exDTO.getId());
-                    if (exerciseData == null) {
-
-                        throw new RuntimeException("ExerciseData with ID " + exDTO.getExerciseId() +
-                                " not found or not linked to Workout Plan " + workoutPlanId + " for update.");
-                    }
+                // se exDTO tem id e existe no workoutplan
+                if (exDTO.getId() != null && existingExercisesMap.containsKey(exDTO.getId())) {
+                    exerciseData = existingExercisesMap.get(exDTO.getId());
+                    exercisesToKeepIds.add(exerciseData.getId());
                 }
+                // se é um novo exerc, cria inst
                 else {
                     exerciseData = new ExerciseData();
+                    exerciseData.setWorkoutPlan(workoutPlan); 
                 }
 
+                // exercicio referenciado
                 Exercise exercise = exerciseRepository.findById(exDTO.getExerciseId())
                         .orElseThrow(() -> new RuntimeException("Exercise not found: " + exDTO.getExerciseId()));
+
                 exerciseData.setExercise(exercise);
                 exerciseData.setNote(exDTO.getNote());
+                exerciseData.setDeleted(false);
 
-                // agora para os sets mesma logica
-                Map<Integer, SetData> existingSets = new HashMap<>();
-                if (exerciseData.getPlannedSets() != null) {
-                    for (SetData sd : exerciseData.getPlannedSets()) {
-                        existingSets.put(sd.getId(), sd);
-                    }
-                }
-                exerciseData.getPlannedSets().clear();
+                // map id -> setData 
+                Map<Integer, SetData> existingSetsMap = exerciseData.getPlannedSets().stream()
+                        .filter(sd -> sd.getId() != null)
+                        .collect(Collectors.toMap(SetData::getId, setData -> setData));
+                
+                
+                // ids dos sets que vao ficar
+                Set<Integer> setsToKeepIds = new HashSet<>();
+                // This list will hold all sets that should remain attached to this exercise,
+                // including new, updated, and soft-deleted ones.
+                
+                // lista com sets novos, que vao levar update ou soft delete
+                List<SetData> setsToKeepForExerciseData = new ArrayList<>();
+                
+                // lista para track de sets para delete
+                List<SetData> setsToDelete = new ArrayList<>(); 
 
                 if (exDTO.getPlannedSets() != null) {
                     for (SetDataDTO setDTO : exDTO.getPlannedSets()) {
                         SetData setData;
 
-                        // caso de haver o set apenas atualizamos
-                        if (setDTO.getId() != null) {
-                            setData = existingSets.get(setDTO.getId());
-                            if (setData == null) {
-                                throw new RuntimeException("SetData with ID " + setDTO.getId() +
-                                        " not found or not linked to ExerciseData " + exerciseData.getId() + " for update.");
-                            }
-                        } else {
-                            // caso contrario inserimos
+                        if (setDTO.getId() != null && existingSetsMap.containsKey(setDTO.getId())) {
+                            setData = existingSetsMap.get(setDTO.getId());
+                            setsToKeepIds.add(setData.getId());
+                        }
+                        // se é novo cia inst
+                        else {
                             setData = new SetData();
+                            setData.setExerciseData(exerciseData);
                         }
 
-                        // update set data
                         setData.setSetNumber(setDTO.getSetNumber());
                         setData.setRepsPlanned(setDTO.getReps());
                         setData.setWeightPlanned(setDTO.getWeight());
                         setData.setRestTimeSugested(setDTO.getRestTimeSugested());
+                        setData.setDeleted(false);
 
-
-                        exerciseData.addPlannedSet(setData);
+                        setsToKeepForExerciseData.add(setData);
                     }
                 }
 
-                workoutPlan.addExercise(exerciseData);
+                // obter quais setData vao ser apagados ou levar soft del
+                List<SetData> setsRemovedFromDTO = existingSetsMap.values().stream()
+                        .filter(setData -> !setsToKeepIds.contains(setData.getId()))
+                        .toList();
 
+                for (SetData setData : setsRemovedFromDTO) {
+                    if (setExecutionRepository.countByPlannedSet(setData) > 0) {
+                        setData.setDeleted(true);
+                        setsToKeepForExerciseData.add(setData);
+                    } else {
+                        setsToDelete.add(setData);
+                    }
+                }
+
+                if (!setsToDelete.isEmpty()) {
+                    setDataRepository.deleteAll(setsToDelete);
+                }
+
+                exerciseData.getPlannedSets().clear();
+                exerciseData.getPlannedSets().addAll(setsToKeepForExerciseData);
+
+                exercisesToKeep.add(exerciseData);
             }
         }
+
+        // saber quais ExerciseDAta vao levar delete ou softDelete
+        List<ExerciseData> exercisesRemovedFromDTO = existingExercisesMap.values().stream()
+                .filter(exerciseData -> !exercisesToKeepIds.contains(exerciseData.getId()))
+                .toList();
+
+        for (ExerciseData exerciseData : exercisesRemovedFromDTO) {
+            Long hasExecutions = exerciseExecutionRepository.countByExerciseData(exerciseData);
+
+            if (hasExecutions > 0) {
+                exerciseData.setDeleted(true);
+
+                // so para ter a certeza, se um ex leva soft-delete, os sets também
+                List<SetData> setsToDeleteUnderSoftDeletedExercise = new ArrayList<>();
+                exerciseData.getPlannedSets().forEach(setData -> {
+                    if (setExecutionRepository.countByPlannedSet(setData) > 0) {
+                        setData.setDeleted(true);
+                    } else {
+                        setsToDeleteUnderSoftDeletedExercise.add(setData);
+                    }
+                });
+                if (!setsToDeleteUnderSoftDeletedExercise.isEmpty()) {
+                    setDataRepository.deleteAll(setsToDeleteUnderSoftDeletedExercise);
+                }
+                exercisesToKeep.add(exerciseData);
+            } else {
+
+                List<SetData> setsToDeleteUnderPhysicalDeletedExercise = new ArrayList<>();
+                exerciseData.getPlannedSets().forEach(setData -> {
+                    if (setExecutionRepository.countByPlannedSet(setData) == 0) {
+                        setsToDeleteUnderPhysicalDeletedExercise.add(setData);
+                    } else {
+                        setData.setDeleted(true);
+                        exerciseData.addPlannedSet(setData);
+                        exercisesToKeep.add(exerciseData);
+                    }
+                });
+
+                if (!setsToDeleteUnderPhysicalDeletedExercise.isEmpty()) {
+                    setDataRepository.deleteAll(setsToDeleteUnderPhysicalDeletedExercise);
+                }
+
+                //so apagar se nao tiver softdel
+                if (hasExecutions == 0 && !exerciseData.isDeleted()) { //
+                    exercisesToDelete.add(exerciseData);
+                }
+            }
+        }
+
+        if (!exercisesToDelete.isEmpty()) {
+            exerciseDataRepository.deleteAll(exercisesToDelete);
+        }
+
+        workoutPlan.getExercises().clear();
+        workoutPlan.getExercises().addAll(exercisesToKeep);
 
         return workoutPlanRepository.save(workoutPlan);
     }

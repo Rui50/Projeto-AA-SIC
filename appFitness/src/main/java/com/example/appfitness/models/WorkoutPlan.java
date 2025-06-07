@@ -44,7 +44,7 @@ public class WorkoutPlan {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @OneToMany(mappedBy = "workoutPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "workoutPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ExerciseData> exercises = new ArrayList<>();
 
     @ElementCollection(targetClass = DayOfWeek.class)

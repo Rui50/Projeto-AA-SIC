@@ -1,11 +1,10 @@
 package com.example.appfitness.repositories;
 
-import com.example.appfitness.models.ExerciseExecution;
+import com.example.appfitness.models.SetData;
 import com.example.appfitness.models.SetExecution;
 import com.example.appfitness.models.WorkoutExecution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -34,4 +33,8 @@ public interface SetExecutionRepository extends JpaRepository<SetExecution, Inte
 
     @Query("SELECT ses FROM SetExecution ses WHERE ses.exerciseExecution.id IN :exerciseExecutionIds")
     List<SetExecution> findByExerciseExecutionIds(List<Integer> exerciseExecutionIds);
+
+    long countByPlannedSet(SetData plannedSet);
+
+    boolean existsByPlannedSet(SetData setData);
 }

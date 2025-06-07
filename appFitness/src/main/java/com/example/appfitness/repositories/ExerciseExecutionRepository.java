@@ -1,5 +1,6 @@
 package com.example.appfitness.repositories;
 
+import com.example.appfitness.models.ExerciseData;
 import com.example.appfitness.models.ExerciseExecution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -38,4 +39,6 @@ public interface ExerciseExecutionRepository extends JpaRepository<ExerciseExecu
             "JOIN FETCH ee.exerciseData ed " +
             "WHERE ee.workoutExecution.id IN :workoutExecutionIds")
     List<ExerciseExecution> findByWorkoutExecutionIdsWithExerciseData(List<Integer> workoutExecutionIds);
+
+    long countByExerciseData(ExerciseData exerciseData);
 }

@@ -21,7 +21,7 @@
               @click="goToWorkoutPlan(event.id)"
             >
               <span class="dot"></span>
-              {{ event.name }}
+              <span :title="event.name">{{ event.name }}</span>
             </div>
           </template>
         </div>
@@ -176,12 +176,17 @@ function goToWorkoutPlan(id) {
 .day-event {
   color: #3e56f6;
   font-weight: 500;
-  display: flex;
-  align-items: center;
+  display: inline-block;
   font-size: 0.98rem;
-  justify-content: center;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+  text-align: center;
+  margin: 0 auto;
 }
+
 .day-event:hover {
   background-color: #d0d4ff;
   color: #1a2a9c;

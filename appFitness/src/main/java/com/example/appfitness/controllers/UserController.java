@@ -52,7 +52,7 @@ public class UserController {
 
         // se temos algum scheduled
 
-        List<WorkoutPlan> workoutPlans = workoutPlanRepository.findByOwnerIdAndScheduleTypeAndActiveTrue(userId, WorkoutPlan.WorkoutScheduleType.Fixed);
+        List<WorkoutPlan> workoutPlans = workoutPlanRepository.findActiveFixedWorkoutPlansForUser(userId, WorkoutPlan.WorkoutScheduleType.Fixed);
 
         // mapa plano -> dia
         Optional<Map.Entry<WorkoutPlan, LocalDate>> scheduledWorkouts = workoutPlans
@@ -74,6 +74,7 @@ public class UserController {
 
         return ResponseEntity.ok(DashboardWorkoutDTO.none());
     }
+
 
     private Optional<LocalDate> getNextScheduledWorkout(Set<DayOfWeek> scheduledDays){
         LocalDate today = LocalDate.now();

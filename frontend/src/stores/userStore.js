@@ -2,6 +2,8 @@
 
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import axios from 'axios';
+import { API_PATHS } from '../api_paths';
 
 export const useUserStore = defineStore('user', () => {
 
@@ -71,6 +73,18 @@ export const useUserStore = defineStore('user', () => {
         localStorage.removeItem('email');
         localStorage.removeItem('metric_type');
         localStorage.removeItem('user_role');
+
+        try {
+            axios.post(API_PATHS.logout)
+                .then(() => {
+                    console.log('User logged out successfully');
+                })
+                .catch(error => {
+                    console.error('Error during logout:', error);
+                });
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
     }
 
     return {

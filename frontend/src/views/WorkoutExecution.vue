@@ -540,7 +540,7 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                                                 height="24"
                                                 style="color: green;"
                                             />
-                                            <Icon
+                                            <Icon v-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'"
                                                 icon="mdi:pencil"
                                                 width="24"
                                                 height="24"

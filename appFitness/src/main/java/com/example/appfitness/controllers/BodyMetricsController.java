@@ -53,7 +53,7 @@ public class BodyMetricsController {
         bodyMetrics.setUpdatedAt(LocalDateTime.now());
 
         // para ja so aceitamos metric
-        double bmi = calculateBMI(createDTO.getWeight(), createDTO.getHeight(), BodyMetrics.MetricType.METRIC);
+        double bmi = calculateBMI(createDTO.getWeight(), createDTO.getHeight());
 
         bodyMetrics.setBmi(bmi);
 
@@ -95,15 +95,13 @@ public class BodyMetricsController {
 
     }
 
-    private double calculateBMI(Double weight, Double height, BodyMetrics.MetricType metricType) {
+    private double calculateBMI(Double weight, Double height) {
         if (weight == null || height == null || height == 0) {
             return 0.0;
         }
-        if (metricType == BodyMetrics.MetricType.IMPERIAL) {
-            return (weight / (height * height)) * 703;
-        } else {
-            return weight / (height * height);
-        }
+        // BMI = weight (kg) / (height (m) ^ 2)
+        double heightM = (height / 100);
+        return weight / (heightM * heightM);
     }
 
 }

@@ -387,11 +387,13 @@ public class WorkoutPlanService {
 
         Map<String, List<Integer>> schedule = new HashMap<>();
         for (WorkoutPlan plan : activePlans) {
-            // Aqui assume-se que `getScheduledDays()` devolve uma List<String> tipo ["MONDAY", "WEDNESDAY"]
-            if (plan.getScheduledDays() != null) {
-                for (DayOfWeek day : plan.getScheduledDays()) {
-                    String dayStr = capitalize(day.toString().toLowerCase());
-                    schedule.computeIfAbsent(dayStr, k -> new ArrayList<>()).add(plan.getId());
+            if (plan.getScheduleType() == WorkoutPlan.WorkoutScheduleType.Fixed) {
+                // Aqui assume-se que `getScheduledDays()` devolve uma List<String> tipo ["MONDAY", "WEDNESDAY"]
+                if (plan.getScheduledDays() != null) {
+                    for (DayOfWeek day : plan.getScheduledDays()) {
+                        String dayStr = capitalize(day.toString().toLowerCase());
+                        schedule.computeIfAbsent(dayStr, k -> new ArrayList<>()).add(plan.getId());
+                    }
                 }
             }
         }

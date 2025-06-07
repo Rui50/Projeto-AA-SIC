@@ -8,6 +8,7 @@ import { Icon } from '@iconify/vue';
 import WorkoutCompleted from '@/components/WorkoutCompleted.vue'; 
 import { API_PATHS } from '../api_paths';
 import Loading from '@/components/Loading.vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -23,6 +24,12 @@ const elapsedTime = ref(0);         // time elapsed
 let timerInterval = null;           // timer for updating elapsed time
 
 const showWorkoutCompletedPopup = ref(false);
+
+const showConfirmCancelModal = ref(false);
+
+const toggleConfirmationModal = () => {
+    showConfirmCancelModal.value = !showConfirmCancelModal.value;
+};
 
 const workoutExecutionForPopup = computed(() => workoutExecutionStore.getWorkoutExecution);
 
@@ -373,31 +380,30 @@ const handleCloseWorkoutPopup = () => {
 const cancelWorkout = async () => {
     if (!workoutExecutionStore.getWorkoutExecution) return;
 
-    if (confirm('Are you sure you want to cancel this workout? All progress will be lost.')) {
-        stopTimer(); 
-        try {
-            const cancelRequest = {
-                feedback: "Workout cancelled by user.",
-                status: "CANCELLED" 
-            };
-            await axios.put(
-                API_PATHS.FINISH_WORKOUT(workoutExecutionStore.getWorkoutExecution.id),
-                cancelRequest,
-                {
-                    headers: {
-                        Authorization: `Bearer ${userStore.getToken}`
-                    }
+    stopTimer(); 
+    try {
+        const cancelRequest = {
+            feedback: "Workout cancelled by user.",
+            status: "CANCELLED" 
+        };
+        await axios.put(
+            API_PATHS.FINISH_WORKOUT(workoutExecutionStore.getWorkoutExecution.id),
+            cancelRequest,
+            {
+                headers: {
+                    Authorization: `Bearer ${userStore.getToken}`
                 }
-            );
-            workoutExecutionStore.resetStore();
+            }
+        );
+        workoutExecutionStore.resetStore();
 
-            console.log('Workout cancelled successfully.');
-            router.push('/workouts'); 
-        } catch (err) {
-            console.error('Error cancelling workout:', err);
-            alert('Failed to cancel workout. Please try again.');
-        }
+        console.log('Workout cancelled successfully.');
+        router.push('/workouts'); 
+    } catch (err) {
+        console.error('Error cancelling workout:', err);
+        alert('Failed to cancel workout. Please try again.');
     }
+    
 }
 
 onMounted(() => {
@@ -573,7 +579,7 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                 <button
                     v-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'"
                     class="btn cancel"
-                    @click="cancelWorkout"
+                    @click="toggleConfirmationModal"
                 >
                 Cancel Workout
                 </button>
@@ -606,6 +612,17 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
             @save="handleSaveWorkoutFromPopup"
         />
     </div>
+
+    <ConfirmationModal
+        :show="showConfirmCancelModal"
+        title="Confirm Workout Cancellation"
+        message="Are you sure you want to cancel this workout? All progress will be lost."
+        confirm-button-text="Yes, Cancel Workout"
+        cancel-button-text="No, go back"
+        @confirm="cancelWorkout"
+        @cancel="showConfirmCancelModal = false"
+        @close="showConfirmCancelModal = false"
+    />
 </template>
 
 <style scoped>

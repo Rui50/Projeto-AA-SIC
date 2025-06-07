@@ -88,10 +88,6 @@ const startWorkout = async () => {
         return;
     }
 
-    if (!confirm(`Are you sure you want to start "${workoutPlanDetails.value.name}"?`)) {
-        return;
-    }
-
     isLoading.value = true;
     error.value = null;
     try {

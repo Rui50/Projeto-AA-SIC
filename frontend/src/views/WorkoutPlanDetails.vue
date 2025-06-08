@@ -14,6 +14,7 @@ import ConfirmationModal from '@/components/ConfirmationModal.vue';
 const showConfirmStartModal = ref(false);
 
 const toggleConfirmationModal = () => {
+    console.log('Toggling confirmation modal:', showConfirmStartModal.value);
     showConfirmStartModal.value = !showConfirmStartModal.value;
 };
 
@@ -132,10 +133,9 @@ const checkWorkoutInProgress = async () => {
         console.log('Response data:' + response.data);
         const inProgress = response.data;
 
-        hasWorkoutInProgress.value = inProgress;
-
         if (inProgress) {
             workoutExecutionStore.setWorkoutExecution(response.data);
+            hasWorkoutInProgress.value = true;
         }
     } catch (err) {
         console.error('Error checking workout progress:', err);

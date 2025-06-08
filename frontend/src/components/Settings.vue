@@ -75,6 +75,7 @@
 }
 
 .settings-box {
+  animation: fadeIn 0.3s ease-out;
   background: white;
   padding: 2rem;
   border-radius: 12px;
@@ -145,5 +146,16 @@
   padding: 0.5rem 1.25rem;
   border-radius: 6px;
   cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(-10px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
 }
 </style>

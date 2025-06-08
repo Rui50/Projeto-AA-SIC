@@ -103,4 +103,7 @@ public interface WorkoutExecutionRepository extends JpaRepository<WorkoutExecuti
             LocalDate executionDate,
             WorkoutExecution.WorkoutStatus status
     );
+
+    @Query("SELECT we FROM WorkoutExecution we WHERE we.user.id = :userId AND we.status = 'IN_PROGRESS'")
+    Optional<WorkoutExecution> findByUserAndINProgress(Integer userId);
 }

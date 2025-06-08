@@ -1,5 +1,6 @@
 package com.example.appfitness.services;
 
+import com.example.appfitness.DTOs.Progress.WorkoutExecutionDTO;
 import com.example.appfitness.DTOs.WorkoutExecution.*;
 import com.example.appfitness.models.*;
 import com.example.appfitness.repositories.*;
@@ -324,9 +325,19 @@ public class WorkoutExecutionService {
         workoutExecutionRepository.deleteById(executionId);
     }
 
+
     public boolean hasWorkoutInProgress(Integer userId) {
         return workoutExecutionRepository.existsInProgressByUserId(userId);
     }
 
+    public Optional<WorkoutExecutionResponseDTO> getWorkoutInProgress(Integer userId) {
+        Optional<WorkoutExecution> inProgress = workoutExecutionRepository.findByUserAndINProgress(userId);
 
+        if (inProgress.isPresent()) {
+            return inProgress.map(WorkoutExecutionResponseDTO::fromEntity);
+        }
+        else {
+            return Optional.empty();
+        }
+    }
 }

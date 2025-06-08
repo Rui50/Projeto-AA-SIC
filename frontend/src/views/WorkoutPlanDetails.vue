@@ -126,9 +126,17 @@ const checkWorkoutInProgress = async () => {
     }
     try {
         const userId = userStore.getUserId;
-        const response = await axios.get(API_PATHS.CHECK_WORKOUT_IN_PROGRESS(userId));
+        const response = await axios.get(API_PATHS.CHECK_WORKOUT_IN_PROGRESS(userId), {
+            withCredentials: true
+        });
         console.log('Response data:' + response.data);
-        hasWorkoutInProgress.value = response.data === true;
+        const inProgress = response.data;
+
+        hasWorkoutInProgress.value = inProgress;
+
+        if (inProgress) {
+            workoutExecutionStore.setWorkoutExecution(response.data);
+        }
     } catch (err) {
         console.error('Error checking workout progress:', err);
         hasWorkoutInProgress.value = false;
@@ -238,10 +246,15 @@ onMounted(async () => {
                         Start Workout
                 </button>
             </div>
-            <p v-if="hasWorkoutInProgress" class="error-message">
-                <Icon icon="ph:warning-circle-fill" width="24" height="24" />
-                You already have an active workout in progress.
-            </p>
+            <span v-if="hasWorkoutInProgress" class="error-message">
+                <div class="error">
+                    <Icon icon="ph:warning-circle-fill" width="24" height="24" />
+                    You already have an active workout in progress.
+                </div>
+                <button class="btn-workout" @click="router.push('/workout/execution/' + workoutExecutionStore.getWorkoutExecution.id)">
+                    Continue Active Workout
+                </button>
+            </span>
         </div>
         <div v-else class="no-workout-data">
             <p>No workout plan found.</p>
@@ -261,6 +274,18 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+    .btn-workout{
+        padding: 0.8em 1.5em;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    }
+
     .workout-page {
         padding: 1.5rem;
         max-width: 1500px;
@@ -577,5 +602,6 @@ onMounted(async () => {
         margin-left: auto; 
         margin-right: auto; 
         max-width: fit-content;
+        flex-direction: column;
     }
 </style>

@@ -44,9 +44,7 @@
             bodyMetrics.value = response.data.bodyMetrics || [];
             workoutPlans.value = response.data.workoutPlan || [];
 
-            console.log("workout", workoutPlans.value);
-
-            console.log('Client info fetched:', response.data);
+            console.log("Client info fetched:", clientDetails.value, bodyMetrics.value, workoutPlans.value);
             return;
         } catch (err) {
             console.error("Error fetching client info:", err);
@@ -133,7 +131,7 @@
     }
 
     onMounted(() => {
-        studentId.value = route.params.id;
+        //studentId.value = route.params.id;
         fetchClientInfo();
     });
 
@@ -157,31 +155,34 @@
                 <p v-if="clientDetails.id"><strong>ID:</strong> {{ clientDetails.id }}</p>
                 <p v-if="clientDetails.age"><strong>Age:</strong> {{ clientDetails.age }}</p>
                 <button @click="accessClientDashboard" class="submit-button">
-                    Check your Clients Progress
+                    Check Client Progress
                 </button>
 
             </section>
             <section class="info-card body-metrics">
                 <h2>Body Metrics</h2>
-                <div v-if="bodyMetrics.length > 0" class="metrics-list">
-                    <h3>History</h3>
+                <div v-if="bodyMetrics" class="metrics-details">
+                     <h3 class="metrics-header">
+                        Most Recent Metrics 
+                        <span v-if="bodyMetrics.updatedAt" class="updated-date">
+                            (updatedAt: {{ new Date(bodyMetrics.updatedAt).toLocaleDateString() }})
+                        </span>
+                    </h3>
                     <table>
                         <thead>
                             <tr>
-                                <th>Date</th>
                                 <th>Weight (kg)</th>
                                 <th>Height (cm)</th>
                                 <th>Body Fat (%)</th>
-                                <th>Notes</th>
+                                <th>BMI</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="metric in bodyMetrics" :key="metric.id">
-                                <td>{{ new Date(metric.date).toLocaleDateString() }}</td>
-                                <td>{{ metric.weight }}</td>
-                                <td>{{ metric.height || '-' }}</td>
-                                <td>{{ metric.bodyFatPercentage || '-' }}</td>
-                                <td class="notes-cell">{{ metric.notes || '-' }}</td>
+                            <tr>
+                                <td>{{ bodyMetrics.weight || '-' }}</td>
+                                <td>{{ bodyMetrics.height || '-' }}</td>
+                                <td>{{ bodyMetrics.bodyFatPercentage || '-' }}</td>
+                                <td>{{ bodyMetrics.bmi || '-' }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -375,43 +376,6 @@
         background-color: #5a6268;
     }
 
-
-    .metrics-list {
-        margin-top: 25px;
-    }
-
-    .metrics-list h3 {
-        font-size: 1.3em;
-        color: #555;
-        margin-bottom: 15px;
-    }
-
-    .metrics-list table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 15px;
-    }
-
-    .metrics-list th, .metrics-list td {
-        border: 1px solid #ddd;
-        padding: 10px;
-        text-align: left;
-        font-size: 0.95em;
-    }
-
-    .metrics-list th {
-        background-color: #f2f2f2;
-        color: #333;
-    }
-
-    .metrics-list tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-
-    .metrics-list tr:hover {
-        background-color: #f0f0f0;
-    }
-
     .notes-cell {
         max-width: 200px;
         overflow: hidden;
@@ -419,6 +383,40 @@
         white-space: nowrap;
     }
 
+    .metrics-header {
+        display: flex; 
+        align-items: baseline; 
+        gap: 10px;
+        margin-top: 0;
+        color: #555;
+        margin-bottom: 15px;
+        font-size: 1.4em; 
+    }
+
+    .updated-date {
+        font-size: 0.8em;
+        margin-left: auto;
+        color: #777;
+        font-weight: normal; 
+    }
+
+    .metrics-details table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+    .metrics-details th, .metrics-details td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+        font-size: 0.95em;
+    }
+
+    .metrics-details th {
+        background-color: #f2f2f2;
+        color: #333;
+    }
 
     .workouts-section {
     }

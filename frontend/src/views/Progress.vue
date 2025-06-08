@@ -8,9 +8,12 @@
     import { API_PATHS } from '../api_paths'
     import Loading from '@/components/Loading.vue'
     import ProgressChart from '@/components/ProgressChart.vue'
+    import { useRoute } from 'vue-router';
 
+    const route = useRoute();
     const router = useRouter()
     const userStore = useUserStore()
+
 
     const timePeriods = ref([
         { name: 'Week', value: 'week' },
@@ -47,10 +50,15 @@
     const isLoading = ref(false)
 
     const fetchProgressData = async () => {
+        let userId = userStore.getUserId;
+        if (route.params.id) {
+            userId = route.params.id;
+        }
+
         isLoading.value = true;
 
         const payload = {
-            userId: userStore.getUserId,
+            userId: userId,
             timePeriod: selectedPeriod.value
         }
 
@@ -128,7 +136,11 @@
     };
 
     const goToWorkoutHistory = () => {
-        router.push(`/workouts/history/${userStore.getUserId}`);
+        let userId = userStore.getUserId;
+        if (route.params.id) {
+            userId = route.params.id;
+        }
+        router.push(`/workouts/history/${userId}`);
     };
 
     const formatWeight = (weightKg) => {

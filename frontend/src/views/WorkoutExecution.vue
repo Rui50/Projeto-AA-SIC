@@ -207,17 +207,36 @@ const selectExercise = (index) => {
     workoutExecutionStore.setCurrentExerciseIndex(index);
 };
 
+const validationMessage = ref('');
+
 // to register a completed set
 const completeSet = async (plannedSet, setIndex) => {
+    validationMessage.value = ''; 
     if (!workoutExecutionStore.getCurrentExercise) {
         alert('No exercise selected to record a set.');
         return;
     }
 
-    // inputs are valid numbers for not it statys like this
-    if (plannedSet.weightPerformed === undefined || plannedSet.weightPerformed === null || isNaN(plannedSet.weightPerformed) ||
-        plannedSet.repsPerformed === undefined || plannedSet.repsPerformed === null || isNaN(plannedSet.repsPerformed)) {
-        alert('Please enter valid numbers for weight and reps before recording.');
+    const weight = plannedSet.weightPerformed;
+    const reps = plannedSet.repsPerformed;
+
+    if (weight === undefined || weight === null || weight === '' || isNaN(Number(weight))) {
+        validationMessage.value = 'Please enter a valid number for Performed Weight.';
+        return;
+    }
+
+    if (weight < 0) {
+        validationMessage.value = 'Performed Weight cannot be negative.';
+        return;
+    }
+
+    if (reps === undefined || reps === null || reps === '' || isNaN(Number(reps))) {
+        validationMessage.value = 'Please enter a valid number for Performed Reps.';
+        return;
+    }
+
+    if (reps < 0) {
+        validationMessage.value = 'Performed Reps cannot be negative.';
         return;
     }
 
@@ -291,7 +310,9 @@ const completeSet = async (plannedSet, setIndex) => {
 
     } catch (err) {
         console.error('Error recording set:', err);
-        alert('Failed to record set. Please try again. Check backend logs for details.');
+        validationMessage.value = 'Failed to record set. Please try again.';
+
+        //alert('Failed to record set. Please try again. Check backend logs for details.');
     }
 };
 
@@ -475,10 +496,6 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                     <Icon icon="meteor-icons:list" width="24" height="24" />
                     <span> {{ workoutExecutionStore.getWorkoutExecution.exerciseExecutions ? workoutExecutionStore.getWorkoutExecution.exerciseExecutions.length : 0 }} Exercises</span>
                 </div>
-                <!--<div class="workout-data-item">
-                    <Icon icon="ion:person-outline" width="24" height="24" />
-                    <span> User: {{ workoutExecution.userId }}</span>
-                </div>-->
                 <div class="workout-data-item" v-if="workoutExecutionStore.getWorkoutExecution.executionDate">
                     <Icon icon="mdi:calendar" width="24" height="24" />
                     <span>Date: {{ workoutExecutionStore.getWorkoutExecution.executionDate }}</span>
@@ -509,6 +526,7 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                     <div class="exercise-header">
                         <div class="ex-name">{{ workoutExecutionStore.getCurrentExercise.exerciseData?.exercise?.name || 'Exercise Details' }}</div>
                         <div class="ex-muscle">{{ workoutExecutionStore.getCurrentExercise.exerciseData?.exercise?.muscleGroup || '' }}</div>
+                        <div class="description">{{ workoutExecutionStore.getCurrentExercise.exerciseData?.exercise?.description || '' }}</div>
                     </div>
                     <div class="professor-note" v-if="workoutExecutionStore.getCurrentExercise.exerciseData?.professorNote">
                         <div class="professor-note-header">
@@ -522,6 +540,9 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
 
                     <div class="set-details">
                         <h2>Sets</h2>
+                        <p v-if="validationMessage" class="validation-error-message">
+                            {{ validationMessage }}
+                        </p>
                         <table class="sets-table">
                             <thead>
                                 <tr>
@@ -661,6 +682,26 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
 </template>
 
 <style scoped>
+
+.validation-error-message {
+    color: #dc3545; /* Bootstrap's red for error */
+    background-color: #f8d7da; /* Light red background */
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+    .description {
+        font-size: 1rem;
+        color: #666;
+        margin-top: 0.5rem;
+        display: block; 
+        text-align: center;
+    }
+
     .set-actions {
         display: flex;
         justify-content: center; 
@@ -886,6 +927,10 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
     .ex-muscle {
         font-size: 1.1rem;
         color: #777;
+        background-color: #e9e9e9;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        display: inline-block;
     }
 
     .professor-note {

@@ -143,7 +143,6 @@ const checkWorkoutInProgress = async () => {
     }
 };
 
-
 onMounted(async () => {
     await fetchWorkoutPlanDetails();
     await checkWorkoutInProgress();
@@ -196,6 +195,7 @@ onMounted(async () => {
                     <div class="exercise-header">
                         <div class="ex-name">{{ currentSelectedExercise.exercise.name }}</div>
                         <div class="ex-muscle">{{ currentSelectedExercise.exercise.muscleGroup }}</div>
+                        <div class="description">{{ currentSelectedExercise.exercise?.description }}</div>
                     </div>
                     <div class="professor-note" v-if="currentSelectedExercise.note">
                         <div class="professor-note-header">
@@ -274,6 +274,14 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+    .description {
+        font-size: 1rem;
+        color: #666;
+        margin-top: 0.5rem;
+        display: block; 
+        text-align: center;
+    }
+
     .btn-workout{
         padding: 0.8em 1.5em;
         background-color: #007bff;
@@ -449,6 +457,7 @@ onMounted(async () => {
         border-bottom: 1px solid #eee;
         padding-bottom: 1.5rem;
         text-align: center;
+        
     }
 
     .ex-name {
@@ -461,6 +470,10 @@ onMounted(async () => {
     .ex-muscle {
         font-size: 1.1rem;
         color: #777;
+        background-color: #e9e9e9;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        display: inline-block;
     }
 
     .professor-note {

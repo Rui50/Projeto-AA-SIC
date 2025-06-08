@@ -13,7 +13,7 @@ public class ExerciseResponseDTO {
     private Exercise.ExerciseType type;
     private String description;
     private String muscleGroup;
-    //private String videoURL; // trabalho futuro
+    private String videoURL; // trabalho futuro
     //private String imageURL; // trabalho futuro
 
 
@@ -24,7 +24,7 @@ public class ExerciseResponseDTO {
         dto.setType(exercise.getType());
         dto.setDescription(exercise.getDescription());
         dto.setMuscleGroup(exercise.getMuscleGroup());
-        //dto.setVideoURL(exercise.getVideoURL());
+        dto.setVideoURL(exercise.getVideoURL());
         //dto.setImageURL(exercise.getImageURL());
         return dto;
     }

@@ -239,7 +239,7 @@ onMounted(async () => {
                 </button>
             </div>
             <p v-if="hasWorkoutInProgress" class="error-message">
-                <!--<font-awesome-icon :icon="['fas', 'exclamation-triangle']" />-->
+                <Icon icon="ph:warning-circle-fill" width="24" height="24" />
                 You already have an active workout in progress.
             </p>
         </div>
@@ -563,15 +563,19 @@ onMounted(async () => {
         }
 
     .error-message {
-            color: #dc3545;
-            font-weight: 500;
-            margin-top: 0.5rem;
-            padding: 0.75rem 1rem;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: 0.25rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+        color: #dc3545;
+        font-weight: 500;
+        margin-top: 1rem;
+        padding: 0.75rem 1rem;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 0.25rem;
+        display: flex; 
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-left: auto; 
+        margin-right: auto; 
+        max-width: fit-content;
     }
 </style>

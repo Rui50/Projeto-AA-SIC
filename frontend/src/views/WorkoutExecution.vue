@@ -135,14 +135,14 @@ const fetchWorkoutExecution = async () => {
                             plannedSet.restTimePerformed = performedSet.restTimePerformed || null; 
                             plannedSet.completed = performedSet.completed;
                             plannedSet.id = performedSet.id; 
-                            plannedSet.isAdHoc = false;
+                            plannedSet.isAdded = false;
                         }
                     }
                     else {
-                        // handles added sets that were already recordd
+                        // handles added sets that were already recorded
                         addedSets.push({
                             ...performedSet,
-                            isAdHoc: true,
+                            isAdded: true,
                             plannedSetId: null,
                             reps: performedSet.repsPerformed, 
                             weight: performedSet.weightPerformed,
@@ -160,7 +160,7 @@ const fetchWorkoutExecution = async () => {
                     repsPerformed: ps.repsPerformed || null, 
                     weightPerformed: ps.weightPerformed || null,
                     completed: ps.completed || false, 
-                    isAdHoc: false 
+                    isAdded: false 
                 })),
                 ...addedSets
             ].sort((a, b) => a.setNumber - b.setNumber);
@@ -230,7 +230,7 @@ const completeSet = async (plannedSet, setIndex) => {
             repsPerformed: plannedSet.repsPerformed,
             weightPerformed: plannedSet.weightPerformed,
             restTimePerformed: plannedSet.restTimePerformed || null, 
-            plannedSetId: plannedSet.isAdHoc ? null : plannedSet.id
+            plannedSetId: plannedSet.isAdded ? null : plannedSet.id
         };
 
         let response;
@@ -238,6 +238,7 @@ const completeSet = async (plannedSet, setIndex) => {
 
 
         if (plannedSet.id && updatingCount.value > 0) {
+            console.log('Updating existing set execution:', plannedSet.id);
             response = await axios.put(
                 API_PATHS.UPDATE_SET_EXECUTION(plannedSet.id),
                 setExecutionDTO,
@@ -246,6 +247,7 @@ const completeSet = async (plannedSet, setIndex) => {
             updatingCount.value--;
         }
         else{
+            console.log('Creating new set execution for current exercise:');
             response = await axios.post(
                 API_PATHS.RECORD_SET_EXECUTION(workoutExecutionStore.getCurrentExercise.id),
                 setExecutionDTO,
@@ -256,11 +258,16 @@ const completeSet = async (plannedSet, setIndex) => {
         const recordedSet = response.data;
         console.log('Set recorded successfully:', recordedSet);
 
-        // now we update this specific set
-
-        const targetSet = workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.find(
-            s => s.id === recordedSet.plannedSetId || (plannedSet.tempId && s.tempId === plannedSet.tempId)
-        );
+        let targetSet;
+        if (plannedSet.id) { // if the set has a plannedSetId
+            targetSet = workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.find(
+                s => s.id === plannedSet.id
+            );
+        } else if (plannedSet.tempId) { // if added set
+            targetSet = workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.find(
+                s => s.tempId === plannedSet.tempId
+            );
+        }
 
         console.log('Target set for update:', targetSet);
 
@@ -274,7 +281,7 @@ const completeSet = async (plannedSet, setIndex) => {
             if (targetSet.tempId && targetSet.id) {
                 delete targetSet.tempId;
             }
-            targetSet.isAdHoc = recordedSet.plannedSetId === null;
+            targetSet.isAdded = recordedSet.plannedSetId === null;
 
             workoutExecutionStore.getCurrentExercise.exerciseData.plannedSets.sort((a, b) => a.setNumber - b.setNumber);
         }
@@ -520,7 +527,8 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                                 <tr>
                                     <th>Set</th>
                                     <th>Previous</th>
-                                    <th>Planned Weight x Reps</th> <th>Performed Weight (kg)</th>
+                                    <th>Planned Weight x Reps</th> 
+                                    <th>Performed Weight (kg)</th>
                                     <th>Performed Reps</th>
                                     <th>Rest time (s)</th>
                                     <th>Actions</th>
@@ -534,7 +542,7 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                                     <td>{{ set.setNumber }}</td>
                                     <td>{{ set.previousWeight || '-' }} x {{ set.previousReps || '-' }}</td>
                                     <td>
-                                        <template v-if="set.weight !== null && set.reps !== null">
+                                        <template v-if="set.weight !== null && set.reps !== null && set.isAdded === false">
                                             {{ set.weight }}kg x {{ set.reps }}
                                         </template>
                                         <template v-else>-</template>

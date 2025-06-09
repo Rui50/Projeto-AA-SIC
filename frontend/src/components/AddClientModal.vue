@@ -4,6 +4,10 @@ import axios from 'axios';
 import { API_PATHS } from '../api_paths';
 import { useUserStore } from '../stores/userStore';
 
+    import { useToast } from 'vue-toastification'
+
+    const toast = useToast()
+
 // usar vue select para ser mais facil
 import VSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css'; 
@@ -44,8 +48,8 @@ const fetchAvailableStudents = async () => {
 };
 
 const assignStudent = async () => {
-    if (!selectedStudent.value) { 
-        alert("Please select a student to assign.");
+    if (!selectedStudent.value) {
+        toast.error("Please select a student to assign.");
         return;
     }
 
@@ -58,7 +62,8 @@ const assignStudent = async () => {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
             }
         });
-        alert(`Student ${selectedStudent.value.name} assigned successfully!`); 
+        //alert(`Student ${selectedStudent.value.name} assigned successfully!`); 
+        toast.success(`Student ${selectedStudent.value.name} assigned successfully!`);
         emit('assign-client'); 
         //emit('close');
     } catch (err) {

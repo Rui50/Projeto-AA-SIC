@@ -15,7 +15,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
     List<Notification> findByReceiverId(Integer userId);
 
     // obter notificações não lidas
-    @Query("SELECT n FROM Notification n WHERE n.receiver.id = :userId AND n.read = FALSE")
+    @Query("SELECT n FROM Notification n WHERE n.receiver.id = :userId AND n.isRead = FALSE")
     List<Notification> findByReceiverIdAndUnread(Integer userId);
 
     // obter apenas certo tipo de notificações (nao deve ser necessário)

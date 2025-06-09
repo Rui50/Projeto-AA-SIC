@@ -50,4 +50,7 @@ export const API_PATHS = {
     // SETTINGS
     UPDATE_SETTINGS: `${API_BASE_URL}/api/user/settings`,
 
+    // NOTIFICATIONS
+    NOTIFICATIONS: `${API_BASE_URL}/api/notifications`,
+
 }

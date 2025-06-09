@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver", nullable = false)
@@ -32,17 +32,16 @@ public class Notification {
 
     private String message;
 
-    private boolean read;
+    @Column(name = "is_read")
+    private boolean isRead;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
     // se usarmos
     public enum NotificationType {
-        WORKOUT_REMINDER,
         WORKOUT_UPDATE,
-        PROFESSOR_REQUEST_RECEIVED,
-        PROFESSOR_REQUEST_STATUS,
-        GENERAL_ANNOUNCEMENT
+        PROFESSOR_NOTIFY,
+        SCHEDULED_WORKOUT
     }
 }

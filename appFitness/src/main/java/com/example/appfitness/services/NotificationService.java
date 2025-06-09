@@ -1,5 +1,6 @@
 package com.example.appfitness.services;
 
+import com.example.appfitness.DTOs.Notification.NotificationDTO;
 import com.example.appfitness.models.Notification;
 import com.example.appfitness.models.User;
 import com.example.appfitness.repositories.NotificationRepository;
@@ -37,15 +38,28 @@ public class NotificationService {
     public List<Notification> findUserNotifications(Integer receiverId) {
         return notificationRepository.findByReceiverId(receiverId);
     }
-    public List<Notification> findUnreadNotificationsForuser(Integer userId) {
-        return notificationRepository.findByReceiverIdAndUnread(userId);
+    public List<NotificationDTO> findUnreadNotificationsForuser(Integer userId) {
+        List<Notification> notifications = notificationRepository.findByReceiverIdAndUnread(userId);
+        return notifications.stream()
+                .map(NotificationDTO::fromEntity)
+                .toList();
     }
 
     @Transactional
-    public Notification markNotificationAsRead(Integer id) {
-        return notificationRepository.findById(id).map(notification -> {
-            notification.setRead(true);
-            return notificationRepository.save(notification);
-        }).orElseThrow(() -> new RuntimeException("Notification not found " + id));
+    public void markNotificationAsRead(Integer notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("Notification not found with ID: " + notificationId));
+        notification.setRead(true);
+        notificationRepository.save(notification);
+    }
+
+    @Transactional
+    public void markAllNotificationsAsRead(Integer userId) {
+        User ser = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found " + userId));
+
+        List<Notification> notifications = notificationRepository.findByReceiverIdAndUnread(userId);
+        notifications.forEach(notification -> {notification.setRead(true);});
+        notificationRepository.saveAll(notifications);
     }
 }

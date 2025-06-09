@@ -1,9 +1,14 @@
 <script setup>
-    import { ref } from "vue"
+    import { onMounted, ref } from "vue"
     import { Icon } from "@iconify/vue";
     import { useRouter } from "vue-router"
     import { useUserStore } from "../stores/userStore"
     import { computed } from "vue";
+    import { useNotificationStore } from "@/stores/notificationStore";
+    import { useToast } from "vue-toastification";
+
+    const toast = useToast();
+    const notificationStore = useNotificationStore();
 
     const userStore = useUserStore()
     // passs the routes as props maybe
@@ -51,6 +56,38 @@
         router.push('/');
     };
 
+    const showNotifications = ref(false);
+
+    const toggleNotifications = () => {
+        showNotifications.value = !showNotifications.value;
+    };
+
+    const markNotificationAsRead = (notificationId) => {
+        notificationStore.markAsRead(notificationId)
+            .then(() => {
+                toast.success("Notification marked as read");
+            })
+            .catch((error) => {
+                console.error("Error marking notification as read:", error);
+                toast.error("Failed to mark notification as read");
+            });
+    };
+
+
+    const notificationBellRef = ref(null);
+    onMounted(() => {
+        if(notificationStore.getNotifications.length === 0) {
+            notificationStore.fetchNotifications();
+        }
+
+        // para podermos fechar as notificações ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (notificationBellRef.value && !notificationBellRef.value.contains(e.target)) {
+                showNotifications.value = false;
+            }
+        });
+    });
+
 </script>
 
 <template>
@@ -69,17 +106,35 @@
         </ul>
 
         <div class="navbar-right">
-            <button class="notifications">
-                <Icon icon="lets-icons:bell-light" width="24" height="24" />
-            </button>
+            <div class="relative" ref="notificationBellRef">
+                <button class="notifications" @click="toggleNotifications">
+                    <Icon icon="lets-icons:bell-light" width="24" height="24" />
+                    <span v-if="notificationStore.getUnreadCount > 0" class="notification-badge">{{ notificationStore.getUnreadCount }}</span>
+                </button>
+
+                <div v-if="showNotifications" class="notification-dropdown">
+                    <div v-if="notificationStore.getNotifications.length === 0" class="empty-notifications-message">
+                        No new notifications.
+                    </div>
+                    <div v-else>
+                        <div v-for="notification in notificationStore.getNotifications" :key="notification.id"
+                             :class="['notification-item', { 'unread': !notification.read }]">
+                            <span class="message">{{ notification.message }}</span>
+                            <span class="timestamp">{{ new Date(notification.timestamp).toLocaleString() }}</span>
+                            <button v-if="!notification.read" @click.stop="markNotificationAsRead(notification.id)"
+                                    class="mark-as-read-btn">Mark as Read</button>
+                        </div>
+                        <div v-if="notificationStore.getUnreadCount > 0" class="mark-all-read-container">
+                            <button @click.stop="markAllNotificationsAsRead" class="mark-all-read-btn">Mark all as read</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="user-avatar">
                 <img src="../assets/13.jpg" alt="User Avatar" class="avatar" />
             </div>
             <span class="username">{{ displayUsername }}</span>
-            <!--
-            <button @click="logout" class="logout-btn">
-                <Icon icon="ic:round-logout" width="24" height="24" />
-            </button>-->
         </div>
     </nav>
 
@@ -98,7 +153,7 @@
         top: 0;
         left: 0;
         right: 0;
-        z-index: 998;        
+        z-index: 998;
         border-bottom: 1px solid #c7c7c7;
         background-color: rgba(255, 255, 255, 1);
     }
@@ -158,6 +213,7 @@
         display: flex;
         align-items: center;
         gap: 1rem;
+        position: relative;
     }
 
     .notifications {
@@ -165,10 +221,132 @@
         border: none;
         cursor: pointer;
         padding: 0.5rem;
+        position: relative; 
     }
 
     .notifications:hover {
         color: var(--accent-color);
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: 5px;
+        right: 0px;
+        background-color: #ef4444;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 0.7rem;
+        min-width: 18px;
+        text-align: center;
+        transform: translate(50%, -50%); 
+        border: 1px solid white; 
+        box-shadow: 0 0 0 1px rgba(0,0,0,0.1)
+    }
+
+    .notification-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: white;
+        border: 1px solid #e2e2e2;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        width: 320px;
+        max-height: 400px;
+        overflow-y: auto;
+        z-index: 1000; 
+        margin-top: 0.75rem;
+        transform-origin: top right;
+        animation: fadeInScale 0.2s ease-out;
+    }
+
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .empty-notifications-message {
+        padding: 1rem;
+        color: #6b7280;
+        text-align: center;
+    }
+
+    .notification-item {
+        padding: 0.85rem 1.25rem; 
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        position: relative;
+    }
+
+    .notification-item.unread {
+        background-color: #eff6ff;
+        font-weight: 600;
+    }
+
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+
+    .notification-item:hover {
+        background-color: #f5f5f5;
+    }
+
+    .notification-item .message {
+        font-size: 0.9rem;
+        color: #333;
+        line-height: 1.4;
+    }
+
+    .notification-item .timestamp {
+        font-size: 0.75rem;
+        color: #888;
+        align-self: flex-start;
+    }
+
+    .mark-as-read-btn {
+        background-color: var(--accent-color);
+        color: white;
+        border: none;
+        padding: 0.35rem 0.8rem;
+        border-radius: 0.35rem;
+        cursor: pointer;
+        font-size: 0.75rem;
+        align-self: flex-end; 
+        margin-top: 0.6rem; 
+        transition: background-color 0.2s ease;
+    }
+
+    .mark-as-read-btn:hover {
+        background-color: #3b82f6; 
+    }
+
+    .mark-all-read-container {
+        padding: 0.5rem; 
+        border-top: 1px solid #e5e7eb; 
+        text-align: center; 
+    }
+
+    .mark-all-read-btn {
+        color: #2563eb;
+        font-size: 0.875rem; 
+        font-weight: 600; 
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .mark-all-read-btn:hover {
+        text-decoration: underline; 
     }
 
     .user-avatar {
@@ -191,6 +369,4 @@
         color: #000000;
         margin-right: 25px;
     }
-
-
 </style>

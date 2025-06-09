@@ -7,6 +7,10 @@ import { useUserStore } from '../stores/userStore';
 import { Icon } from '@iconify/vue';
 import AddClientModal from '@/components/AddClientModal.vue';
 
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
+
 const userStore = useUserStore();
 const route = useRoute();
 const router = useRouter();

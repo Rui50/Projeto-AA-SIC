@@ -22,25 +22,24 @@ import java.util.stream.Collectors;
 public class WorkoutPlanService {
     private WorkoutPlanRepository workoutPlanRepository;
     private UserRepository userRepository;
-    private ProfessorRepository professorRepository;
     private ExerciseRepository exerciseRepository;
     private ExerciseExecutionRepository exerciseExecutionRepository;
     private ExerciseDataRepository exerciseDataRepository;
     private WorkoutExecutionRepository workoutExecutionRepository;
     private SetExecutionRepository setExecutionRepository;
     private SetDataRepository setDataRepository;
+    private NotificationService notificationService;
 
     public WorkoutPlanService(WorkoutPlanRepository workoutPlanRepository,
-                              ProfessorRepository professorRepository,
                               ExerciseRepository exerciseRepository,
                               UserRepository userRepository,
                               ExerciseDataRepository exerciseDataRepository,
                               ExerciseExecutionRepository exerciseExecutionRepository,
                               WorkoutExecutionRepository workoutExecutionRepository,
                               SetExecutionRepository setExecutionRepository,
-                              SetDataRepository setDataRepository) {
+                              SetDataRepository setDataRepository,
+                              NotificationService notificationService) {
         this.workoutPlanRepository = workoutPlanRepository;
-        this.professorRepository = professorRepository;
         this.exerciseRepository = exerciseRepository;
         this.userRepository = userRepository;
         this.exerciseDataRepository = exerciseDataRepository;
@@ -48,6 +47,7 @@ public class WorkoutPlanService {
         this.exerciseExecutionRepository = exerciseExecutionRepository;
         this.setExecutionRepository = setExecutionRepository;
         this.setDataRepository = setDataRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -252,6 +252,17 @@ public class WorkoutPlanService {
 
         workoutPlan.getExercises().clear();
         workoutPlan.getExercises().addAll(exercisesToKeep);
+
+        if (workoutPlan.getOwner().getId() != workoutPlan.getCreatedBy()){
+            User user = userRepository.findById(workoutPlan.getCreatedBy()).get();
+            String message = String.format("O plano de treino '%s' foi atualizado pelo seu professor.", user.getName());
+
+            notificationService.createNotification(
+                    workoutPlan.getOwner().getId(),
+                    message,
+                    Notification.NotificationType.WORKOUT_UPDATE
+            );
+        }
 
         return workoutPlanRepository.save(workoutPlan);
     }

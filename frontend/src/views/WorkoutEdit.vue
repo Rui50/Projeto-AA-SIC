@@ -121,6 +121,13 @@
             }))
         }))
 
+        if (scheduleType.value === 'Fixed' && scheduledDays.value.length === 0) {
+            console.error('No scheduled days selected for Fixed schedule type');            
+            toast.error('Please select at least one day for the workout schedule!');
+            isLoading.value = false;
+            return;
+        }
+
         const payload = {
             name: workoutName.value,
             description: workoutDescription.value,

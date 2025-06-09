@@ -23,13 +23,13 @@
     const commonNavbarItems = [
         { name: "Dashboard", link: "/" },
         { name: "Workouts", link: "/workouts" }, 
+        { name: "Progress", link: "/progress" },
 
         //{ name: "Profile", link: "/profile" },
     ];
 
     const alunoNavbarItems = [
         ...commonNavbarItems,
-        { name: "Progress", link: "/progress" },
     ];
 
     const professorNavbarItems = [

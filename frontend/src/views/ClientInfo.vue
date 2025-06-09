@@ -135,6 +135,28 @@
         fetchClientInfo();
     });
 
+    const isImperial = computed(() => userStore.getMetricType === 'IMPERIAL')
+    const convertMetricToImperial = (value, type) => {
+        if (type === 'weight') return +(value * 2.20462).toFixed(2) // kg -> lbs
+        if (type === 'height') return +(value * 0.393701).toFixed(2) // cm -> in
+        return value
+    }
+    const convertImperialToMetric = (value, type) => {
+        if (type === 'weight') return +(value / 2.20462).toFixed(2) // lbs -> kg
+        if (type === 'height') return +(value / 0.393701).toFixed(2) // in -> cm
+        return value
+    }  
+
+    const weightUnit = computed(() => isImperial.value ? 'lbs' : 'kg')
+    const heightUnit = computed(() => isImperial.value ? 'in' : 'cm')
+
+    const weightToDisplay = computed(() => {
+        return isImperial.value ? convertMetricToImperial(bodyMetrics.value.weight, 'weight') : bodyMetrics.value.weight;
+    });
+    const heightToDisplay = computed(() => {
+        return isImperial.value ? convertMetricToImperial(bodyMetrics.value.height, 'height') : bodyMetrics.value.height;
+    });
+
 </script>
 
 <template>
@@ -171,16 +193,16 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Weight (kg)</th>
-                                <th>Height (cm)</th>
+                                <th>Weight ({{weightUnit}})</th>
+                                <th>Height ({{heightUnit}})</th>
                                 <th>Body Fat (%)</th>
                                 <th>BMI</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>{{ bodyMetrics.weight || '-' }}</td>
-                                <td>{{ bodyMetrics.height || '-' }}</td>
+                                <td>{{ weightToDisplay || '-' }}</td>
+                                <td>{{ heightToDisplay || '-' }}</td>
                                 <td>{{ bodyMetrics.bodyFatPercentage || '-' }}</td>
                                 <td>{{ (typeof bodyMetrics.bmi === 'number' && !isNaN(bodyMetrics.bmi)) ? bodyMetrics.bmi.toFixed(2) : '-' }}</td>
                             </tr>
@@ -201,9 +223,7 @@
                         v-for="workout in workoutPlans"
                         :key="workout.id"
                         :workout="workout"
-                        @activate-workout="activateWorkout"
-                        @deactivate-workout="deactivateWorkout"
-                        @delete-workout="deleteWorkout"
+                        :profView="true"
                     />
                 </div>
                 <p v-else>You have not created any workouts for this client yet.</p>

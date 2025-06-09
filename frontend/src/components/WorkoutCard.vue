@@ -8,9 +8,13 @@
         workout: {
             type: Object,
             required: true
+        },
+        profView : {
+            type: Boolean,
+            default: false
         }
     })
-
+    
     const emit = defineEmits(['activate-workout', 'deactivate-workout'])
 
     const totalSets = computed(() => {
@@ -105,8 +109,10 @@
 
         <div class="workout-actions">
             <button class="btn edit" @click="goToEditWorkout">Edit</button>
-            <button v-if="!workout.active" class="btn activate" @click="activateWorkout">Activate</button>
-            <button v-if="workout.active" class="btn desactivate" @click="deactivateWorkout">Deactivate</button>
+            <span v-if="!props.profView">
+                <button v-if="!workout.active" class="btn activate" @click="activateWorkout">Activate</button>
+                <button v-if="workout.active" class="btn desactivate" @click="deactivateWorkout">Deactivate</button>
+            </span>
             <button class="btn goto" @click="goToWorkout">Go to workout</button>
         </div>
     </div>

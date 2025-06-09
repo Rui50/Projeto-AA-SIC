@@ -165,7 +165,7 @@
                      <h3 class="metrics-header">
                         Most Recent Metrics 
                         <span v-if="bodyMetrics.updatedAt" class="updated-date">
-                            (updatedAt: {{ new Date(bodyMetrics.updatedAt).toLocaleDateString() }})
+                            Last updated: {{ new Date(bodyMetrics.updatedAt).toLocaleDateString() }}
                         </span>
                     </h3>
                     <table>
@@ -182,7 +182,7 @@
                                 <td>{{ bodyMetrics.weight || '-' }}</td>
                                 <td>{{ bodyMetrics.height || '-' }}</td>
                                 <td>{{ bodyMetrics.bodyFatPercentage || '-' }}</td>
-                                <td>{{ bodyMetrics.bmi || '-' }}</td>
+                                <td>{{ (typeof bodyMetrics.bmi === 'number' && !isNaN(bodyMetrics.bmi)) ? bodyMetrics.bmi.toFixed(2) : '-' }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -394,7 +394,7 @@
     }
 
     .updated-date {
-        font-size: 0.8em;
+        font-size: 0.7em;
         margin-left: auto;
         color: #777;
         font-weight: normal; 

@@ -43,6 +43,7 @@ public class Notification {
         WORKOUT_CREATED,
         WORKOUT_UPDATE,
         PROFESSOR_ASSIGNED,
+        PROFESSOR_UNASSIGNED,
         PROFESSOR_NOTIFY,
         SCHEDULED_WORKOUT
     }

@@ -88,7 +88,6 @@ public class AlunoService {
             Notification.NotificationType.PROFESSOR_ASSIGNED
         );
         
-
         return alunoRepository.save(aluno);
     }
 
@@ -103,6 +102,15 @@ public class AlunoService {
         }*/
 
         aluno.setProfessor(null);
+        System.out.println("Unassigning professor from aluno with ID: " + alunoId);
+
+        String message = String.format("O seu professor atual foi desassociado.");
+        notificationService.createNotification(
+            alunoId,
+            message,
+            Notification.NotificationType.PROFESSOR_UNASSIGNED
+        );
+
         return alunoRepository.save(aluno);
     }
 

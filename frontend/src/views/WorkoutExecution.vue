@@ -491,6 +491,15 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                 </div>
             </div>
 
+            <div class="professor-note" v-if="workoutExecutionStore.getWorkoutExecution.feedback">
+                <div class="professor-note-header">
+                    <span>Feedback</span>
+                </div>
+                <div class="professor-note-content">
+                    <span>{{ workoutExecutionStore.getWorkoutExecution.feedback }}</span>
+                </div>
+            </div>
+
             <div class="workout-data">
                 <div class="workout-data-item">
                     <Icon icon="meteor-icons:list" width="24" height="24" />

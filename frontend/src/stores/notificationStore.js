@@ -54,6 +54,7 @@ export const useNotificationStore = defineStore('notification', () => {
                 withCredentials: true,
             });
             notifications.value.forEach(n => n.read = true);
+            notifications.value = [];
         } catch (error) {
             console.error('Error marking all notifications as read:', error);
         }
@@ -65,6 +66,7 @@ export const useNotificationStore = defineStore('notification', () => {
         getNotifications,
         getUnreadCount,
         fetchNotifications,
-        markAsRead  
+        markAsRead,
+        markAllAsRead,
     };
 });

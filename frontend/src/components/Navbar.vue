@@ -65,12 +65,24 @@
     const markNotificationAsRead = (notificationId) => {
         notificationStore.markAsRead(notificationId)
             .then(() => {
-                toast.success("Notification marked as read");
+                //toast.success("Notification marked as read");
             })
             .catch((error) => {
                 console.error("Error marking notification as read:", error);
                 toast.error("Failed to mark notification as read");
             });
+    };
+    
+    const markAllNotificationsAsRead = () => {
+        notificationStore.markAllAsRead()
+            .then(() => {
+                //toast.success("All notifications marked as read");
+            })
+            .catch((error) => {
+                console.error("Error marking all notifications as read:", error);
+                toast.error("Failed to mark all notifications as read");
+            });
+        showNotifications.value = false;
     };
 
 

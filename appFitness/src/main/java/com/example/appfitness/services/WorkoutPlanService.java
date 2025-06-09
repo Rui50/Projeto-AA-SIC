@@ -255,7 +255,7 @@ public class WorkoutPlanService {
 
         if (workoutPlan.getOwner().getId() != workoutPlan.getCreatedBy()){
             User user = userRepository.findById(workoutPlan.getCreatedBy()).get();
-            String message = String.format("O plano de treino '%s' foi atualizado pelo seu professor.", user.getName());
+            String message = String.format("O plano de treino '%s' foi atualizado pelo seu professor '%s'.", workoutPlan.getName() ,user.getName());
 
             notificationService.createNotification(
                     workoutPlan.getOwner().getId(),

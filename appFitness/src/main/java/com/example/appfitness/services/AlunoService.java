@@ -81,7 +81,7 @@ public class AlunoService {
         aluno.setProfessor(professor);
         System.out.println("Assigning aluno with ID: " + alunoId + " to professor with ID: " + professorId);
 
-        String message = String.format("Foi te atribuido o professor '%s'.", professor.getName());
+        String message = String.format("You have been assigned the professor '%s'.", professor.getName());
         notificationService.createNotification(
             alunoId,
             message,
@@ -104,7 +104,7 @@ public class AlunoService {
         aluno.setProfessor(null);
         System.out.println("Unassigning professor from aluno with ID: " + alunoId);
 
-        String message = String.format("O seu professor atual foi desassociado.");
+        String message = String.format("You are no longer assigned to an professor.");
         notificationService.createNotification(
             alunoId,
             message,

@@ -74,7 +74,7 @@ public class WorkoutPlanService {
 
         if (ownerId != creatorId){
             User user = userRepository.findById(creatorId).get();
-            String message = String.format("O plano de treino '%s' foi te atribuido pelo seu professor '%s'.", workoutPlan.getName() ,user.getName());
+            String message = String.format("The workout plan '%s' has been assigned to you by your professor '%s'.", workoutPlan.getName() ,user.getName());
 
             notificationService.createNotification(
                     ownerId,
@@ -266,7 +266,7 @@ public class WorkoutPlanService {
 
         if (workoutPlan.getOwner().getId() != workoutPlan.getCreatedBy()){
             User user = userRepository.findById(workoutPlan.getCreatedBy()).get();
-            String message = String.format("O plano de treino '%s' foi atualizado pelo seu professor '%s'.", workoutPlan.getName() ,user.getName());
+            String message = String.format("The workout plan '%s' was updated by your professor '%s'.", workoutPlan.getName() ,user.getName());
 
             notificationService.createNotification(
                     workoutPlan.getOwner().getId(),

@@ -92,6 +92,9 @@
                 bmi.value = 'N/A';
             }
 
+            // Update last updated date
+            lastUpdated.value = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+
             toast.success('Body metrics updated successfully!')
             
         } catch (error) {

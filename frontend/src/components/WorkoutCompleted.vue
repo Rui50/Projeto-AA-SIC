@@ -1,6 +1,9 @@
 <script setup>
     import { ref, computed } from 'vue';
     import { Icon } from '@iconify/vue';
+    
+    import { useToast } from 'vue-toastification'
+    const toast = useToast()
 
     const props = defineProps({
         popupState: {
@@ -107,6 +110,7 @@
     const saveWorkout = () => {
         emit('save', feedbackNote.value);
         feedbackNote.value = '';
+        toast.success('Workout Completed Successfully!');
     };
 </script>
 <template>

@@ -564,7 +564,12 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                                     <td>{{ set.previousWeight || '-' }} x {{ set.previousReps || '-' }}</td>
                                     <td>
                                         <template v-if="set.weight !== null && set.reps !== null && set.isAdded === false">
-                                            {{ set.weight }}kg x {{ set.reps }}
+                                            <span v-if="set.weight > 0">
+                                                {{ set.weight }}kg x {{ set.reps }}
+                                            </span>
+                                            <span v-else>
+                                                - x {{ set.reps }}
+                                            </span>
                                         </template>
                                         <template v-else>-</template>
                                     </td>
@@ -572,19 +577,17 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                                         <template v-if="set.completed">
                                             {{ set.weightPerformed || '-' }}kg </template>
                                         <template v-else>
-                                            <input type="number" v-model.number="set.weightPerformed"
-                                                placeholder="Weight">
+                                            <input type="number" v-model.number="set.weightPerformed" placeholder="Weight" min="0"/>
                                         </template>
                                     </td>
                                     <td>
                                         <template v-if="set.completed">
                                             {{ set.repsPerformed || '-' }} </template>
                                         <template v-else>
-                                            <input type="number" v-model.number="set.repsPerformed"
-                                                placeholder="Reps">
+                                            <input type="number" v-model.number="set.repsPerformed" placeholder="Reps" min="0"/>
                                         </template>
                                     </td>
-                                    <td>{{ set.restTimeSugested || '-' }} s</td>
+                                    <td>{{ set.restTimeSugested ? set.restTimeSugested + ' s' : '-' }}</td>
                                     <td>
                                     <div class="set-actions">
                                         <template v-if="set.completed">

@@ -42,9 +42,9 @@
         const newSet = {
             // id: null, // If backend assigns IDs to sets, might be useful for new sets
             setNumber: exercise.value.plannedSets.length + 1,
-            reps: null,
-            weight: null,
-            restTimeSugested: null
+            reps: 1,
+            weight: 0,
+            restTimeSugested: 0
         };
         exercise.value.plannedSets.push(newSet);
     };
@@ -100,13 +100,13 @@
                         class="set-row">
                         <div class="set-col set-number">{{ index + 1 }}</div>
                         <div class="set-col set-reps">
-                            <input type="number" v-model.number="set.reps" placeholder="Reps" class="form"/>
+                            <input type="number" v-model.number="set.reps" placeholder="Reps" class="form" min="1"/>
                         </div>
                         <div class="set-col set-weight">
-                            <input type="number" v-model.number="set.weight" placeholder="Weight" class="form"/>
+                            <input type="number" v-model.number="set.weight" placeholder="Weight" class="form" min="0"/>
                         </div>
                         <div class="set-col set-rest">
-                            <input type="number" v-model.number="set.restTimeSugested" placeholder="Rest" class="form"/>
+                            <input type="number" v-model.number="set.restTimeSugested" placeholder="Rest" class="form" min="0"/>
                         </div>
                         <div class="set-col set-actions">
                             <Icon class="delete-icon" @click="deleteSet(index)" icon="ph:trash-thin" width="20" height="20" />

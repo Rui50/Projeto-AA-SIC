@@ -45,10 +45,12 @@
             weight.value = data.weight || 'N/A'
             height.value = data.height || 'N/A'
             bodyFat.value = data.bodyFatPercentage || 'N/A'
-            bmi.value = (data.bmi).toFixed(2) || 'N/A'
-            lastUpdated.value = data.updatedAt 
-                ? new Date(data.updatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) 
-                : 'No records yet'
+            bmi.value = (typeof data.bmi === 'number' && !isNaN(data.bmi))
+            ? data.bmi.toFixed(2)
+            : 'N/A';
+            lastUpdated.value = data.updatedAt
+            ? new Date(data.updatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+            : 'No records yet';
 
         } catch (error) {
             console.error('Error fetching latest body metrics:', error)

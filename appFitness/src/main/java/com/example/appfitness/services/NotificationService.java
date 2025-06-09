@@ -35,9 +35,7 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
-    public List<Notification> findUserNotifications(Integer receiverId) {
-        return notificationRepository.findByReceiverId(receiverId);
-    }
+
     public List<NotificationDTO> findUnreadNotificationsForuser(Integer userId) {
         List<Notification> notifications = notificationRepository.findByReceiverIdAndUnread(userId);
         return notifications.stream()

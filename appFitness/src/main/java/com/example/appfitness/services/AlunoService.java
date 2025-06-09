@@ -61,28 +61,6 @@ public class AlunoService {
         return Optional.empty();
     }
 
-    @Transactional
-    public Aluno salvar(Aluno aluno) {
-        return alunoRepository.save(aluno);
-    }
-
-    public Optional<Aluno> findAlunoById(Integer id) {
-        return alunoRepository.findById(id);
-    }
-
-    // para a associação aluno professor do lado do professor
-    public List<Aluno> findAllAlunos(){
-        return alunoRepository.findAll();
-    }
-
-    public Optional<Aluno> findAlunoByEmail(String email) {
-        return alunoRepository.findByEmail(email);
-    }
-
-    public Optional<List<Aluno>> findAlunosByProfessorId(Integer professorId) {
-        return alunoRepository.findByProfessor(professorId);
-    }
-
     public List<AlunoDTO> findAlunosWithoutProfessor() {
        // return alunoRepository.findAlunosWithoutProfessor();
         return alunoRepository.findAlunosWithoutProfessor().stream()
@@ -131,12 +109,6 @@ public class AlunoService {
 
                     return AlunoResponseDTO.fromEntity(aluno, latestBM, lastWorkoutTime);
                 }).collect(Collectors.toList());
-    }
-
-    public List<AlunoDTO> getAllAlunos() {
-        return alunoRepository.findAll().stream()
-                .map(AlunoDTO::fromEntity)
-                .collect(Collectors.toList());
     }
 
     public ClientInfoResponseDTOP getClientInfo(Integer id, Integer professorId) {

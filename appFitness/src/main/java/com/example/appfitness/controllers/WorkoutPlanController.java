@@ -8,13 +8,10 @@ import com.example.appfitness.DTOs.WorkoutPlan.WorkoutPlanSummary;
 import com.example.appfitness.auth.AuthService;
 import com.example.appfitness.models.ExerciseData;
 import com.example.appfitness.models.SetData;
-import com.example.appfitness.models.WorkoutExecution;
 import com.example.appfitness.models.WorkoutPlan;
 import com.example.appfitness.services.ExerciseService;
-import com.example.appfitness.services.ProfessorService;
 import com.example.appfitness.services.UserService;
 import com.example.appfitness.services.WorkoutPlanService;
-import org.hibernate.jdbc.Work;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +21,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/workout-plans")
@@ -34,7 +30,7 @@ public class WorkoutPlanController {
     private ExerciseService exerciseService;
     private AuthService authService;
 
-    public WorkoutPlanController(WorkoutPlanService workoutPlanService, UserService userService, AuthService authService, ProfessorService professorService, ExerciseService exerciseService) {
+    public WorkoutPlanController(WorkoutPlanService workoutPlanService, UserService userService, AuthService authService, ExerciseService exerciseService) {
         this.workoutPlanService = workoutPlanService;
         this.userService = userService;
         this.exerciseService = exerciseService;

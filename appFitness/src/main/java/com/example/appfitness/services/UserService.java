@@ -20,9 +20,6 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
 
     public Optional<User> getUserById(int id) {
         return userRepository.findById(id);

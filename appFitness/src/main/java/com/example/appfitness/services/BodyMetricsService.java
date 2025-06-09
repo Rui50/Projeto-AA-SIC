@@ -13,15 +13,9 @@ import java.util.Optional;
 @Service
 public class BodyMetricsService {
     private BodyMetricsRepository bodyMetricsRepository;
-    private UserRepository userRepository;
 
-    public BodyMetricsService(BodyMetricsRepository bodyMetricsRepository, UserRepository userRepository) {
+    public BodyMetricsService(BodyMetricsRepository bodyMetricsRepository) {
         this.bodyMetricsRepository = bodyMetricsRepository;
-        this.userRepository = userRepository;
-    }
-
-    public Optional<BodyMetrics> getBodyMetrics(Integer id) {
-        return bodyMetricsRepository.findById(id);
     }
 
     public BodyMetrics createBodyMetrics(BodyMetrics bodyMetrics) {

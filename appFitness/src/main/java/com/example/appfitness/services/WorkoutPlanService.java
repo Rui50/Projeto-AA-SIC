@@ -72,6 +72,17 @@ public class WorkoutPlanService {
         workoutPlan.setExercises(new ArrayList<>());
         workoutPlan.setUpdatedAt(LocalDate.now());
 
+        if (ownerId != creatorId){
+            User user = userRepository.findById(creatorId).get();
+            String message = String.format("O plano de treino '%s' foi te atribuido pelo seu professor '%s'.", workoutPlan.getName() ,user.getName());
+
+            notificationService.createNotification(
+                    ownerId,
+                    message,
+                    Notification.NotificationType.WORKOUT_UPDATE
+            );
+        }
+
         return workoutPlanRepository.save(workoutPlan);
     }
 

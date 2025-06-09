@@ -40,7 +40,9 @@ public class Notification {
 
     // se usarmos
     public enum NotificationType {
+        WORKOUT_CREATED,
         WORKOUT_UPDATE,
+        PROFESSOR_ASSIGNED,
         PROFESSOR_NOTIFY,
         SCHEDULED_WORKOUT
     }

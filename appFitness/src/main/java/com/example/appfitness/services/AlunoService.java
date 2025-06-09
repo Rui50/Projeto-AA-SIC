@@ -27,19 +27,22 @@ public class AlunoService {
     private WorkoutExecutionRepository workoutExecutionRepository;
     private WorkoutPlanRepository workoutPlanRepository;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private NotificationService notificationService;
 
     public AlunoService(AlunoRepository alunoRepository,
-                        ProfessorRepository professorRepository
-            , BodyMetricsRepository bodyMetricsRepository,
+                        ProfessorRepository professorRepository,
+                        BodyMetricsRepository bodyMetricsRepository,
                         WorkoutExecutionRepository workoutExecutionRepository,
                         UserService userService,
-                        WorkoutPlanRepository workoutPlanRepository) {
+                        WorkoutPlanRepository workoutPlanRepository,
+                        NotificationService notificationService) {
         this.alunoRepository = alunoRepository;
         this.professorRepository = professorRepository;
         this.bodyMetricsRepository = bodyMetricsRepository;
         this.workoutExecutionRepository = workoutExecutionRepository;
         this.userService = userService;
         this.workoutPlanRepository = workoutPlanRepository;
+        this.notificationService = notificationService;
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
     }
 
@@ -75,9 +78,17 @@ public class AlunoService {
         Professor professor = professorRepository.findById(professorId)
                 .orElseThrow(() -> new RuntimeException("Professor not found " + professorId));
         
+        aluno.setProfessor(professor);
         System.out.println("Assigning aluno with ID: " + alunoId + " to professor with ID: " + professorId);
 
-        aluno.setProfessor(professor);
+        String message = String.format("Foi te atribuido o professor '%s'.", professor.getName());
+        notificationService.createNotification(
+            alunoId,
+            message,
+            Notification.NotificationType.PROFESSOR_ASSIGNED
+        );
+        
+
         return alunoRepository.save(aluno);
     }
 

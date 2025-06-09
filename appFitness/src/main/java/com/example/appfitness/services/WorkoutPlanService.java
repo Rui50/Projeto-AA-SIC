@@ -79,7 +79,7 @@ public class WorkoutPlanService {
             notificationService.createNotification(
                     ownerId,
                     message,
-                    Notification.NotificationType.WORKOUT_UPDATE
+                    Notification.NotificationType.WORKOUT_CREATED
             );
         }
 

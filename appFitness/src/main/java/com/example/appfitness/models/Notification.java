@@ -45,6 +45,7 @@ public class Notification {
         PROFESSOR_ASSIGNED,
         PROFESSOR_UNASSIGNED,
         PROFESSOR_NOTIFY,
-        SCHEDULED_WORKOUT
+        SCHEDULED_WORKOUT,
+        WORKOUT_FINISHED
     }
 }

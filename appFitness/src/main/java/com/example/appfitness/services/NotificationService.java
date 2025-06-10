@@ -24,6 +24,11 @@ public class NotificationService {
 
     @Transactional
     public Notification createNotification(Integer sentToId, String message, Notification.NotificationType type) {
+        return createNotification(sentToId, message, type, false);
+    }
+
+    @Transactional
+    public Notification createNotification(Integer sentToId, String message, Notification.NotificationType type, boolean isRead) {
         User recipient = userRepository.findById(sentToId)
                 .orElseThrow(() -> new RuntimeException("Recipient user not found " + sentToId));
         Notification notification = new Notification();
@@ -31,10 +36,9 @@ public class NotificationService {
         notification.setMessage(message);
         notification.setType(type);
         notification.setCreatedAt(LocalDateTime.now());
-        notification.setRead(false);
+        notification.setRead(isRead);
         return notificationRepository.save(notification);
     }
-
 
     public List<NotificationDTO> findUnreadNotificationsForuser(Integer userId) {
         List<Notification> notifications = notificationRepository.findByReceiverIdAndUnread(userId);

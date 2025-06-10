@@ -32,6 +32,7 @@ public class WorkoutExecutionService {
     private ExerciseExecutionRepository exerciseExecutionRepository;
     private SetExecutionRepository setExecutionRepository;
     private SetDataRepository setDataRepository;
+    private NotificationService notificationService;
 
     public WorkoutExecutionService(WorkoutExecutionRepository workoutExecutionRepository,
                                    UserRepository userRepository,
@@ -39,7 +40,8 @@ public class WorkoutExecutionService {
                                    ExerciseDataRepository exerciseDataRepository,
                                    ExerciseExecutionRepository exerciseExecutionRepository,
                                    SetExecutionRepository setExecutionRepository,
-                                   SetDataRepository setDataRepository) {
+                                   SetDataRepository setDataRepository,
+                                    NotificationService notificationService) {
         this.workoutExecutionRepository = workoutExecutionRepository;
         this.userRepository = userRepository;
         this.workoutPlanRepository = workoutPlanRepository;
@@ -47,6 +49,7 @@ public class WorkoutExecutionService {
         this.exerciseExecutionRepository = exerciseExecutionRepository;
         this.setExecutionRepository = setExecutionRepository;
         this.setDataRepository = setDataRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -105,6 +108,16 @@ public class WorkoutExecutionService {
         execution.setEndTime(LocalDateTime.now());
         execution.setStatus(status != null ? status : WorkoutExecution.WorkoutStatus.COMPLETED);
         execution.setFeeback(feedback);
+
+        if (status == WorkoutExecution.WorkoutStatus.COMPLETED) {            
+            String message = String.format("You completed the workout '%s'.", execution.getWorkoutPlan().getName());
+            notificationService.createNotification(
+                execution.getUser().getId(),
+                message,
+                Notification.NotificationType.WORKOUT_FINISHED,
+                true // mark as read
+            );
+        }
 
         return workoutExecutionRepository.save(execution);
     }

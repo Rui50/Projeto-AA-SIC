@@ -6,6 +6,7 @@
     import NextWorkout from '@/components/NextWorkout.vue'
     import BodyMetrics from '@/components/BodyMetrics.vue'
     import WeeklySchedule from '@/components/WeeklySchedule.vue'
+    import RecentActivity from '@/components/RecentActivity.vue'
 
     import Settings from '@/components/Settings.vue'
 
@@ -99,7 +100,7 @@
 
                 <WeeklySchedule/>
 
-                <!--Recent activity-->
+                <RecentActivity />
             </div>
         </div>
         <Settings v-if="settingsPopupState" @close="toggleSettingsPopup" />

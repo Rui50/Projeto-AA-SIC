@@ -115,6 +115,7 @@ function goToWorkoutPlan(id) {
   border-radius: 12px;
   box-shadow: 2px 2px 10px #0001;
   padding: 18px 22px;
+  margin-bottom: 1.5rem;
 }
 .schedule-header {
   display: flex;
@@ -191,6 +192,7 @@ function goToWorkoutPlan(id) {
   background-color: #d0d4ff;
   color: #1a2a9c;
   border-radius: 6px;
+  padding: 0px 10px;
 }
 .day-event .dot {
   width: 8px;

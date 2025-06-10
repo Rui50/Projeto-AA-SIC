@@ -40,6 +40,13 @@ public class NotificationService {
         return notificationRepository.save(notification);
     }
 
+    public List<NotificationDTO> findAllNotificationsForuser(Integer userId) {
+        List<Notification> notifications = notificationRepository.findByReceiverId(userId);
+        return notifications.stream()
+                .map(NotificationDTO::fromEntity)
+                .toList();
+    }
+
     public List<NotificationDTO> findUnreadNotificationsForuser(Integer userId) {
         List<Notification> notifications = notificationRepository.findByReceiverIdAndUnread(userId);
         return notifications.stream()

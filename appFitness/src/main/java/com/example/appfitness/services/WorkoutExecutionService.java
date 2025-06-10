@@ -41,7 +41,7 @@ public class WorkoutExecutionService {
                                    ExerciseExecutionRepository exerciseExecutionRepository,
                                    SetExecutionRepository setExecutionRepository,
                                    SetDataRepository setDataRepository,
-                                    NotificationService notificationService) {
+                                   NotificationService notificationService) {
         this.workoutExecutionRepository = workoutExecutionRepository;
         this.userRepository = userRepository;
         this.workoutPlanRepository = workoutPlanRepository;

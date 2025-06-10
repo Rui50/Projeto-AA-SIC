@@ -31,6 +31,16 @@ public class NotificationController {
         return ResponseEntity.ok(notifications);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<NotificationDTO>> getAllNotifications(
+            @CookieValue(value = "token", defaultValue = "") String token
+    ) {
+        int userId = Integer.parseInt(authService.getUserIdFromToken(token));
+
+        List<NotificationDTO> notifications = notificationService.findAllNotificationsForuser(userId);;
+        return ResponseEntity.ok(notifications);
+    }
+
     @PutMapping("/{notificationId}")
     public ResponseEntity<List<Notification>> markNotificationAsRead(
             @PathVariable Integer notificationId,

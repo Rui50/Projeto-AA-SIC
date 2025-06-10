@@ -25,6 +25,7 @@ public class NotificationDTO {
         dto.setType(String.valueOf(notification.getType()));
         dto.setMessage(notification.getMessage());
         dto.setTimestamp(notification.getCreatedAt());
+        dto.setRead(notification.isRead());
 
         return dto;
     }

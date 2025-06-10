@@ -157,6 +157,13 @@
         }
     });
 
+    const imperialHeightDisplay = computed(() => {
+    if (!height.value) return '';
+    const inches = height.value * 0.393701;
+    const feet = Math.floor(inches / 12);
+    const remainingInches = Math.round(inches % 12);
+    return `${feet}ft ${remainingInches}in`;
+});
 
 </script>
 
@@ -172,8 +179,11 @@
         </div>
         <div class="metric-item">
             <div class="metric-label">Height</div>
-            <div class="metric-value">{{ heightFix }} <span class="unit">{{ heightUnit }}</span></div>
-        </div>
+            <div class="metric-value">
+                    {{ isImperial ? imperialHeightDisplay : heightFix }}
+                    <span class="unit" v-if="!isImperial">{{ heightUnit }}</span>
+            </div>
+            </div>
         <div class="metric-item">
             <div class="metric-label">Body Fat</div>
             <div class="metric-value">{{ bodyFat }} %</div>
@@ -197,6 +207,9 @@
                 <div class="input-group">
                     <label>Height ({{ heightUnit }})</label>
                     <input v-model="heightFix" type="number" min="0" step="0.1" />
+                    <div class="conversion-hint" v-if="isImperial">
+                        {{ heightFix }} in ≈ {{ imperialHeightDisplay }}
+                    </div>
                 </div>
                 <div class="input-group">
                     <label>Body Fat (%)</label>

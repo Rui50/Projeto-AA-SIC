@@ -83,10 +83,10 @@
         </div>
 
         <div class="workout-content">
-            <div class="stat-item">
+            <!--<div class="stat-item">
                 <div class="stat-value">{{ workout.duration || 'Trocar isto' }}</div>
                 <div class="stat-name">minutes</div>
-            </div>
+            </div>-->
             <div class="stat-item">
                 <div class="stat-value">{{ workout.exercises ? workout.exercises.length : 0 }}</div>
                 <div class="stat-name">exercises</div>
@@ -139,6 +139,7 @@
         color: white;
         position: relative;
         overflow: hidden;
+        
     }
 
     .workout-header.inactive {
@@ -187,6 +188,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        flex: 1;
     }
 
     .stat-value {

@@ -171,8 +171,8 @@
     .error-text {
         display: block;
         color: #e74c3c;
-        font-size: 0.8rem;
-        margin-top: 0.3rem;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
     }
 
     .login-section {

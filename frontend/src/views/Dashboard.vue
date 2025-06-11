@@ -56,7 +56,7 @@
                 <!-- profile card -->
                 <div class="card user-card">
                     <div class="profile-image">
-                        <img src="../assets/13.jpg" alt="Profile Image" />
+                        <img :src="userStore.getImage || 'https://picsum.photos/200'" alt="Profile Image" class="profile-image" />
                     </div>
                     <!--meter username?-->
                     <h2>{{ userStore.getName }}</h2>
@@ -82,7 +82,7 @@
                     <div class="trainer-info">
                         <div class="trainer-card">
                             <div class="trainer-image">
-                                <img src="../assets/13.jpg" alt="Trainer Image" />
+                                <img :src="userStore.getImage || 'https://picsum.photos/200'" alt="Profile Image" class="profile-image" />
                             </div>
                             <div class="trainer-details">
                                 <h3>{{ professor.name }}</h3>

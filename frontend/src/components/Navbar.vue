@@ -144,7 +144,7 @@
             </div>
 
             <div class="user-avatar">
-                <img src="../assets/13.jpg" alt="User Avatar" class="avatar" />
+                <img :src="userStore.getImage || 'https://picsum.photos/200'" alt="Profile Image" class="profile-image" />
             </div>
             <span class="username">{{ displayUsername }}</span>
         </div>

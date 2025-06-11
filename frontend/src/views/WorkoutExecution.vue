@@ -695,16 +695,16 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
 
 <style scoped>
 
-.validation-error-message {
-    color: #dc3545; /* Bootstrap's red for error */
-    background-color: #f8d7da; /* Light red background */
-    border: 1px solid #f5c6cb;
-    border-radius: 4px;
-    padding: 10px 15px;
-    margin-bottom: 15px;
-    font-size: 0.9em;
-    text-align: center;
-}
+    .validation-error-message {
+        color: #dc3545;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+        padding: 10px 15px;
+        margin-bottom: 15px;
+        font-size: 0.9em;
+        text-align: center;
+    }
 
     .description {
         font-size: 1rem;

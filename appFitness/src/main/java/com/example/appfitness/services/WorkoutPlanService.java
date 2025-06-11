@@ -90,7 +90,7 @@ public class WorkoutPlanService {
         return workoutPlanRepository.findById(id);
     }
     @Transactional
-    public WorkoutPlan updateWorkoutPlan(Integer workoutPlanId, WorkoutPlanRequestDTO updateDTO) {
+    public WorkoutPlan updateWorkoutPlan(Integer workoutPlanId, WorkoutPlanRequestDTO updateDTO, Integer userId) {
         WorkoutPlan workoutPlan = workoutPlanRepository.findById(workoutPlanId)
                 .orElseThrow(() -> new RuntimeException("Workout Plan not found: " + workoutPlanId));
 
@@ -264,7 +264,7 @@ public class WorkoutPlanService {
         workoutPlan.getExercises().clear();
         workoutPlan.getExercises().addAll(exercisesToKeep);
 
-        if (workoutPlan.getOwner().getId() != workoutPlan.getCreatedBy()){
+        if (workoutPlan.getOwner().getId() != workoutPlan.getCreatedBy() && workoutPlan.getOwner().getId() != userId) {
             User user = userRepository.findById(workoutPlan.getCreatedBy()).get();
             String message = String.format("The workout plan '%s' was updated by your professor '%s'.", workoutPlan.getName() ,user.getName());
 

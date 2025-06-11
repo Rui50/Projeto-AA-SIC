@@ -143,9 +143,7 @@
 
         try {
             const response = await axios.put(`${API_PATHS.WORKOUT_BY_ID}${workoutId.value}`, payload, {
-                headers: {
-                    Authorization: `Bearer ${userStore.getToken}`
-                }
+                withCredentials: true
             });
 
             workoutStore.updateWorkoutPlan(response.data);

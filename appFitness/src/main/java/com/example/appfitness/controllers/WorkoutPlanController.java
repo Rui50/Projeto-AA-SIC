@@ -102,11 +102,13 @@ public class WorkoutPlanController {
     @PutMapping("/{id}")
     public ResponseEntity<WorkoutPlanResponseDTO> updateWorkoutPlan(
             @PathVariable Integer id,
-            @RequestBody WorkoutPlanRequestDTO updateDTO) {
+            @RequestBody WorkoutPlanRequestDTO updateDTO, 
+            @CookieValue(value = "token", defaultValue = "") String token) {
 
-        System.out.println("Updating workout plan with ID: " + id);
+        Integer userId = Integer.parseInt(authService.getUserIdFromToken(token));
+        System.out.println("Updating workout plan with ID: " + id + " by user ID: " + userId);
         System.out.println("Update data: " + updateDTO);
-        WorkoutPlan updatedWorkoutPlan = workoutPlanService.updateWorkoutPlan(id, updateDTO);
+        WorkoutPlan updatedWorkoutPlan = workoutPlanService.updateWorkoutPlan(id, updateDTO, userId);
 
         return ResponseEntity.ok(workoutPlanService.toResponseDTOfix(updatedWorkoutPlan));
     }

@@ -18,21 +18,32 @@ public class Exercise {
     private int id;
 
     @Column(nullable = false, unique = true)
-    private String name;
+    private String name;    
+    private String description;
 
     @Enumerated(EnumType.STRING)
     private ExerciseType type;
-
-    private String description;
-    private String muscleGroup;
+    @Enumerated(EnumType.STRING)
+    private MuscleGroup muscleGroup;
 
     // trabalho futuro
     private String videoURL;
     private String imageURL;
 
-
     public enum ExerciseType {
-        BODYBUILDING,
-        CARDIO
+        STRENGTH,
+        CARDIO,
+        BODYWEIGHT
+    }
+
+    public enum MuscleGroup {
+        CHEST,
+        BACK,
+        LEGS,
+        SHOULDERS,
+        ARMS,
+        CORE
     }
 }
+
+

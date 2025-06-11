@@ -19,5 +19,5 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Integer> {
     List<Exercise> findByExerciseType(Exercise.ExerciseType type);
 
     @Query("SELECT e FROM Exercise e WHERE e.muscleGroup = :muscleGroup")
-    List<Exercise> findByMuscleGroup(String muscleGroup);
+    List<Exercise> findByMuscleGroup(Exercise.MuscleGroup muscleGroup);
 }

@@ -10,9 +10,9 @@ import lombok.*;
 public class ExerciseResponseDTO {
     private int id;
     private String name;
-    private Exercise.ExerciseType type;
     private String description;
-    private String muscleGroup;
+    private Exercise.ExerciseType type;
+    private Exercise.MuscleGroup muscleGroup;
     private String videoURL; // trabalho futuro
     //private String imageURL; // trabalho futuro
 

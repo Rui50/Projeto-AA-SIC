@@ -126,6 +126,9 @@
         box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.5);
         overflow: hidden;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
 
     .workout-card:hover{
@@ -205,7 +208,8 @@
         padding: 0.8rem 1.2rem;
         max-height: 180px;
         min-height: 100px;
-        overflow-y: auto;
+        overflow-y: auto;        
+        flex-grow: 1;
     }
 
     .exercise-list::-webkit-scrollbar {

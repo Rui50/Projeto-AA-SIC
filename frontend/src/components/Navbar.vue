@@ -144,7 +144,7 @@
             </div>
 
             <div class="user-avatar">
-                <img :src="userStore.getImage || 'https://picsum.photos/200'" alt="Profile Image" class="profile-image" />
+                <img :src="userStore.getImage || 'https://doodleipsum.com/200/avatar-2'" alt="Profile Image" class="profile-image" />
             </div>
             <span class="username">{{ displayUsername }}</span>
         </div>
@@ -369,7 +369,7 @@
         overflow: hidden;
     }
 
-    .avatar {
+    .profile-image {
         width: 100%;
         height: 100%;
         object-fit: cover;

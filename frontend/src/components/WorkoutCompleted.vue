@@ -23,7 +23,7 @@
     const emit = defineEmits(['close', 'save']);
 
     const feedbackNote = ref('');
-    const workoutName = ref(props.workoutExecutionData?.workoutPlan?.name || 'Workout Name');
+    const workoutName = ref(props.workoutExecutionData?.workoutName || 'Workout Name');
 
 
     const workoutDate = computed(() => {

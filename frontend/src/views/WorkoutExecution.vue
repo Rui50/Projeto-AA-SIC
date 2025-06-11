@@ -537,13 +537,13 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                         <div class="ex-muscle">{{ workoutExecutionStore.getCurrentExercise.exerciseData?.exercise?.muscleGroup || '' }}</div>
                         <div class="description">{{ workoutExecutionStore.getCurrentExercise.exerciseData?.exercise?.description || '' }}</div>
                     </div>
-                    <div class="professor-note" v-if="workoutExecutionStore.getCurrentExercise.exerciseData?.professorNote">
+                    <div class="professor-note" v-if="workoutExecutionStore.getCurrentExercise.exerciseData?.note">
                         <div class="professor-note-header">
                             <Icon icon="ph:note-thin" width="24" height="24" />
                             <span>Professor's Note</span>
                         </div>
                         <div class="professor-note-content">
-                            <span>{{ workoutExecutionStore.getCurrentExercise.exerciseData.professorNote }}</span>
+                            <span>{{ workoutExecutionStore.getCurrentExercise.exerciseData.note }}</span>
                         </div>
                     </div>
 

@@ -90,6 +90,7 @@
     onMounted(() => {
         if(notificationStore.getNotifications.length === 0) {
             notificationStore.fetchNotifications();
+            console.log("Fetching notifications on mount");
         }
 
         // para podermos fechar as notificações ao clicar fora
@@ -130,8 +131,15 @@
                     </div>
                     <div v-else>
                         <div v-for="notification in notificationStore.getNotifications" :key="notification.id"
-                             :class="['notification-item', { 'unread': !notification.read }]">
-                            <span class="message">{{ notification.message }}</span>
+                            :class="['notification-item', { 'unread': !notification.read }]">
+                            <span class="message">
+                                <template v-if="notification.type === 'PROFESSOR_NOTIFY'">
+                                    From your professor: "{{ notification.message }}"
+                                </template>
+                                <template v-else>
+                                    {{ notification.message }}
+                                </template>
+                            </span>
                             <span class="timestamp">{{ new Date(notification.timestamp).toLocaleString() }}</span>
                             <button v-if="!notification.read" @click.stop="markNotificationAsRead(notification.id)"
                                     class="mark-as-read-btn">Mark as Read</button>

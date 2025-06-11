@@ -1,10 +1,12 @@
 package com.example.appfitness.controllers;
 
 import com.example.appfitness.DTOs.Notification.NotificationDTO;
+import com.example.appfitness.DTOs.Notification.NotificationRequest;
 import com.example.appfitness.auth.AuthService;
 import com.example.appfitness.models.Notification;
 import com.example.appfitness.models.User;
 import com.example.appfitness.services.NotificationService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,18 @@ public class NotificationController {
     public NotificationController(NotificationService notificationService, AuthService authService) {
         this.notificationService = notificationService;
         this.authService = authService;
+    }
+
+    @PostMapping
+    public ResponseEntity<NotificationDTO> createNotification(
+            @RequestBody NotificationRequest request
+    ) {
+        Notification createdNotification = notificationService.createNotification(
+                request.getReceiverId(),
+                request.getMessage(),
+                request.getType()
+        );
+        return new ResponseEntity<>(NotificationDTO.fromEntity(createdNotification), HttpStatus.CREATED);
     }
 
     @GetMapping

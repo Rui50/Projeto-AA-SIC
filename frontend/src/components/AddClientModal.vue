@@ -49,7 +49,7 @@ const fetchAvailableStudents = async () => {
 
 const assignStudent = async () => {
     if (!selectedStudent.value) {
-        toast.error("Please select a student to assign.");
+        toast.error("Please select a client to assign.");
         return;
     }
 
@@ -63,12 +63,12 @@ const assignStudent = async () => {
             }
         });
         //alert(`Student ${selectedStudent.value.name} assigned successfully!`); 
-        toast.success(`Student ${selectedStudent.value.name} assigned successfully!`);
+        toast.success(`Client ${selectedStudent.value.name} assigned successfully!`);
         emit('assign-client'); 
         //emit('close');
     } catch (err) {
-        console.error("Error assigning student:", err);
-        let errorMessage = "Failed to assign student. Please try again.";
+        console.error("Error assigning client:", err);
+        let errorMessage = "Failed to assign client. Please try again.";
         if (err.response) {
             console.error("Response data:", err.response.data);
         }
@@ -99,26 +99,26 @@ watch(() => props.modalState, (newVal) => {
         <div v-if="modalState" class="modal-overlay" @click.self="emit('close')">
             <div class="modal-content">
                 <button class="modal-close-button" @click="emit('close')">&times;</button>
-                <h2>Add New Student</h2>
+                <h2>Add New Client</h2>
 
                 <div v-if="isLoading" class="loading-message">
-                    Loading available students...
+                    Loading available clients...
                 </div>
                 <div v-else-if="error" class="error-message">
                     {{ error }}
                 </div>
                 <div v-else-if="availableStudents.length === 0" class="empty-list-message">
-                    No unassigned students found.
+                    No unassigned clients found.
                 </div>
                 <div v-else class="modal-body">
-                    <label for="student-select">Select a student:</label>
+                    <label for="student-select">Select a client:</label>
                     <v-select
                         id="student-select"
                         v-model="selectedStudent"
                         :options="availableStudents"
                         label="name"
                         :filterable="true"
-                        placeholder="Type to search students..."
+                        placeholder="Type to search clients..."
                         class="student-v-select"
                     >
                         <template #option="option">
@@ -127,7 +127,7 @@ watch(() => props.modalState, (newVal) => {
                     </v-select>
 
                     <button @click="assignStudent" :disabled="!selectedStudent || loading" class="assign-button">
-                        {{ loading ? 'Assigning...' : 'Assign Student' }}
+                        {{ loading ? 'Assigning...' : 'Assign Client' }}
                     </button>
                 </div>
             </div>

@@ -6,6 +6,7 @@ import { API_PATHS } from '../api_paths';
 import { useUserStore } from '../stores/userStore';
 import { Icon } from '@iconify/vue';
 import AddClientModal from '@/components/AddClientModal.vue';
+import NotifyClient from '@/components/NotifyClient.vue';
 
 import { useToast } from 'vue-toastification'
 
@@ -120,13 +121,14 @@ const viewInfo = (studentId) => {
 
 const notifyStudent = async (studentId) => {
     console.log("Notify student:", studentId);
-    try {
+    openNotifyModal(studentId);
+    /*try {
         // still need the logic 
         alert(`Notification sent to student ${studentId}! (Simulated)`);
     } catch (err) {
         console.error("Error sending notification:", err);
         alert("Failed to send notification.");
-    }
+    }*/
 };
 
 const removeStudent = async (studentId) => {
@@ -166,13 +168,26 @@ const handleClientAssigned = () => {
     addClientModalState.value = false; 
 };
 
+const notifyModalState = ref(false);
+const selectedStudentId = ref(null);
+
+const openNotifyModal = (studentId) => {
+    selectedStudentId.value = studentId;
+    notifyModalState.value = true;
+};
+
+const closeNotifyModal = () => {
+    notifyModalState.value = false;
+    selectedStudentId.value = null;
+};
+
 </script>
 
 <template>
     <div class="clients-page-container">
         <div class="header">
-            <h1>Students</h1>
-            <button @click="toggleAddClientModal" class="add-button">+ Add new student</button>
+            <h1>Clients</h1>
+            <button @click="toggleAddClientModal" class="add-button">+ Add new client</button>
         </div>
 
         <div class="client-list-card">
@@ -199,13 +214,13 @@ const handleClientAssigned = () => {
                         <tr>
                             <th @click="sortBy('id')">
                                 <span class="th-content">
-                                    Student ID
+                                    Client ID
                                     <Icon class="icon" :icon="getSortIcon('id')" width="15" height="15" />
                                 </span>
                             </th>
                             <th @click="sortBy('name')">
                                 <span class="th-content">
-                                    Student Name
+                                    Client Name
                                     <Icon class="icon" :icon="getSortIcon('name')" width="15" height="15" />
                                 </span>
                             </th>
@@ -258,6 +273,12 @@ const handleClientAssigned = () => {
             :modalState="addClientModalState"
             @close="toggleAddClientModal" 
             @assign-client="handleClientAssigned" />
+        <NotifyClient
+            :modalState="notifyModalState"
+            :studentId="selectedStudentId"
+            @close="closeNotifyModal"
+            @notification-sent="closeNotifyModal"
+        />
     </div>
 </template>
 

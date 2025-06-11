@@ -556,7 +556,7 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                             <thead>
                                 <tr>
                                     <th>Set</th>
-                                    <th>Previous</th>
+                                    <!--<th>Previous</th>-->
                                     <th>Planned Weight x Reps</th> 
                                     <th>Performed Weight (kg)</th>
                                     <th>Performed Reps</th>
@@ -570,7 +570,7 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                                     :class="{ 'completed': set.completed, 'not-executed': workoutExecutionStore.getWorkoutExecution.status === 'COMPLETED' && !set.completed }"
                                 >
                                     <td>{{ set.setNumber }}</td>
-                                    <td>{{ set.previousWeight || '-' }} x {{ set.previousReps || '-' }}</td>
+                                    <!--<td>{{ set.previousWeight || '-' }} x {{ set.previousReps || '-' }}</td>-->
                                     <td>
                                         <template v-if="set.weight !== null && set.reps !== null && set.isAdded === false">
                                             <span v-if="set.weight > 0">

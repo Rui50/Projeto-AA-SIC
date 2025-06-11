@@ -147,7 +147,7 @@
             <h2>Active Workouts</h2>
             <div class="info-icon">
                 <Icon icon="mdi:information-outline" width="20" />
-                <span class="tooltip">Active workouts are currently in use and will show on your calendar if they have a scheduled time</span>
+                <span class="tooltip">Active workouts the ones u use and will show on your calendar if they have a scheduled time</span>
             </div>
             <span class="workouts-count"> {{ workoutStore.getActiveWorkoutsCount }}</span>
         </div>

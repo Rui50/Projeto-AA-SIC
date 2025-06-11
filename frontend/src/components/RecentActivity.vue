@@ -53,7 +53,14 @@ onMounted(() => {
           class="activity-icon"
         />
         <div class="activity-details">
-          <p>{{ notification.message }}</p>
+          <p>
+            <template v-if="notification.type === 'PROFESSOR_NOTIFY'">
+                From your professor: "{{ notification.message }}"
+            </template>
+            <template v-else>
+                {{ notification.message }}
+            </template>
+          </p>          
           <span class="activity-timestamp">{{ formatTimestamp(notification.timestamp) }}</span>
         </div>
       </div>

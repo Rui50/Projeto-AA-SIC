@@ -152,7 +152,7 @@
             </div>
 
             <div class="user-avatar">
-                <img :src="userStore.getImage || 'https://doodleipsum.com/200/avatar-2'" alt="Profile Image" class="profile-image" />
+                <img :src="userStore.getImage || 'https://doodleipsum.com/200/avatar-2?n=1'" alt="Profile Image" class="profile-image" />
             </div>
             <span class="username">{{ displayUsername }}</span>
         </div>

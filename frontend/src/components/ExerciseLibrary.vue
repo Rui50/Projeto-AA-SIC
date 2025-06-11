@@ -150,7 +150,7 @@
                 >
                     <div class="exercise-info">
                         <div class="exercise-picture">
-                            <img :src="exercise.image || 'https://doodleipsum.com/200/flat'" alt="Exercise Image" class="exercise-image" />
+                            <img :src="exercise.image || ('https://doodleipsum.com/200/flat?n=' + exercise.id)" alt="Exercise Image" class="exercise-image" />
                         </div>
                         <div class="exercise-details">
                             <div class="exercise-name">{{ exercise.name }}</div>

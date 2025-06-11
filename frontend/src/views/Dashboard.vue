@@ -11,12 +11,16 @@
     import Settings from '@/components/Settings.vue'
 
     import { useUserStore } from '@/stores/userStore'
+    import { useNotificationStore } from "@/stores/notificationStore";
+    import { useWorkoutStore } from "@/stores/workoutStore";
 
     import { API_PATHS } from '../api_paths'
     import axios from 'axios'
 
     const router = useRouter()
     const userStore = useUserStore()
+    const notificationStore = useNotificationStore();
+    const workoutStore = useWorkoutStore()
 
     const professor = ref(null)
 
@@ -39,6 +43,9 @@
 
     const logout = () => {
         userStore.logout();
+        workoutStore.resetStore();
+        notificationStore.resetStore();
+
         router.push('/auth/login'); 
     };
 

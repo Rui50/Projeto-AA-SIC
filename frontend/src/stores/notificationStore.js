@@ -60,6 +60,9 @@ export const useNotificationStore = defineStore('notification', () => {
         }
     }
 
+    const resetStore = () => {
+        notifications.value = [];
+    }
 
 
     return {
@@ -68,5 +71,6 @@ export const useNotificationStore = defineStore('notification', () => {
         fetchNotifications,
         markAsRead,
         markAllAsRead,
+        resetStore
     };
 });

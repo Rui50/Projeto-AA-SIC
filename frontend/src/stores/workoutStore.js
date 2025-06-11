@@ -59,6 +59,11 @@ export const useWorkoutStore = defineStore('workout', () => {
         exerciseLibrary.value = [];
     };
 
+    const resetStore = () => {
+        workoutPlans.value = [];
+        exerciseLibrary.value = [];
+    };
+
     return {
         getExerciseLibrary,
         setExerciseLibrary,
@@ -73,6 +78,7 @@ export const useWorkoutStore = defineStore('workout', () => {
         addWorkoutPlan,
         updateWorkoutPlan,
         updateWorkoutStatus,
-        removeWorkoutPlan
+        removeWorkoutPlan,
+        resetStore
     };
 });

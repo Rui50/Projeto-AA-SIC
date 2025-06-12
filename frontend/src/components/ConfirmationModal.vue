@@ -72,6 +72,7 @@ const close = () => {
     justify-content: center;
     align-items: center;
     z-index: 1000; 
+    backdrop-filter: blur(5px); 
     }
 
     .modal-container {

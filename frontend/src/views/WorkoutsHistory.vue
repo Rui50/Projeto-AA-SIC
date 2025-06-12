@@ -131,6 +131,10 @@
         router.push(`/workout/execution/${workoutId}`);
     };
 
+    const goBack = () => {
+        router.push('/progress');
+    };
+
     onMounted(() => {
 
         fetchAllWOrkouts();
@@ -139,6 +143,9 @@
 
 <template>
     <div class="all-workouts-page">
+        <button class="back-button" @click="goBack">
+            <Icon icon="mdi:arrow-left" /> Go Back
+        </button>
         <h1>{{ userStore.getName }} Workout History</h1>
 
         <div class="filters-pannel">
@@ -225,10 +232,24 @@
 </template>
 
 <style scoped>
-   .all-workouts-page {
+.all-workouts-page {
     max-width: 1500px;
     margin: 0 auto;
     padding: 20px;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--button-lighter);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
 }
 
 h1 {

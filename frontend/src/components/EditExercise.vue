@@ -1,6 +1,9 @@
 <script setup>
     import { ref, computed, onMounted, watch } from 'vue'
     import { Icon } from '@iconify/vue'
+    import { useUserStore } from '../stores/userStore'
+
+    const userStore = useUserStore()
 
     const props = defineProps({
         popupState: {
@@ -29,6 +32,13 @@
     watch(() => props.initialExerciseData, (newVal) => {
         if (props.popupState && newVal) {
             exercise.value = JSON.parse(JSON.stringify(newVal));
+
+            for (const set of exercise.value.plannedSets) {
+                if (set.weight && isImperial.value) {
+                    set.weight = convertMetricToImperial(set.weight);
+                }
+                set.weight = set.weight.toFixed(2);
+            }
         }
     }, { deep: true });
 
@@ -57,6 +67,12 @@
 
     const saveChanges = () => {
         updateSetNumbers();
+        for (const set of exercise.value.plannedSets) {
+            if (set.weight && isImperial.value) {
+                set.weight = convertImperialToMetric(set.weight);
+            }
+        }
+        console.log("Saving exercise:", exercise.value);
         emit("exercise-updated", exercise.value);
         closePopup(); 
     };
@@ -71,6 +87,15 @@
         exercise.value = JSON.parse(JSON.stringify(props.initialExerciseData));
         console.log("Mounted EditExercise with initial data:", exercise.value);
     });
+
+    const isImperial = computed(() => userStore.getMetricType === 'IMPERIAL')
+    const weightUnit = computed(() => isImperial.value ? 'lbs' : 'kg')
+    const convertMetricToImperial = (value) => {
+        return +(value * 2.20462) // kg -> lbs
+    }
+    const convertImperialToMetric = (value) => {
+        return +(value / 2.20462) // lbs -> kg
+    }
     
 </script>
 <template>
@@ -91,7 +116,7 @@
                     <div class="sets-header">
                         <div class="set-col set-number">Set</div>
                         <div class="set-col set-reps">Reps</div>
-                        <div class="set-col set-weight">Weight (kg)</div> <div class="set-col set-rest">Rest (s)</div> <div class="set-col set-actions"></div>
+                        <div class="set-col set-weight">Weight ({{weightUnit}})</div> <div class="set-col set-rest">Rest (s)</div> <div class="set-col set-actions"></div>
                     </div>
 
                     <div

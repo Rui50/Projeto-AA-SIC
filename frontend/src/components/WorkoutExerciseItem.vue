@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Icon } from '@iconify/vue'
+import { useUserStore } from '../stores/userStore'
+
+const userStore = useUserStore()
 
 const props = defineProps({
     exerciseData: {
@@ -56,10 +59,22 @@ const weightSummary = computed(() => {
     const minWeight = Math.min(...weights);
     const maxWeight = Math.max(...weights);
 
+    if (isImperial.value) {
+        // Convert to lbs if in imperial system
+        const minWeightImperial = convertMetricToImperial(minWeight);
+        const maxWeightImperial = convertMetricToImperial(maxWeight);
+
+        if (minWeightImperial === maxWeightImperial) {
+            return `${minWeightImperial.toFixed(2)}lbs`;
+        } else {
+            return `${minWeightImperial.toFixed(2)}-${maxWeightImperial.toFixed(2)}lbs`;
+        }
+    }
+
     if (minWeight === maxWeight) {
-        return `${minWeight}kg`;
+        return `${minWeight.toFixed(2)}kg`;
     } else {
-        return `${minWeight}-${maxWeight}kg`;
+        return `${minWeight.toFixed(2)}-${maxWeight.toFixed(2)}kg`;
     }
 });
 
@@ -101,6 +116,15 @@ const handleRemoveExercise = () => {
     emit('remove-exercise', props.exerciseData.id, props.exerciseData.isNew, props.index);
 
 }
+
+const isImperial = computed(() => userStore.getMetricType === 'IMPERIAL')
+const convertMetricToImperial = (value) => {
+    return +(value * 2.20462).toFixed(2) // kg -> lbs
+}
+const convertImperialToMetric = (value) => {
+    return +(value / 2.20462).toFixed(2) // lbs -> kg
+}  
+
 </script>
 
 <template>

@@ -14,6 +14,7 @@
     import WorkoutScheduleEditor from '@/components/WorkoutScheduleEditor.vue'
     import WorkoutExercisesEditor from '@/components/WorkoutExercisesEditor.vue'
     import EditModal from '@/components/EditModal.vue'
+    import ConfirmationModal from '@/components/ConfirmationModal.vue'
     import { useToast } from 'vue-toastification'
 
     const toast = useToast()
@@ -59,13 +60,32 @@
         }
     }, { deep: true });
 
+
+    const showUnsavedChangesModal = ref(false);
+    let nextRoute = null;
+
     onBeforeRouteLeave((to, from, next) => {
-        if (hasChanges.value && !confirm('You have unsaved changes. Do you really want to leave?')) {
-            next(false); 
+        if (hasChanges.value) {
+            showUnsavedChangesModal.value = true;
+            nextRoute = next;
         } else {
             next();
         }
     });
+
+    const confirmLeave = () => {
+        showUnsavedChangesModal.value = false;
+        if (nextRoute) {
+            nextRoute(); 
+        }
+    };
+
+    const cancelLeave = () => {
+        showUnsavedChangesModal.value = false;
+        if (nextRoute) {
+            nextRoute(false); 
+        }
+    };
 
     const showNameModal = ref(false);
     const showDescriptionModal = ref(false);
@@ -329,6 +349,17 @@
                 @confirm="(val) => { workoutDescription = val; showDescriptionModal = false }"
                 @cancel="() => showDescriptionModal = false"
             />
+            <ConfirmationModal
+                :show="showUnsavedChangesModal"
+                title="Unsaved Changes"
+                message="You have unsaved changes. Are you sure you want to leave without saving?"
+                confirmButtonText="Leave"
+                cancelButtonText="Stay"
+                @confirm="confirmLeave"
+                @cancel="cancelLeave"
+                @close="cancelLeave"
+            />
+
         </div>
     </div>
 </template>

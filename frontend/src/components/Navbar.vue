@@ -7,6 +7,8 @@
     import { useNotificationStore } from "@/stores/notificationStore";
     import { useToast } from "vue-toastification";
 
+
+
     const toast = useToast();
     const notificationStore = useNotificationStore();
 
@@ -101,6 +103,12 @@
         });
     });
 
+    // to make navbar responsive
+    const showMobileMenu = ref(false);
+    const toggleMobileMenu = () => {
+        showMobileMenu.value = !showMobileMenu.value;
+    };
+
 </script>
 
 <template>
@@ -112,6 +120,14 @@
             <span class="navbar-title">fitnessApp</span>
         </a>
 
+        <Icon @click="toggleMobileMenu" icon="icon-park:hamburger-button"  class="mobile" width="32" height="32" />
+        
+        <ul class="navbar-items" :class="{ open: showMobileMenu }">
+            <li v-for="item in navbarItems" :key="item.name" class="navbar-item">
+            <router-link :to="item.link" class="navbar-link" @click="showMobileMenu = false">{{ item.name }}</router-link>
+            </li>
+        </ul>
+        
         <ul class="navbar-items">
             <li v-for="item in navbarItems" :key="item.name" class="navbar-item">
                 <router-link :to="item.link" class="navbar-link">{{ item.name }}</router-link>
@@ -388,5 +404,52 @@
         font-weight: 500;
         color: #000000;
         margin-right: 25px;
+    }
+
+    .mobile {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.5rem;
+        margin-left: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .mobile {
+            display: block;
+        }
+
+        .navbar-items {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 60px; 
+            left: 0;
+            right: 0;
+            background: white;
+            border-bottom: 1px solid #ccc;
+            z-index: 999;
+            gap: 0;
+            padding: 1rem 0;
+            align-items: center; 
+            text-align: center;
+        }
+
+        .navbar-items.open {
+            display: flex;
+        }
+
+        .navbar-item {
+            padding: 0.75rem 1rem;
+        }
+
+        .navbar-right {
+            gap: 0.75rem;
+        }
+
+        .username {
+            display: none;
+        }
     }
 </style>

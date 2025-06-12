@@ -85,8 +85,8 @@ onMounted(() => {
 .activity-list {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
   cursor: pointer;
+  gap: 0.1rem;
 }
 
 .activity-item {

@@ -208,4 +208,44 @@ function goToWorkoutPlan(id) {
   font-size: 0.96rem;
   opacity: 0.8;
 }
+
+@media (max-width: 1500px) {
+  .schedule-grid {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .day-box {
+    width: 13%;
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 1300px) {
+  .schedule-grid {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .day-box {
+    width: 25%;
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .schedule-grid {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .day-box {
+    width: 45%;
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .day-box {
+    width: 100%;
+  }
+}
+
 </style>

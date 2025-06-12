@@ -216,4 +216,19 @@
         color: #555555;
     }
 
+    @media (max-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .card {
+            padding: 1.5rem;
+        }
+
+        .profile-image {
+            width: 80px;
+            height: 80px;
+        }
+    }
 </style>

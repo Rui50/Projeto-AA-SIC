@@ -51,7 +51,7 @@ export const useWorkoutStore = defineStore('workout', () => {
     };
 
     const removeWorkoutPlan = (planId) => {
-        workoutPlans.value = workoutPlans.value.filter(w => w.id !== planId);
+        workoutPlans.value = workoutPlans.value.filter(w => w.id !== Number(planId));
         console.log('Workout plan removed from store, ID:', planId);
     };
 

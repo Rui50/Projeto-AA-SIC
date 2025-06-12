@@ -556,8 +556,7 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                             <thead>
                                 <tr>
                                     <th>Set</th>
-                                    <!--<th>Previous</th>-->
-                                    <th>Planned Weight x Reps</th> 
+                                    <th>Planned Weight x Reps</th>
                                     <th>Performed Weight (kg)</th>
                                     <th>Performed Reps</th>
                                     <th>Rest time (s)</th>
@@ -567,11 +566,9 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                             <tbody>
                                 <tr v-for="(set, setIndex) in workoutExecutionStore.getCurrentExercise.exerciseData?.plannedSets"
                                     :key="set.id || `temp-${set.tempId || setIndex}`"
-                                    :class="{ 'completed': set.completed, 'not-executed': workoutExecutionStore.getWorkoutExecution.status === 'COMPLETED' && !set.completed }"
-                                >
-                                    <td>{{ set.setNumber }}</td>
-                                    <!--<td>{{ set.previousWeight || '-' }} x {{ set.previousReps || '-' }}</td>-->
-                                    <td>
+                                    :class="{ 'completed': set.completed, 'not-executed': workoutExecutionStore.getWorkoutExecution.status === 'COMPLETED' && !set.completed }">
+                                    <td data-label="Set">{{ set.setNumber }}</td>
+                                    <td data-label="Planned Weight x Reps">
                                         <template v-if="set.weight !== null && set.reps !== null && set.isAdded === false">
                                             <span v-if="set.weight > 0">
                                                 {{ set.weight }}kg x {{ set.reps }}
@@ -582,53 +579,53 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                                         </template>
                                         <template v-else>-</template>
                                     </td>
-                                    <td>
+                                    <td data-label="Performed Weight (kg)">
                                         <template v-if="set.completed">
                                             {{ set.weightPerformed || '-' }}kg </template>
                                         <template v-else>
                                             <input type="number" v-model.number="set.weightPerformed" placeholder="Weight" min="0"/>
                                         </template>
                                     </td>
-                                    <td>
+                                    <td data-label="Performed Reps">
                                         <template v-if="set.completed">
                                             {{ set.repsPerformed || '-' }} </template>
                                         <template v-else>
                                             <input type="number" v-model.number="set.repsPerformed" placeholder="Reps" min="0"/>
                                         </template>
                                     </td>
-                                    <td>{{ set.restTimeSugested ? set.restTimeSugested + ' s' : '-' }}</td>
-                                    <td>
-                                    <div class="set-actions">
-                                        <template v-if="set.completed">
+                                    <td data-label="Rest time (s)">{{ set.restTimeSugested ? set.restTimeSugested + ' s' : '-' }}</td>
+                                    <td data-label="Actions">
+                                        <div class="set-actions">
+                                            <template v-if="set.completed">
+                                                <Icon
+                                                    icon="mdi:check-circle"
+                                                    width="24"
+                                                    height="24"
+                                                    style="color: green;"
+                                                />
+                                                <Icon v-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'"
+                                                    icon="mdi:pencil"
+                                                    width="24"
+                                                    height="24"
+                                                    style="color: #007bff; cursor: pointer; margin-left: 8px;"
+                                                    @click="set.completed = false, updatingCount++"
+                                                />
+                                            </template>
+                                            <button v-else-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'" class="btn-complete" @click="completeSet(set, setIndex)">
+                                                Record Set
+                                            </button>
                                             <Icon
-                                                icon="mdi:check-circle"
+                                                v-if="set.isAdded && !set.id && !set.completed && workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'"
+                                                icon="material-symbols:remove-rounded"
                                                 width="24"
                                                 height="24"
-                                                style="color: green;"
+                                                class="remove-set-icon"
+                                                @click="removeSet(set)"
                                             />
-                                            <Icon v-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'"
-                                                icon="mdi:pencil"
-                                                width="24"
-                                                height="24"
-                                                style="color: #007bff; cursor: pointer; margin-left: 8px;"
-                                                @click="set.completed = false, updatingCount++"
-                                            />
-                                        </template>
-                                        <button v-else-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'" class="btn-complete" @click="completeSet(set, setIndex)">
-                                            Record Set
-                                        </button>
-                                        <Icon
-                                            v-if="set.isAdded && !set.id && !set.completed &&workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'"
-                                            icon="material-symbols:remove-rounded"
-                                            width="24"
-                                            height="24"
-                                            class="remove-set-icon"
-                                            @click="removeSet(set)"
-                                        />
                                         </div>
                                     </td>
                                 </tr>
-                                </tbody>
+                            </tbody>
                         </table>
                         <div class="add-wrapper" v-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'">
                             <button class="add-set" @click="addSet">+ Add Set</button>
@@ -649,21 +646,21 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
                     class="btn cancel"
                     @click="toggleConfirmationModal"
                 >
-                Cancel Workout
+                    Cancel Workout
                 </button>
                 <button
                     v-if="workoutExecutionStore.getWorkoutExecution.status === 'IN_PROGRESS'"
                     class="btn complete"
                     @click="completeWorkout"
                 >
-                Complete Workout
+                    Complete Workout
                 </button>
                 <button
                     v-if="workoutExecutionStore.getWorkoutExecution.status !== 'IN_PROGRESS'"
                     class="btn primary"
                     @click="router.back()"
                 >
-                Go Back
+                    Go Back
                 </button>
             </div>
         </div>
@@ -679,459 +676,598 @@ watch(() => workoutExecutionStore.getWorkoutExecution, (newValue) => {
             @close="handleCloseWorkoutPopup"
             @save="handleSaveWorkoutFromPopup"
         />
+        <ConfirmationModal
+            :show="showConfirmCancelModal"
+            title="Confirm Workout Cancellation"
+            message="Are you sure you want to cancel this workout? All progress will be lost."
+            confirm-button-text="Yes, Cancel Workout"
+            cancel-button-text="No, go back"
+            @confirm="cancelWorkout"
+            @cancel="showConfirmCancelModal = false"
+            @close="showConfirmCancelModal = false"
+        />
     </div>
-
-    <ConfirmationModal
-        :show="showConfirmCancelModal"
-        title="Confirm Workout Cancellation"
-        message="Are you sure you want to cancel this workout? All progress will be lost."
-        confirm-button-text="Yes, Cancel Workout"
-        cancel-button-text="No, go back"
-        @confirm="cancelWorkout"
-        @cancel="showConfirmCancelModal = false"
-        @close="showConfirmCancelModal = false"
-    />
 </template>
 
 <style scoped>
+.validation-error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+  text-align: center;
+}
 
-    .validation-error-message {
-        color: #dc3545;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 4px;
-        padding: 10px 15px;
-        margin-bottom: 15px;
-        font-size: 0.9em;
-        text-align: center;
-    }
+.description {
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  color: #666;
+  margin-top: 0.5rem;
+  display: block;
+  text-align: center;
+}
 
-    .description {
-        font-size: 1rem;
-        color: #666;
-        margin-top: 0.5rem;
-        display: block; 
-        text-align: center;
-    }
+.set-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
 
-    .set-actions {
-        display: flex;
-        justify-content: center; 
-        align-items: center;
-        gap: 8px; 
-    }
+.remove-set-icon {
+  color: #dc3545;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  margin-left: 8px;
+}
 
-    .remove-set-icon {
-        color: #dc3545; 
-        cursor: pointer;
-        transition: color 0.2s ease;
-        margin-left: 8px; 
-    }
+.remove-set-icon:hover {
+  color: #c82333;
+}
 
-    .remove-set-icon:hover {
-        color: #c82333;
-    }
-    .sets-table tr.not-executed {
-        background-color: #e9ecef; 
-        color: #6c757d; 
-        pointer-events: none; 
-        opacity: 0.7;
-    }
+.sets-table tr.not-executed {
+  background-color: #e9ecef;
+  color: #6c757d;
+  pointer-events: none;
+  opacity: 0.7;
+}
 
-    .sets-table tr.not-executed input[type="number"] {
-        background-color: #f8f9fa;
-        border: 1px solid #ced4da;
-        cursor: not-allowed; 
-    }
+.sets-table tr.not-executed input[type="number"] {
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  cursor: not-allowed;
+}
 
-    .workout-live-page {
-        padding: 1.5rem;
-        max-width: 1500px; 
-        margin: 0 auto;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: #333;
-        border-radius: 10px;
-    }
+.workout-live-page {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  max-width: 1500px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
 
-    .loading-state, .error-state, .no-workout-data {
-        text-align: center;
-        padding: 2.5rem;
-        font-size: 1.25rem;
-        color: #555;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
+.loading-state,
+.error-state,
+.no-workout-data {
+  text-align: center;
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  color: #555;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
 
-    .error-state {
-        color: #dc3545;
-    }
+.error-state {
+  color: #dc3545;
+}
 
-    .no-workout-data .btn {
-        margin-top: 1rem;
-    }
+.no-workout-data .btn {
+  margin-top: 1rem;
+}
 
-    .workout-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #eee;
-    }
+.workout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #eee;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
 
-    .workout-header h1 {
-        font-size: 2.2rem;
-        margin: 0;
-        color: #212529; 
-        font-weight: 700;
-    }
+.workout-header h1 {
+  font-size: clamp(1.8rem, 4vw, 2.2rem);
+  margin: 0;
+  color: #212529;
+  font-weight: 700;
+}
 
-    .timer {
-        background-color: #007bff; 
-        color: white;
-        padding: 0.6rem 1.4rem;
-        border-radius: 30px;
-        font-size: 1.8rem;
-        font-weight: bold;
-        min-width: 150px;
-        text-align: center;
-        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
-    }
+.timer {
+  background-color: #007bff;
+  color: white;
+  padding: 0.6rem 1.4rem;
+  border-radius: 30px;
+  font-size: clamp(1.4rem, 3.5vw, 1.8rem);
+  font-weight: bold;
+  min-width: 150px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
 
-    .workout-data {
-        display: flex;
-        gap: 2rem;
-        margin-bottom: 2rem;
-        color: #6c757d; 
-        font-size: 1rem;
-        flex-wrap: wrap; 
-    }
+.workout-data {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  color: #6c757d;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  flex-wrap: wrap;
+}
 
-    .workout-data-item {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        background-color: #e9ecef;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-    }
+.workout-data-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: #e9ecef;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
 
-    .workout-main-layout {
-        display: flex;
-        gap: 2rem; 
-        flex-wrap: wrap; 
-        align-items: flex-start;
-    }
+.workout-main-layout {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
 
+.exercise-list {
+  flex: 0 0 300px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 1.2rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 280px);
+  min-height: 200px;
+}
 
+.no-exercises-message {
+  padding: 1rem;
+  color: #888;
+  text-align: center;
+  font-style: italic;
+  font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+}
 
-    .exercise-list {
-        flex: 0 0 300px; 
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-        padding: 1.2rem;
-        overflow-y: auto; 
-        max-height: calc(100vh - 280px); 
-        min-height: 200px;
-    }
+.exercise-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  margin-bottom: 0.7rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+  border: 1px solid #dee2e6;
+}
 
-    .no-exercises-message {
-        padding: 1rem;
-        color: #888;
-        text-align: center;
-        font-style: italic;
-        font-size: 0.9em;
-    }
+.exercise-card:hover {
+  background-color: #e2e6ea;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
 
-    .exercise-card {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem;
-        margin-bottom: 0.7rem;
-        border-radius: 8px;
-        background-color: #f8f9fa; 
-        cursor: pointer;
-        transition: background-color 0.25s ease, box-shadow 0.25s ease;
-        border: 1px solid #dee2e6; 
-    }
+.exercise-card.active {
+  background-color: #007bff;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  border-color: #007bff;
+}
 
-    .exercise-card:hover {
-        background-color: #e2e6ea;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-    }
+.exercise-card.active .exercise-name,
+.exercise-card.active .exercise-muscle {
+  color: white;
+}
 
-    .exercise-card.active {
-        background-color: #007bff;
-        color: white;
-        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
-        border-color: #007bff;
-    }
+.exercise-card .exercise-name {
+  font-weight: 600;
+  flex-grow: 1;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+}
 
-    .exercise-card.active .exercise-name,
-    .exercise-card.active .exercise-muscle {
-        color: white;
-    }
+.exercise-card .exercise-muscle {
+  font-size: clamp(0.8rem, 2vw, 0.88rem);
+  color: #888;
+  margin-left: 0.8rem;
+  white-space: nowrap;
+}
 
-    .exercise-card .exercise-name {
-        font-weight: 600;
-        flex-grow: 1;
-        font-size: 1.05rem;
-    }
+.exercise-card.active .exercise-muscle {
+  color: #e0e0e0;
+}
 
-    .exercise-card .exercise-muscle {
-        font-size: 0.88rem;
-        color: #888;
-        margin-left: 0.8rem;
-        white-space: nowrap; 
-    }
+.exercise-status {
+  margin-left: 15px;
+  display: flex;
+  align-items: center;
+}
 
-    .exercise-card.active .exercise-muscle {
-        color: #e0e0e0;
-    }
+.exercise-details {
+  flex-grow: 1;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: clamp(1.5rem, 3vw, 2rem);
+  min-width: 400px;
+}
 
-    .exercise-status {
-        margin-left: 15px;
-        display: flex;
-        align-items: center;
-    }
+.no-exercise-selected {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  color: #888;
+  font-size: clamp(1rem, 2.5vw, 1.15rem);
+  text-align: center;
+}
 
-    .exercise-details {
-        flex-grow: 1; 
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-        padding: 2rem;
-        min-width: 400px; 
-    }
+.exercise-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1.5rem;
+  text-align: center;
+}
 
-    .no-exercise-selected {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-        padding: 2rem;
-        color: #888;
-        font-size: 1.15rem;
-        text-align: center;
-    }
+.ex-name {
+  font-size: clamp(1.8rem, 4vw, 2rem);
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
 
-    .exercise-header {
-        margin-bottom: 2rem;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 1.5rem;
-        text-align: center;
-    }
+.ex-muscle {
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  color: #777;
+  background-color: #e9e9e9;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  display: inline-block;
+}
 
-    .ex-name {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 0.5rem;
-    }
+.professor-note {
+  background-color: #e7f3ff;
+  border-left: 5px solid #007bff;
+  padding: 1.2rem;
+  border-radius: 6px;
+  margin-bottom: 2rem;
+}
 
-    .ex-muscle {
-        font-size: 1.1rem;
-        color: #777;
-        background-color: #e9e9e9;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        display: inline-block;
-    }
+.professor-note-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-weight: 600;
+  color: #0056b3;
+  margin-bottom: 0.7rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+}
 
-    .professor-note {
-        background-color: #e7f3ff;
-        border-left: 5px solid #007bff;
-        padding: 1.2rem;
-        border-radius: 6px;
-        margin-bottom: 2rem;
-    }
+.professor-note-content {
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  color: #333;
+  line-height: 1.5;
+}
 
-    .professor-note-header {
-        display: flex;
-        align-items: center;
-        gap: 0.7rem;
-        font-weight: 600;
-        color: #0056b3;
-        margin-bottom: 0.7rem;
-        font-size: 1.1em;
-    }
+.set-details h2 {
+  font-size: clamp(1.6rem, 3.5vw, 1.8rem);
+  margin-bottom: 1.5rem;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
 
-    .professor-note-content {
-        font-size: 1rem;
-        color: #333;
-        line-height: 1.5;
-    }
+.sets-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
 
-    .set-details h2 {
-        font-size: 1.8rem;
-        margin-bottom: 1.5rem;
-        color: #333;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 0.5rem;
-    }
+.sets-table th,
+.sets-table td {
+  border: 1px solid #e9ecef;
+  padding: clamp(0.8rem, 2vw, 1rem);
+  text-align: center;
+  vertical-align: middle;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+}
 
-    .sets-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 2rem;
-    }
+.sets-table th {
+  background-color: #f2f2f2;
+  font-weight: 600;
+  color: #495057;
+  white-space: nowrap;
+}
 
-    .sets-table th, .sets-table td {
-        border: 1px solid #e9ecef;
-        padding: 1rem;
-        text-align: center;
-        vertical-align: middle;
-    }
+.sets-table tr.completed {
+  background-color: #e6ffe6;
+  opacity: 0.8;
+}
 
-    .sets-table th {
-        background-color: #f2f2f2;
-        font-weight: 600;
-        color: #495057;
-        font-size: 0.95rem;
-        white-space: nowrap; 
-    }
+.sets-table input[type="number"] {
+  width: 70px;
+  padding: 0.6rem;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  text-align: center;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  transition: border-color 0.2s ease;
+}
 
-    .sets-table tr.completed {
-        background-color: #e6ffe6;
-        opacity: 0.8;
-    }
+.sets-table input[type="number"]:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
 
-    .sets-table input[type="number"] {
-        width: 70px;
-        padding: 0.6rem;
-        border: 1px solid #ced4da;
-        border-radius: 5px;
-        text-align: center;
-        font-size: 0.95rem;
-        transition: border-color 0.2s ease;
-    }
+.sets-table input[type="number"]:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
 
-    .sets-table input[type="number"]:focus {
-        border-color: #007bff;
-        outline: none;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
+.btn-complete {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: clamp(0.6rem, 2vw, 0.7rem) clamp(1rem, 2.5vw, 1.2rem);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: clamp(0.85rem, 2vw, 0.9rem);
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  touch-action: manipulation;
+}
 
-    .sets-table input[type="number"]:disabled {
-        background-color: #f0f0f0;
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
+.btn-complete:hover {
+  background-color: #0056b3;
+  transform: translateY(-1px);
+}
 
-    .btn-complete {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 0.7rem 1.2rem;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: background-color 0.2s ease, transform 0.1s ease;
-    }
+.btn-complete:active {
+  transform: translateY(0);
+}
 
-    .btn-complete:hover {
-        background-color: #0056b3;
-        transform: translateY(-1px);
-    }
-    .btn-complete:active {
-        transform: translateY(0);
-    }
+.add-wrapper {
+  text-align: right;
+  margin-bottom: 2rem;
+}
 
+.add-set {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: clamp(0.7rem, 2vw, 0.8rem) clamp(1.2rem, 3vw, 1.5rem);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  touch-action: manipulation;
+}
 
-    .add-wrapper {
-        text-align: right;
-        margin-bottom: 2rem;
-    }
+.add-set:hover {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+}
 
-    .add-set {
-        background-color: #6c757d;
-        color: white;
-        border: none;
-        padding: 0.8rem 1.5rem;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 1.05rem;
-        font-weight: 500;
-        transition: background-color 0.2s ease, transform 0.1s ease;
-    }
+.add-set:active {
+  transform: translateY(0);
+}
 
-    .add-set:hover {
-        background-color: #5a6268;
-        transform: translateY(-1px);
-    }
-    .add-set:active {
-        transform: translateY(0);
-    }
+.workout-btns {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+}
 
-    .workout-btns {
-        display: flex;
-        justify-content: center;
-        gap: 1.5rem;
-        margin-top: 2.5rem;
-    }
+.workout-btns .btn {
+  padding: clamp(0.8rem, 2.5vw, 0.9rem) clamp(1.5rem, 3vw, 1.8rem);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  touch-action: manipulation;
+}
 
-    .workout-btns .btn {
-        padding: 0.9em 1.8rem; 
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 600;
-        transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.2s ease;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
+.workout-btns .btn.cancel {
+  background-color: #dc3545;
+  color: white;
+}
 
-    .workout-btns .btn.cancel {
-        background-color: #dc3545; 
-        color: white;
-    }
+.workout-btns .btn.cancel:hover {
+  background-color: #c82333;
+}
 
-    .workout-btns .btn.cancel:hover {
-        background-color: #c82333;
-    }
+.workout-btns .btn.complete {
+  background-color: #28a745;
+  color: white;
+}
 
-    .workout-btns .btn.complete {
-        background-color: #28a745;
-        color: white;
-    }
+.workout-btns .btn.complete:hover {
+  background-color: #218838;
+}
 
-    .workout-btns .btn.complete:hover {
-        background-color: #218838;
-    }
+.btn.primary {
+  background-color: #007bff;
+  color: white;
+}
 
-    .btn.primary {
-        background-color: #007bff;
-        color: white;
-    }
+.btn.primary:hover {
+  background-color: #0069d9;
+}
 
-    .btn.primary:hover {
-        background-color: #0069d9;
-    }
+/* Media Queries para Responsividade */
+@media (max-width: 1300px) {
+  .workout-main-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-    @media (max-width: 900px) {
-        .workout-main-layout {
-            flex-direction: column; 
-            align-items: stretch; 
-        }
+  .exercise-list {
+    flex: 1;
+    width: 100%;
+    max-height: 300px;
+  }
 
-        .exercise-list {
-            flex: auto; 
-            max-height: 300px; 
-        }
+  .exercise-details {
+    min-width: unset;
+    width: 100%;
+  }
+}
 
-        .exercise-details {
-            flex: auto; 
-            min-width: unset;
-        }
-    }
+@media (max-width: 900px) {
+  .workout-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
+  .timer {
+    width: 100%;
+    min-width: unset;
+    text-align: center;
+  }
+
+  .exercise-list {
+    max-height: 250px;
+  }
+
+  .exercise-card {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.8rem;
+  }
+
+  .exercise-card .exercise-muscle {
+    margin-left: 0;
+  }
+
+  .sets-table {
+    display: block;
+    width: 100%;
+  }
+
+  .sets-table thead {
+    display: none; /* Oculta o thead padrão, pois os cabeçalhos serão exibidos via data-label */
+  }
+
+  .sets-table tbody,
+  .sets-table tr {
+    display: block;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e9ecef;
+    padding: 0.5rem;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .sets-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    text-align: left;
+    border: none;
+    border-bottom: 1px solid #f1f1f1;
+  }
+
+  .sets-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #495057;
+    flex: 0 0 40%;
+    font-size: clamp(0.8rem, 2vw, 0.85rem);
+  }
+
+  .sets-table td:last-child {
+    border-bottom: none;
+  }
+
+  .sets-table input[type="number"] {
+    width: 100%;
+    max-width: 100px;
+    font-size: clamp(0.8rem, 2vw, 0.85rem);
+  }
+
+  .sets-table .set-actions {
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  .workout-btns {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .workout-btns .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .workout-live-page {
+    padding: 0.8rem;
+  }
+
+  .workout-header h1 {
+    font-size: clamp(1.4rem, 4vw, 1.6rem);
+  }
+
+  .timer {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    padding: 0.5rem 1rem;
+  }
+
+  .exercise-list {
+    max-height: 200px;
+  }
+
+  .sets-table td::before {
+    flex: 0 0 50%;
+    font-size: clamp(0.75rem, 1.8vw, 0.8rem);
+  }
+
+  .sets-table input[type="number"] {
+    max-width: 80px;
+    font-size: clamp(0.75rem, 1.8vw, 0.8rem);
+  }
+
+  .btn-complete {
+    padding: clamp(0.4rem, 1.5vw, 0.5rem) clamp(0.6rem, 2vw, 0.8rem);
+    font-size: clamp(0.75rem, 1.8vw, 0.85rem);
+  }
+
+  .add-set {
+    padding: clamp(0.5rem, 1.5vw, 0.6rem) clamp(0.8rem, 2vw, 1rem);
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+  }
+}
 </style>

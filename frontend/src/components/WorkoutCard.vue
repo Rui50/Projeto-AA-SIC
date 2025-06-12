@@ -109,10 +109,8 @@
 
         <div class="workout-actions">
             <button class="btn edit" @click="goToEditWorkout">Edit</button>
-            <span v-if="!props.profView">
-                <button v-if="!workout.active" class="btn activate" @click="activateWorkout">Activate</button>
-                <button v-if="workout.active" class="btn desactivate" @click="deactivateWorkout">Deactivate</button>
-            </span>
+            <button v-if="!props.profView && !workout.active" class="btn activate" @click="activateWorkout">Activate</button>
+            <button v-if="!props.profView && workout.active" class="btn desactivate" @click="deactivateWorkout">Deactivate</button>
             <button class="btn goto" @click="goToWorkout">Go to workout</button>
         </div>
     </div>

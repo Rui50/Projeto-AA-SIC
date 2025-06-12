@@ -13,7 +13,7 @@
 
     import WorkoutScheduleEditor from '@/components/WorkoutScheduleEditor.vue'
     import WorkoutExercisesEditor from '@/components/WorkoutExercisesEditor.vue'
-
+    import EditModal from '@/components/EditModal.vue'
     import { useToast } from 'vue-toastification'
 
     const toast = useToast()
@@ -67,20 +67,14 @@
         }
     });
 
-
-    // temporary
+    const showNameModal = ref(false);
+    const showDescriptionModal = ref(false);
     const editName = () => {
-        const newName = prompt('Enter new workout name:', workoutName.value);
-        if (newName !== null && newName.trim() !== '') {
-            workoutName.value = newName.trim();
-        }
+        showNameModal.value = true;
     };
 
     const editDescription = () => {
-        const newDescription = prompt('Enter new workout description:', workoutDescription.value);
-        if (newDescription !== null) {
-            workoutDescription.value = newDescription.trim();
-        }
+        showDescriptionModal.value = true;
     };
 
 
@@ -275,6 +269,7 @@
             isLoading.value = false;
         }
     })
+    
 </script>
 
 <template>
@@ -313,6 +308,26 @@
                 :initialExercises="exercises"
                 :workoutId="workoutId"
                 @update-exercises="handleExercisesUpdate"
+            />
+
+            <EditModal
+                v-if="showNameModal"
+                :title="'Edit Workout Name'"
+                :message="'Please enter the new name for your workout.'"
+                :modelValue="workoutName"
+                confirmText="Save Name"
+                @confirm="(val) => { workoutName = val; showNameModal = false }"
+                @cancel="() => showNameModal = false"
+            />
+
+            <EditModal
+                v-if="showDescriptionModal"
+                :title="'Edit Workout Description'"
+                :message="'Please enter the new description.'"
+                :modelValue="workoutDescription"
+                confirmText="Save Description"
+                @confirm="(val) => { workoutDescription = val; showDescriptionModal = false }"
+                @cancel="() => showDescriptionModal = false"
             />
         </div>
     </div>

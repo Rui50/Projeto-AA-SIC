@@ -85,7 +85,7 @@
 
                 <!-- card with trainer info (if has one)-->
                 <div class="card" v-if="professor">
-                    <h2>Your Trainer</h2>
+                    <h2>Your Professor</h2>
                     <div class="trainer-info">
                         <div class="trainer-card">
                             <div class="trainer-image">

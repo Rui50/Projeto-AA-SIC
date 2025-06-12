@@ -1,40 +1,48 @@
 <script setup>
-    import { ref } from 'vue'
+import { ref, watch } from 'vue';
 
-    const emit = defineEmits(["create-workout", "cancel"]);
+const props = defineProps({
+    title: { type: String, required: true },
+    message: { type: String, required: true },
+    modelValue: { type: String, default: '' },
+    confirmText: { type: String, default: 'Confirm' }
+});
 
-    const workoutName = ref('')
+const emit = defineEmits(['confirm', 'cancel', 'update:modelValue']);
 
-    const createWorkout = () => {
-        if (workoutName.value.trim() === '') {
-            alert('Workout name cannot be empty')
-            return
-        }
-        emit('create-workout', workoutName.value)
-        workoutName.value = ''
+const inputValue = ref(props.modelValue);
+
+watch(() => props.modelValue, (newVal) => {
+    inputValue.value = newVal;
+});
+
+const confirm = () => {
+    if (inputValue.value.trim() === '') {
+        alert('Value cannot be empty');
+        return;
     }
+    emit('confirm', inputValue.value.trim());
+};
 
-    const onCancel = () => {
-        emit('cancel')
-        workoutName.value = ''
-    }
-
+const cancel = () => {
+    emit('cancel');
+};
 </script>
 
 <template>
-    <div class="popup-container" @click.self="onCancel">
+    <div class="popup-container" @click.self="cancel">
         <div class="popup-content">
-            <h2>Create New Workout</h2>
-            <p>What do you want to name this workout?</p>
-           <input
+            <h2>{{ title }}</h2>
+            <p>{{ message }}</p>
+            <input
                 type="text"
-                v-model="workoutName"
-                placeholder="Enter workout name"
+                v-model="inputValue"
                 class="workout-input"
+                placeholder="Enter text"
             />
             <div class="popup-actions">
-                <button @click="createWorkout" class="button create">Create</button>
-                <button @click="onCancel" class="button cancel">Cancel</button>
+                <button @click="confirm" class="button create">{{ confirmText }}</button>
+                <button @click="cancel" class="button cancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -43,11 +51,8 @@
 <style scoped>
     .popup-container {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.6); 
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -72,16 +77,14 @@
         font-size: 1.8rem;
         font-weight: 700;
         color: var(--accent-color);
-        margin-bottom: 0.5rem;
     }
 
     .popup-content p {
         font-size: 1rem;
         color: var(--text-dark-gray);
-        margin-bottom: 1rem;
     }
 
-    .popup-content input[type="text"] {
+    .workout-input {
         width: calc(100% - 2rem);
         padding: 1rem;
         border: 1px solid #ddd;
@@ -93,7 +96,7 @@
         margin: 0 auto;
     }
 
-    .popup-content input[type="text"]:focus {
+    .workout-input:focus {
         border-color: var(--accent-color);
         box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.2);
         outline: none;
@@ -103,7 +106,6 @@
         display: flex;
         justify-content: center;
         gap: 1rem;
-        margin-top: 1rem;
     }
 
     .button {
@@ -118,7 +120,7 @@
     }
 
     .button.cancel {
-        background-color: #C75450; 
+        background-color: #C75450;
     }
 
     .button.cancel:hover {
@@ -145,5 +147,4 @@
             transform: translateY(0);
         }
     }
-
 </style>

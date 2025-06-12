@@ -8,9 +8,11 @@
     import { useRouter } from 'vue-router'
     import { Icon } from "@iconify/vue";
     import axios from 'axios'
+    import { useToast } from 'vue-toastification'
     import { API_PATHS } from '@/api_paths'
     import CreateWorkoutPopup from '@/components/CreateWorkoutPopup.vue'    
     
+    const toast = useToast()
     const route = useRoute()
     const router = useRouter()
     const userStore = useUserStore();
@@ -50,6 +52,7 @@
             
             const createdWorkout = response.data;
             console.log('Workout created:', createdWorkout);
+            toast.success('Workout created successfully');
             workoutStore.addWorkoutPlan(createdWorkout);
             // await fetchWorkouts();
             router.push(`/workout/edit/${createdWorkout.id}`);

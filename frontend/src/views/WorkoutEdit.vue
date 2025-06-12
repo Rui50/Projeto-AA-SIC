@@ -179,43 +179,11 @@
         }
     }
 
-    /* const deleteWorkout = async () => {
-        if (!confirm('Are you sure you want to delete this workout?')) {
-            return;
-        }
-
-        if (isLoading.value) return;
-        isLoading.value = true;
-        errorMessage.value = '';
-
-        try {
-            await axios.delete(`${API_PATHS.WORKOUT_BY_ID}${workoutId.value}`, {
-                headers: {
-                    Authorization: `Bearer ${userStore.getToken}`
-                }
-            });
-            workoutStore.removeWorkoutPlan(workoutId.value);
-
-
-            console.log('Workout deleted successfully');
-            //alert('Workout deleted successfully!');
-            toast.success('Workout deleted successfully!');
-            hasChanges.value = false;
-            router.push('/workouts');
-        } catch (error) {
-            console.error('Error deleting workout:', error);
-            errorMessage.value = 'An error occurred while deleting the workout.';
-        } finally {
-            isLoading.value = false;
-        }
-    }; */
-
+    // delete workout
     const showDeleteConfirmationModal = ref(false);
-
     const deleteWorkout = () => {
         showDeleteConfirmationModal.value = true;
     };
-
     const confirmDelete = async () => {
         showDeleteConfirmationModal.value = false;
         if (isLoading.value) return;
@@ -241,11 +209,9 @@
             isLoading.value = false;
         }
     };
-
     const cancelDelete = () => {
         showDeleteConfirmationModal.value = false;
     };
-
 
     // fazer sempre que mudar o nome do workout guardar? ou so quando selecionar o guardar geral
     // ao passar o rato por cima de um dos dias talvez expandir o dia para dizer o texto completo

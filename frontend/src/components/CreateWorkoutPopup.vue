@@ -1,15 +1,18 @@
 <script setup>
     import { ref } from 'vue'
+    import { Icon } from '@iconify/vue'
 
     const emit = defineEmits(["create-workout", "cancel"]);
 
     const workoutName = ref('')
+    const errorMessage = ref('')
 
     const createWorkout = () => {
         if (workoutName.value.trim() === '') {
-            alert('Workout name cannot be empty')
+            errorMessage.value = 'Workout name cannot be empty'
             return
         }
+        errorMessage.value = ''
         emit('create-workout', workoutName.value)
         workoutName.value = ''
     }
@@ -17,8 +20,8 @@
     const onCancel = () => {
         emit('cancel')
         workoutName.value = ''
+        errorMessage.value = ''
     }
-
 </script>
 
 <template>
@@ -26,12 +29,17 @@
         <div class="popup-content">
             <h2>Create New Workout</h2>
             <p>What do you want to name this workout?</p>
-           <input
+            <input
                 type="text"
                 v-model="workoutName"
                 placeholder="Enter workout name"
                 class="workout-input"
+                @input="errorMessage = ''"
             />
+            <p v-if="errorMessage" class="error-message">
+                <Icon icon="mdi:alert-circle-outline" class="error-icon" />
+                <span class="error-text">{{ errorMessage }}</span>
+            </p>
             <div class="popup-actions">
                 <button @click="createWorkout" class="button create">Create</button>
                 <button @click="onCancel" class="button cancel">Cancel</button>
@@ -78,7 +86,6 @@
     .popup-content p {
         font-size: 1rem;
         color: var(--text-dark-gray);
-        margin-bottom: 1rem;
     }
 
     .popup-content input[type="text"] {
@@ -99,11 +106,31 @@
         outline: none;
     }
 
+    .error-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        margin: -0.5rem 0 0.5rem;
+        height: 1.2rem;
+        color: #C75450;
+    }
+
+    .error-icon {
+        color: #C75450;
+        width: 16px;
+        height: 16px;
+    }
+
+    .error-text {
+        color: #C75450;
+    }
+
     .popup-actions {
         display: flex;
         justify-content: center;
         gap: 1rem;
-        margin-top: 1rem;
     }
 
     .button {
@@ -145,5 +172,4 @@
             transform: translateY(0);
         }
     }
-
 </style>

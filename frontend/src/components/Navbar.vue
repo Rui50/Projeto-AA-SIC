@@ -127,12 +127,7 @@
             <router-link :to="item.link" class="navbar-link" @click="showMobileMenu = false">{{ item.name }}</router-link>
             </li>
         </ul>
-        
-        <ul class="navbar-items">
-            <li v-for="item in navbarItems" :key="item.name" class="navbar-item">
-                <router-link :to="item.link" class="navbar-link">{{ item.name }}</router-link>
-            </li>
-        </ul>
+    
 
         <div class="navbar-right">
             <div class="relative" ref="notificationBellRef">

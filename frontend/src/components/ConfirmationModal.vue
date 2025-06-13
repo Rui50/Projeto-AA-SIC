@@ -75,8 +75,8 @@ const computedCancelButtonHoverColor = computed(() => props.cancelButtonHoverCol
                     <p>{{ message }}</p>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-cancel" @click="cancel">{{ cancelButtonText }}</button>
                     <button class="btn-confirm" @click="confirm">{{ confirmButtonText }}</button>
+                    <button class="btn-cancel" @click="cancel">{{ cancelButtonText }}</button>
                 </div>
             </div>
         </div>

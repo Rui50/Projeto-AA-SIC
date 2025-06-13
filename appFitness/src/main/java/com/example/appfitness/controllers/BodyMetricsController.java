@@ -52,7 +52,6 @@ public class BodyMetricsController {
         bodyMetrics.setBodyFatPercentage(createDTO.getBodyFatPercentage());
         bodyMetrics.setUpdatedAt(LocalDateTime.now());
 
-        // para ja so aceitamos metric
         double bmi = calculateBMI(createDTO.getWeight(), createDTO.getHeight());
 
         bodyMetrics.setBmi(bmi);

@@ -17,27 +17,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/workout-executions")
 public class WorkoutExecutionController {
-    // processo de execução
-    
-    // user inicia workout e faz call a /start
-    // envia no body
-    /**{
-     "userId": 123,
-     "workoutPlanId": 456
-     }
-     */
-    // este controller recebe o startDTO eobtem o User e WORKOUTPLAN
-    // verifica se existem algum em progresso se nao tiver cria um objeto WorkoutExecution (cascade trata do resto?)
-    // Devolve resposta a frontend com o WorkoutExecutionResponseDTO
-            
-    // Parte de execução
-    // depois da resposta de start, da fetch ao woorkoutExecution e o ref desse é populado
-            // questão se fazemos post a cada set completado ou a cada exerci
-            
-            
-
-
-
     private WorkoutExecutionService workoutExecutionService;
     private UserService userService;
     private WorkoutPlanService workoutPlanService;
@@ -114,19 +93,6 @@ public class WorkoutExecutionController {
         }
     }
 
-    /*
-    @PostMapping("/start")
-    public ResponseEntity<WorkoutExecutionResponseDTO> startWorkout(@RequestBody WorkoutExecutionStartRequestDTO startDTO) {
-        try {
-
-            WorkoutExecution newWorkoutExec = workoutExecutionService.startWorkout(
-                    startDTO.getUserId(),
-                    startDTO.getWorkoutPlanId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(WorkoutExecutionResponseDTO.fromEntity(newWorkoutExec));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }*/
     @DeleteMapping("/{executionId}")
     public ResponseEntity<Void> deleteWorkoutExecution(@PathVariable Integer executionId) {
         try {

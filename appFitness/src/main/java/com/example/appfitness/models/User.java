@@ -31,7 +31,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private MetricType metricType;
 
-    // every user will have objects BodyMetrics so we can track progress
+    // objetos BodyMetrics to track progress
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BodyMetrics> bodyMetrics = new ArrayList<>();
 

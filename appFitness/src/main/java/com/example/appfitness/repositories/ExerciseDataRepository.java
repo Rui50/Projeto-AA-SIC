@@ -14,6 +14,8 @@ import java.util.Optional;
 
 @Repository
 public interface ExerciseDataRepository extends JpaRepository<ExerciseData, Integer> {
+
+    /*
     // devolve os exercise data de um workoutPlan
     @Query("SELECT ed FROM ExerciseData ed WHERE ed.workoutPlan.id = :workoutPlanId")
     List<ExerciseData> findByWorkoutPlanId(Integer workoutPlanId);
@@ -27,4 +29,5 @@ public interface ExerciseDataRepository extends JpaRepository<ExerciseData, Inte
     // Find all ExerciseData for a workout plan that are not deleted
     @Query("SELECT ed FROM ExerciseData ed WHERE ed.workoutPlan.id = :workoutPlanId AND ed.isDeleted = false ORDER BY ed.id")
     List<ExerciseData> findByWorkoutPlanIdAndNotDeleted(Integer workoutPlanId);
+     */
 }

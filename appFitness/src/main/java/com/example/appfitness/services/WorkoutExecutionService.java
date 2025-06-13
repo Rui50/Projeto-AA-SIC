@@ -131,8 +131,6 @@ public class WorkoutExecutionService {
         workoutExecutionRepository.deleteById(id);
     }
 
-    //    public Optional<WorkoutExecution> getWorkoutExecutionById(Integer id) {
-
     public WorkoutExecutionResponseDTO getWorkoutExecutionById(Integer id) {
         WorkoutExecution workoutExecution = workoutExecutionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("WorkoutExecution not found with id " + id));

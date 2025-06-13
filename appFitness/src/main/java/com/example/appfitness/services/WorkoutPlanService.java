@@ -308,10 +308,6 @@ public class WorkoutPlanService {
         return workoutPlanRepository.save(workoutPlan);
     }
 
-
-
-    // um metodo so de update ou metemos metodo para adicionar exericicio/remover etc
-
     @Transactional
     public ExerciseData addExerciseToWorkoutPlan(Integer workoutPlanId, Integer exerciseId, List<SetData> plannedSets, String note) {
         WorkoutPlan workoutPlan = workoutPlanRepository.findById(workoutPlanId)
@@ -331,7 +327,7 @@ public class WorkoutPlanService {
         }
 
         workoutPlan.getExercises().add(exerciseData);
-        workoutPlanRepository.save(workoutPlan); // cascade saves the rest?
+        workoutPlanRepository.save(workoutPlan);
 
         return exerciseDataRepository.save(exerciseData);
     }

@@ -11,6 +11,8 @@ import java.util.Optional;
 @Repository
 public interface ExerciseRepository extends JpaRepository<Exercise, Integer> {
 
+    /*
+
     // isto sao tudo filtros que provalmente serão feitos no frontend?
     @Query("SELECT e FROM Exercise e WHERE e.name = :name")
     Optional<Exercise> findByName(String name);
@@ -20,4 +22,6 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Integer> {
 
     @Query("SELECT e FROM Exercise e WHERE e.muscleGroup = :muscleGroup")
     List<Exercise> findByMuscleGroup(Exercise.MuscleGroup muscleGroup);
+
+     */
 }

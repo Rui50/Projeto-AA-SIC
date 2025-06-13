@@ -45,7 +45,7 @@ public class WorkoutPlanController {
         List<WorkoutPlan> workoutPlans = workoutPlanService.getWorkoutPlansByOwnerId(ownerId);
 
         List<WorkoutPlanResponseDTO> responseDTOs = workoutPlans.stream()
-                .map(workoutPlan -> workoutPlanService.toResponseDTOfix(workoutPlan)) // Use the instance method directly
+                .map(workoutPlan -> workoutPlanService.toResponseDTOfix(workoutPlan))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(responseDTOs);
@@ -58,8 +58,7 @@ public class WorkoutPlanController {
 
 
         Integer creatorId = Integer.valueOf(authService.getUserIdFromToken(token));
-        System.out.println("WorkoutPlanRequestDTO received: " + createDTO.toString()); // Add this line
-        System.out.println("Schedule Type from DTO: " + createDTO.getScheduleType()); // Add this line
+        System.out.println("WorkoutPlanRequestDTO: " + createDTO.toString());
 
         WorkoutPlan workoutPlan = new WorkoutPlan();
         workoutPlan.setName(createDTO.getName());
@@ -67,7 +66,6 @@ public class WorkoutPlanController {
         workoutPlan.setScheduleType(createDTO.getScheduleType());
         workoutPlan.setScheduledDays(createDTO.getScheduledDays());
 
-        // service handles the rest for now, if we need the create to already bring the exercises we should put all the logic here
         WorkoutPlan savedWorkoutPlan = workoutPlanService.createWorkoutPlan(workoutPlan, createDTO.getOwnerId(), creatorId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(workoutPlanService.toResponseDTOfix(savedWorkoutPlan));
@@ -119,7 +117,6 @@ public class WorkoutPlanController {
             WorkoutPlan activatedWorkout = workoutPlanService.updateWorkoutPlanActiveStatus(id, true);
             return ResponseEntity.ok(workoutPlanService.toResponseDTOfix(activatedWorkout));
         } catch (RuntimeException e) {
-            // e.g., WorkoutPlanNotFoundException
             return ResponseEntity.notFound().build();
         }
     }
@@ -130,7 +127,6 @@ public class WorkoutPlanController {
             WorkoutPlan deactivatedWorkout = workoutPlanService.updateWorkoutPlanActiveStatus(id, false);
             return ResponseEntity.ok(workoutPlanService.toResponseDTOfix(deactivatedWorkout));
         } catch (RuntimeException e) {
-            // e.g., WorkoutPlanNotFoundException
             return ResponseEntity.notFound().build();
         }
     }

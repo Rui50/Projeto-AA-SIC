@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface SetExecutionRepository extends JpaRepository<SetExecution, Integer> {
-
+    /*
     // obter os sets realizados de um exercicio realizado em ordem para nao ter de ordenar depois na frontend
     @Query("SELECT se FROM SetExecution se WHERE se.exerciseExecution.id = :exerciseExecutionId ORDER BY se.setNumber ASC")
     List<SetExecution> findByExerciseExecutionIdOrderBySetNumberAsc(Integer exerciseExecutionId);
@@ -22,6 +22,7 @@ public interface SetExecutionRepository extends JpaRepository<SetExecution, Inte
     @Query("SELECT se FROM SetExecution se WHERE se.exerciseExecution.id = :exerciseExecutionId AND se.setNumber = :setNumber")
     Optional<SetExecution> findByExerciseExecutionIdAndSetNumber(Integer exerciseExecutionId, Integer setNumber);
 
+     */
     // Query to sum total volume for a user within a certain range
     @Query("SELECT SUM(s.weightPerformed * s.repsPerformed) FROM SetExecution s JOIN s.exerciseExecution ee JOIN ee.workoutExecution we WHERE we.user.id = :userId AND we.status = :status AND we.startTime BETWEEN :startDate AND :endDate")
     Double calculateTotalVolumeForUserAndDateRange(

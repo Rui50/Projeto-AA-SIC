@@ -68,7 +68,8 @@ public class ProgressService {
             LocalDateTime bodyMetricsCompareStartDate = getStartDateTime(timePeriod);//.toLocalDate();
             LocalDateTime bodyMetricsCompareEndDate = LocalDateTime.now();
 
-            List<BodyMetrics> bmInSelectedPeriod = bodyMetricsRepository.findByUser_IdAndUpdatedAtBetweenOrderByUpdatedAtAsc(userId, bodyMetricsCompareStartDate, bodyMetricsCompareEndDate);
+            List<BodyMetrics> bmInSelectedPeriod = bodyMetricsRepository.findByUser_IdAndUpdatedAtBetweenOrderByUpdatedAtAsc(
+                    userId, bodyMetricsCompareStartDate, bodyMetricsCompareEndDate);
 
             if(bmInSelectedPeriod != null && bmInSelectedPeriod.size() >= 2 ) {
                 //double startWeight = closestBodyWeight.get().getWeight();

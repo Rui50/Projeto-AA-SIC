@@ -65,7 +65,6 @@ public class AlunoService {
     }
 
     public List<AlunoDTO> findAlunosWithoutProfessor() {
-       // return alunoRepository.findAlunosWithoutProfessor();
         return alunoRepository.findAlunosWithoutProfessor().stream()
                 .map(AlunoDTO::fromEntity)
                 .collect(Collectors.toList());
@@ -91,7 +90,6 @@ public class AlunoService {
         return alunoRepository.save(aluno);
     }
 
-    // resolver depois os problemas de seguraça, para já fica assim
     @Transactional
     public Aluno unassignProfessorFromAluno(Integer alunoId) {
         Aluno aluno = alunoRepository.findById(alunoId)

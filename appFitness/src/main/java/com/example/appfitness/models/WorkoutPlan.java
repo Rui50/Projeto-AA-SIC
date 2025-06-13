@@ -25,8 +25,6 @@ public class WorkoutPlan {
     private String name;
     private String description;
 
-    // nao deve ser preciso dados de quem criou mas apenas apresentar quem criou
-    // fazer isso fica para trabalho futuro
     private Integer createdBy;
     private LocalDate updatedAt;
 

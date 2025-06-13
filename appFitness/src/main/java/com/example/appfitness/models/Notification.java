@@ -38,7 +38,6 @@ public class Notification {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    // se usarmos
     public enum NotificationType {
         WORKOUT_CREATED,
         WORKOUT_UPDATE,

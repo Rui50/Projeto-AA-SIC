@@ -146,12 +146,10 @@ const removeStudent = (studentId, name) => {
 const confirmRemoveStudent = async () => {
     try {
         await axios.delete(API_PATHS.REMOVE_CLIENT(studentIdToRemove.value), {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-            }
+            withCredentials: true,
         });
         students.value = students.value.filter(s => s.id !== studentIdToRemove.value);
-        toast.success(`Student ${studentIdToRemove.value} removed successfully!`);
+        toast.success(`Student removed successfully!`);
     } catch (err) {
         console.error("Error removing student:", err);
         toast.error("Failed to remove student. Please try again.");

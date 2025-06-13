@@ -57,7 +57,7 @@
 
             allWorkouts.value = response.data.workoutExecutions.map(workout => {
                 const startTime = new Date(workout.startTime).getTime();
-                const endTime = new Date(workout.endTime).getTime();
+                const endTime = workout.endTime ? new Date(workout.endTime).getTime() : Date.now(); // Date.now() para o caso em que o treino está a decorrer
                 const durationMS = endTime - startTime;
 
                 const numExercises = workout.exerciseExecutions ? workout.exerciseExecutions.length : 0;
@@ -374,6 +374,11 @@ th:last-child, td:last-child {
 .status-badge.cancelled {
     background-color: #ffebee;
     color: #f44336;
+}
+
+.status-badge.in_progress {
+    background-color: #e3f2fd;
+    color: #2196F3;
 }
 
 .details-button {

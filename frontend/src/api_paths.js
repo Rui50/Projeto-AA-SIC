@@ -1,6 +1,6 @@
 import WeeklySchedule from "./components/WeeklySchedule.vue";
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = 'https://api.sic-aa-fitness.xyz';
 
 export const API_PATHS = {
     // auth related paths

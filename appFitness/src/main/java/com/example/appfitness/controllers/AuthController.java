@@ -4,11 +4,11 @@ import com.example.appfitness.auth.AuthService;
 import com.example.appfitness.models.Aluno;
 import com.example.appfitness.models.User;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Arrays;
@@ -19,6 +19,9 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
+
+    @Value("${app.domain}")
+    private String appDomain;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -43,8 +46,12 @@ public class AuthController {
 
             String role = authService.getRoleFromToken(token);
 
-            Cookie cookie = authService.generateCookie(user.getEmail(), user.getPassword());
-            response.addCookie(cookie);
+            // Set cookie manually so SameSite is applied
+            String cookieValue = String.format(
+                "token=%s; Path=/; HttpOnly; Secure; SameSite=None; Domain=%s",
+                token, appDomain // Make sure appDomain does NOT have protocol or trailing /
+            );
+            response.addHeader("Set-Cookie", cookieValue);
 
             String name = authService.extractName(token);
             String email = authService.extractEmail(token);
@@ -58,14 +65,11 @@ public class AuthController {
             responseData.put("metricType", authService.extractMetricType(token));
             responseData.put("message", "Login successful! (" + user.getEmail() + ")");
 
-
-            // talvez mais tarde, metricType
-
-            return ResponseEntity.ok().body(responseData);//body("{\"token\": \"" + token + "\"}");
-        } catch (RuntimeException e) { //* user não existe ou password errada
+            return ResponseEntity.ok().body(responseData);
+        } catch (RuntimeException e) {
             Map<String, String> error = Map.of("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
-        } catch (Exception e) { //* outros erros
+        } catch (Exception e) {
             Map<String, String> error = Map.of("message", Arrays.toString(e.getStackTrace()));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
@@ -74,8 +78,11 @@ public class AuthController {
     // Logout endpoint (deletes cookie)
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-        Cookie cookie = authService.deleteCookie();
-        response.addCookie(cookie);
+        String cookieValue = String.format(
+            "token=; Path=/; HttpOnly; Secure; SameSite=None; Domain=%s; Max-Age=0",
+            appDomain
+        );
+        response.addHeader("Set-Cookie", cookieValue);
         return ResponseEntity.ok().body("Logged out successfully");
     }
 }

@@ -1,0 +1,20 @@
+runtime: nodejs20
+
+handlers:
+  # Serve static files (JS, CSS, images, fonts, etc.)
+  - url: /(.*\.(js|css|png|jpg|ico|svg|woff2?))$
+    static_files: dist/\1
+    upload: dist/(.*)
+    secure: always
+    http_headers:
+      Access-Control-Allow-Origin: "*"
+      Cache-Control: "public, max-age=3600"
+
+  # Catch-all: serve index.html for all other requests (SPA routing)
+  - url: /.*
+    static_files: dist/index.html
+    upload: dist/index.html
+    secure: always
+    http_headers:
+      Access-Control-Allow-Origin: "*"
+      Cache-Control: "public, max-age=3600"

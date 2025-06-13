@@ -85,6 +85,7 @@
                     :key="index"
                     :class="{ 'active': day.selected }"
                     @click="day.selected = !day.selected"
+                    :title="day.full.charAt(0) + day.full.slice(1).toLowerCase()"
                 >
                     <div class="days">{{ day.name }}</div>
                 </div>

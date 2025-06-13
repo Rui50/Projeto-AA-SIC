@@ -7,6 +7,7 @@ import { useUserStore } from '../stores/userStore';
 import { Icon } from '@iconify/vue';
 import AddClientModal from '@/components/AddClientModal.vue';
 import NotifyClient from '@/components/NotifyClient.vue';
+import ConfirmationModal from '@/components/ConfirmationModal.vue';
 
 import { useToast } from 'vue-toastification'
 
@@ -131,20 +132,32 @@ const notifyStudent = async (studentId) => {
     }*/
 };
 
-const removeStudent = async (studentId) => {
-    if (confirm(`Are you sure you want to remove student ${studentId}? This cannot be undone.`)) {
-        try {
-            await axios.delete(API_PATHS.REMOVE_CLIENT(studentId), {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            students.value = students.value.filter(s => s.id !== studentId);
-            alert(`Student ${studentId} removed successfully!`);
-        } catch (err) {
-            console.error("Error removing student:", err);
-            error.value = "Failed to remove student. Please try again.";
-        }
+const confirmModalState = ref(false);
+const studentIdToRemove = ref(null);
+const studentNameToRemove = ref('');
+
+const removeStudent = (studentId, name) => {
+    console.log("Remove student:", studentId, name);
+    studentIdToRemove.value = studentId;
+    studentNameToRemove.value = name;
+    confirmModalState.value = true;
+};
+
+const confirmRemoveStudent = async () => {
+    try {
+        await axios.delete(API_PATHS.REMOVE_CLIENT(studentIdToRemove.value), {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+        students.value = students.value.filter(s => s.id !== studentIdToRemove.value);
+        toast.success(`Student ${studentIdToRemove.value} removed successfully!`);
+    } catch (err) {
+        console.error("Error removing student:", err);
+        toast.error("Failed to remove student. Please try again.");
+    } finally {
+        confirmModalState.value = false;
+        studentIdToRemove.value = null;
     }
 };
 
@@ -262,7 +275,7 @@ const closeNotifyModal = () => {
                             <td class="actions">
                                 <button @click="viewInfo(student.id)" class="action-button view-info">View Info</button>
                                 <button @click="notifyStudent(student.id)" class="action-button notify">Notify</button>
-                                <button @click="removeStudent(student.id)" class="action-button delete">Remove</button>
+                                <button @click="removeStudent(student.id, student.name)" class="action-button delete">Remove</button>
                             </td>
                         </tr>
                     </tbody>
@@ -278,6 +291,18 @@ const closeNotifyModal = () => {
             :studentId="selectedStudentId"
             @close="closeNotifyModal"
             @notification-sent="closeNotifyModal"
+        />
+        <ConfirmationModal 
+            :show="confirmModalState" 
+            title="Confirm Removal"
+            :message="`Are you sure you want to remove student ${studentNameToRemove}?`"
+            confirmButtonText="Remove"
+            cancelButtonText="Cancel"
+            confirmButtonColor="#DC143C"
+            confirmButtonHoverColor="#B22222"
+            @confirm="confirmRemoveStudent"
+            @cancel="() => { confirmModalState = false; studentIdToRemove = null; studentNameToRemove = ''; }"
+            @close="() => { confirmModalState = false; studentIdToRemove = null; studentNameToRemove = ''; }"
         />
     </div>
 </template>

@@ -37,7 +37,7 @@
                 if (set.weight && isImperial.value) {
                     set.weight = convertMetricToImperial(set.weight);
                 }
-                set.weight = set.weight.toFixed(2);
+                set.weight = Number(set.weight).toFixed(2);
             }
         }
     }, { deep: true });

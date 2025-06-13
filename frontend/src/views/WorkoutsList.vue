@@ -249,20 +249,6 @@
         border-radius: 7px;
         cursor: pointer;
         font-size: 1rem;
-
-        /*  color: white;
-        border: none;
-        padding: 0.7rem 1.4rem;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: background-color 0.2s ease, transform 0.1s ease;
-        box-shadow: 0 2px 5px rgba(67, 97, 238, 0.3);
-*/
     }
 
     .new-workout-btn:hover {

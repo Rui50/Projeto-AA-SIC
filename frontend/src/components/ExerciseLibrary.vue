@@ -21,7 +21,6 @@
     const selectedMuscleGroup = ref('')
     const selectedType = ref('')
 
-    // state for the api calls
     const exercisesList = ref([])
     const isLoading = ref(true)
 
@@ -65,7 +64,7 @@
             searchText.value = '';
             selectedMuscleGroup.value = '';
             selectedType.value = '';
-            // if it fails we have some "fallback"
+            // if it fails
             if (workoutStore.getExerciseLibrary.length === 0) {
                 fetchExercises();
             }

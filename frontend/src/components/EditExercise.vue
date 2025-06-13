@@ -50,7 +50,7 @@
 
     const addSet = () => {
         const newSet = {
-            // id: null, // If backend assigns IDs to sets, might be useful for new sets
+            // id: null,
             setNumber: exercise.value.plannedSets.length + 1,
             reps: 1,
             weight: 0,

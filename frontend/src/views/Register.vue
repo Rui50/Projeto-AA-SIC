@@ -12,13 +12,6 @@
 
     const toast = useToast()
 
-    /**
-     * TODO
-     * 
-     * fix confirm password- passwords dont match
-     * loading enquanto se regista
-     */
-
     const router = useRouter()
     const username = ref('')
     const email = ref('')

@@ -87,11 +87,11 @@ const router = createRouter({
         }
       ],
     },
-    // {
-    //   path: '/:catchAll(.*)',
-    //   name: 'not-found',
-    //   component: () => import('../views/NotFoundView.vue'),
-    // },
+    {
+      path: '/:catchAll(.*)',
+      name: 'not-found',
+      component: () => import('../views/NotFound.vue'),
+    },
   ],
 })
 import { useUserStore } from '../stores/userStore'

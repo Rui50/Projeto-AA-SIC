@@ -123,13 +123,6 @@ const viewInfo = (studentId) => {
 const notifyStudent = async (studentId) => {
     console.log("Notify student:", studentId);
     openNotifyModal(studentId);
-    /*try {
-        // still need the logic 
-        alert(`Notification sent to student ${studentId}! (Simulated)`);
-    } catch (err) {
-        console.error("Error sending notification:", err);
-        alert("Failed to send notification.");
-    }*/
 };
 
 const confirmModalState = ref(false);

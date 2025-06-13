@@ -67,7 +67,6 @@ function getWeekDays() {
     d.setDate(monday.getDate() + i);
     const short = dayShorts[i];
     const fullName = dayFullNames[i];
-    // Usa a chave minúscula para garantir que encontra!
     const key = fullName.toLowerCase();
     week.push({
       date: d.getDate(),
@@ -89,7 +88,6 @@ watch(events, () => {
   weekDays.value = getWeekDays();
 });
 
-// Busca eventos ao montar
 onMounted(async () => {
   try {
     const res = await axios.get(API_PATHS.WeeklySchedule, {

@@ -123,7 +123,7 @@
         // prepare exercices DTO
         const exercisesToSend = exercises.value.map(ex => ({
             exerciseDataId: ex.id, //|| null, // if id is null, it means it's a new exercise
-            exerciseId: ex.exercise.id, // actual exercise id
+            exerciseId: ex.exercise.id,
             note: ex.note || '',
 
             // map the sets to the DTO format
@@ -213,9 +213,6 @@
         showDeleteConfirmationModal.value = false;
     };
 
-    // fazer sempre que mudar o nome do workout guardar? ou so quando selecionar o guardar geral
-    // ao passar o rato por cima de um dos dias talvez expandir o dia para dizer o texto completo
-    // fazer as box shadows "mais fortes"
     onMounted(async () => {
         workoutId.value = route.params.id;
 

@@ -101,6 +101,11 @@
                 showNotifications.value = false;
             }
         });
+        document.addEventListener('click', (e) => {
+            if (userDropdownRef.value && !userDropdownRef.value.contains(e.target)) {
+                showUserDropdown.value = false;
+            }
+        });
     });
 
     // to make navbar responsive
@@ -108,6 +113,9 @@
     const toggleMobileMenu = () => {
         showMobileMenu.value = !showMobileMenu.value;
     };
+
+    const showUserDropdown = ref(false);
+    const userDropdownRef = ref(null);
 
 </script>
 
@@ -162,13 +170,23 @@
                 </div>
             </div>
 
-            <div class="user-avatar">
-                <img :src="userStore.getImage || 'https://doodleipsum.com/200/avatar-2?n=1'" alt="Profile Image" class="profile-image" />
+            <div class="user-menu" ref="userDropdownRef">
+                <div class="user-trigger" @click="showUserDropdown = !showUserDropdown">
+                    <div class="user-avatar">
+                        <img :src="userStore.getImage || 'https://doodleipsum.com/200/avatar-2?n=1'" alt="Profile Image" class="profile-image" />
+                    </div>
+                    <span class="username">{{ displayUsername }}</span>
+                </div>
+
+                <div v-if="showUserDropdown" class="user-dropdown">
+                    <button class="dropdown-item" @click="logout">
+                        <Icon class="icon" icon="material-symbols-light:logout" width="20" height="20" />
+                        <span>Logout</span>
+                    </button>
+                </div>
             </div>
-            <span class="username">{{ displayUsername }}</span>
         </div>
     </nav>
-
 </template>
 
 
@@ -409,6 +427,82 @@
         padding: 0.5rem;
         margin-left: 1rem;
     }
+
+     .user-menu {
+        position: relative; 
+        display: flex; 
+        align-items: center;
+    }
+
+    .user-trigger {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        padding: 0.3rem 0.6rem;
+        border-radius: 0.5rem;
+        transition: background-color 0.2s ease;
+    }
+
+    .user-trigger:hover {
+        background-color: #f0f0f0;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #e2e2e2;
+        overflow: hidden;
+        flex-shrink: 0; 
+    }
+
+    .profile-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .username {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #000000;
+    }
+
+    .user-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        background-color: white;
+        border: 1px solid #e2e2e2;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        min-width: 160px; 
+        z-index: 1001; 
+        transform-origin: top right;
+        animation: fadeInScale 0.2s ease-out; 
+    }
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem; 
+        width: 100%;
+        padding: 0.75rem 0.75rem;
+        background: none;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+        color: #333;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f0f0f0;
+    }
+
 
     @media (max-width: 768px) {
         .mobile {

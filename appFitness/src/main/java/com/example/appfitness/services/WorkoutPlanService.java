@@ -72,7 +72,7 @@ public class WorkoutPlanService {
         workoutPlan.setExercises(new ArrayList<>());
         workoutPlan.setUpdatedAt(LocalDate.now());
 
-        if (ownerId != creatorId){
+        if (!ownerId.equals(creatorId)){
             User user = userRepository.findById(creatorId).get();
             String message = String.format("The workout plan '%s' has been assigned to you by your professor '%s'.", workoutPlan.getName() ,user.getName());
 

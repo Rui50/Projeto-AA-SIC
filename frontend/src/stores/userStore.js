@@ -4,8 +4,19 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import axios from 'axios';
 import { API_PATHS } from '../api_paths';
+import { useWorkoutStore } from './workoutStore';
+import { useWorkoutExecutionStore } from './workoutExecutionStore';
+
 
 export const useUserStore = defineStore('user', () => {
+
+    // Resetting other stores when user logs out
+    const workoutStore = useWorkoutStore();
+    const workoutExecutionStore = useWorkoutExecutionStore();
+    const resetStores = () => {
+        workoutStore.resetStore();
+        workoutExecutionStore.resetStore();
+    };
 
     const id = ref(localStorage.getItem('user_id') || null);
     const name = ref(localStorage.getItem('name') || null);
@@ -73,6 +84,8 @@ export const useUserStore = defineStore('user', () => {
         localStorage.removeItem('email');
         localStorage.removeItem('metric_type');
         localStorage.removeItem('user_role');
+
+        resetStores();
 
         try {
             axios.post(API_PATHS.logout)

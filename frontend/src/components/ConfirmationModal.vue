@@ -56,7 +56,7 @@ const close = () => {
     emit('close');
 };
 
-// Computed properties to ensure valid color values
+
 const computedConfirmButtonColor = computed(() => props.confirmButtonColor || '#28a745');
 const computedConfirmButtonHoverColor = computed(() => props.confirmButtonHoverColor || '#218838');
 const computedCancelButtonColor = computed(() => props.cancelButtonColor || '#C75450');

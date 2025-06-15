@@ -23,7 +23,7 @@ public class ExerciseData {
     @ToString.Exclude
     private Exercise exercise;
 
-    @OneToMany(mappedBy = "exerciseData", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "exerciseData", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @ToString.Exclude
     private List<SetData> plannedSets = new ArrayList<>();
 

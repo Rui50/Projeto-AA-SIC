@@ -40,7 +40,7 @@ public class WorkoutPlan {
     @ToString.Exclude
     private User owner;
 
-    @OneToMany(mappedBy = "workoutPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "workoutPlan", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @ToString.Exclude
     private List<ExerciseData> exercises = new ArrayList<>();
 
